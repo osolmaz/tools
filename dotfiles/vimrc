@@ -32,6 +32,7 @@ set modeline
 set nu " line numbers
 "set ic " case insensitive
 set wildmenu
+set wildmode=list:longest
 scriptencoding utf-8
 set encoding=utf-8
 set hlsearch
