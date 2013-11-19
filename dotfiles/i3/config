@@ -167,7 +167,8 @@ bar {
 
 # LOL
 bindsym $mod+Shift+b exec doublecmd
-bindsym $mod+b exec caja --no-desktop
+bindsym $mod+b exec pcmanfm -n ~/Downloads/
+#bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
 bindsym Control+Shift+$mod+k exec systemctl poweroff
 hide_edge_borders vertical

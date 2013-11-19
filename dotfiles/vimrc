@@ -1,4 +1,18 @@
-version 6.0
+" My Delicious Vim Config
+" a.k.a. Mechanician's Humble Vim Config
+" nrs
+"
+" The plugins require git and vundle
+" 
+" First time installation guide:
+"
+" 0. Copy this file to your ~/.vimrc
+" 1. Make sure git is installed.
+" 2. $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+" 2. Run :BundleInstall to install all the bundles.
+" 3. Profit.
+"
+
 if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
@@ -18,8 +32,6 @@ set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.i
 set termencoding=utf-8
 set window=45
 " vim: set ft=vim :
-"colorscheme koehler
-colorscheme forthran
 set shortmess+=I
 
 syntax on
@@ -136,8 +148,6 @@ noremap ;; ;
 
 highlight Cursor guifg=black guibg=white
 
-
-
 "Reload .vimrc
 
 autocmd! bufwritepost .vimrc source %
@@ -145,18 +155,9 @@ command! Rso :source ~/.vimrc
 "command Pyrun execute "!python %"
 "command! Wrap :set tw=50 | :normal gggqG
 
-
-
-
 "Insert newline
 "map <S-Enter> O<Esc>j
 "map <CR> o<Esc>k
-
-call pathogen#infect()
-call pathogen#infect('bundle/*')
-
-"Nerdtree>
-map <F12> :NERDTreeToggle<cr>
 
 " easier moving of code blocks
 vnoremap <  <gv 
@@ -202,4 +203,51 @@ set grepprg=grep\ -nH\ $*
 let g:tex_flavor = "latex"
 
 "set runtimepath=~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after
+
+"VUNDLE XOXO
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle
+" required! 
+Bundle 'gmarik/vundle'
+
+" My bundles here:
+"
+" original repos on GitHub
+Bundle 'nrs/vim-forthran'
+Bundle 'scrooloose/nerdcommenter'
+Bundle 'scrooloose/nerdtree'
+Bundle 'scrooloose/syntastic'
+Bundle 'Shougo/neocomplete.vim'
+Bundle 'msanders/snipmate.vim'
+Bundle 'jcf/vim-latex'
+Bundle 'kien/ctrlp.vim'
+
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-ragtag'
+Bundle 'tpope/vim-surround'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Bundle 'tpope/vim-rails.git'
+"
+" vim-scripts repos
+" Bundle 'L9'
+" Bundle 'FuzzyFinder'
+
+"
+" Brief help
+" :BundleList          - list configured bundles
+" :BundleInstall(!)    - install (update) bundles
+" :BundleSearch(!) foo - search (or refresh cache first) for foo
+" :BundleClean(!)      - confirm (or auto-approve) removal of unused bundles
+
+"colorscheme koehler
+colorscheme forthran
+
+"call pathogen#infect()
+"call pathogen#infect('bundle/*')
+
+"Nerdtree>
+map <F12> :NERDTreeToggle<cr>
 

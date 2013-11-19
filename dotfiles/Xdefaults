@@ -1,0 +1,103 @@
+! xrdb -load ~/.Xdefaults
+! Xft settings ---------------------------------------------------------------
+
+Xft.dpi:        96
+Xft.antialias:  true
+Xft.rgba:       rgb
+Xft.hinting:    true
+Xft.hintstyle:  hintslight
+Xft.lcdfilter:  lcddefault
+
+! xscreensaver ---------------------------------------------------------------
+
+!font settings
+xscreensaver.Dialog.headingFont:        -*-dina-bold-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.Dialog.bodyFont:           -*-dina-medium-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.Dialog.labelFont:          -*-dina-medium-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.Dialog.unameFont:          -*-dina-medium-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.Dialog.buttonFont:         -*-dina-bold-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.Dialog.dateFont:           -*-dina-medium-r-*-*-10-*-*-*-*-*-*-*
+xscreensaver.passwd.passwdFont:         -*-dina-bold-r-*-*-10-*-*-*-*-*-*-*
+!general dialog box (affects main hostname, username, password text)
+xscreensaver.Dialog.foreground:         #EDEDED
+xscreensaver.Dialog.background:         #202020
+xscreensaver.Dialog.topShadowColor:     #202024
+xscreensaver.Dialog.bottomShadowColor:  #202024
+xscreensaver.Dialog.Button.foreground:  #EDEDFF
+xscreensaver.Dialog.Button.background:  #444
+!username/password input box and date text colour
+xscreensaver.Dialog.text.foreground:    #EDEDFF
+xscreensaver.Dialog.text.background:    #444
+xscreensaver.Dialog.internalBorderWidth:24
+xscreensaver.Dialog.borderWidth:        20
+xscreensaver.Dialog.shadowThickness:    2
+!timeout bar (background is actually determined by Dialog.text.background)
+xscreensaver.passwd.thermometer.foreground:  #A9B7C4
+xscreensaver.passwd.thermometer.background:  #202020
+xscreensaver.passwd.thermometer.width:       8
+!datestamp format--see the strftime(3) manual page for details
+xscreensaver.dateFormat:    %I:%M%P %a %b %d, %Y
+
+
+!------------------------------------------------------------------------------
+! c o l o r -  s e t t i n g s
+
+!*background: #000000 
+URxvt*background: Black
+URxvt*foreground: #00BB00
+! #000000
+! #777777
+!1965C5
+! Default
+! 0: black
+URxvt*color0:  #222222
+URxvt*color8:  #222222
+! 1: red
+!URxvt*color1:  #9f6767
+!URxvt*color9:  #9f6767
+! 2: green
+URxvt*color2:  #92ac68
+URxvt*color10: #92ac68
+! 3: yellow
+URxvt*color3:  #d0d293
+URxvt*color11: #d0d293
+! 4: blue
+!URxvt*color4:  #9aacc3
+!URxvt*color12: #9aacc3
+URxvt*color4:  #1965c5
+URxvt*color12: #1965c5
+! 5: magenta
+URxvt*color5:  #bb77a4
+URxvt*color13: #bb77a4
+! 6: cyan
+URxvt*color6:  #77bbb5
+URxvt*color14: #77bbb5
+!! 7: white
+!URxvt*color7:  #777777
+!URxvt*color15: #777777
+URxvt*color7:  #DDDDDD
+URxvt*color15: #DDDDDD
+
+!------------------------------------------------------------------------------
+! u r x v t
+
+!URxvt*geometry:         112x22  
+!URxvt*font:             xft:terminus:size=8
+!urxvt*font:             xft:Bitstream Vera Sans Mono:pixelsize=12
+!urxvt*font:             xft:Fixed:pixelsize=14:antialias=true:hinting=true
+urxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
+URxvt*urlLauncher:      firefox  
+URxvt*scrollBar:        true
+URxvt*scrollBar_right:  true
+!URxvt*scrollColor:      #000000
+URxvt*letterSpace:      -2
+
+!URxvt.perl-ext-common: clipboard
+!URxvt.keysym.Mod4-c: perl:clipboard:copy
+!URxvt.keysym.Mod4-o: perl:clipboard:paste
+
+
+URxvt.perl-ext-common: clipboard
+URxvt.keysym.M-C-c: perl:clipboard:copy
+URxvt.keysym.M-C-v: perl:clipboard:paste
+URxvt.keysym.M-C-Mod4-v: perl:clipboard:paste_escaped
