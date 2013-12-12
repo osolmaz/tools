@@ -38,10 +38,6 @@ syntax on
 filetype indent plugin on
 set modeline
 
-"set tabstop=8
-"set expandtab
-"set softtabstop=4
-"set shiftwidth=4
 set nu " line numbers
 "set ic " case insensitive
 set wildmenu
@@ -73,16 +69,13 @@ set ruler
 " Always display the status line, even if only one window is displayed
 set laststatus=2
 
-
-"Status line colors
-
+" Status line colors
 hi StatusLine ctermfg=white  ctermbg=red cterm=bold 
 
-"set statusline=%<%f%m\ \[%{&ff}:%{&fenc}:%Y]\ %{getcwd()}\ \ \[%{strftime('%Y/%b/%d\ %a\ %I:%M\ %p')}\]\ %=\ Line:%l\/%L\ Column:%c%V\ %P
-
+" set statusline=%<%f%m\ \[%{&ff}:%{&fenc}:%Y]\ %{getcwd()}\ \ \[%{strftime('%Y/%b/%d\ %a\ %I:%M\ %p')}\]\ %=\ Line:%l\/%L\ Column:%c%V\ %P
 
 set statusline=\ %f%m%r%h%w\ %{getcwd()}\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
-"set statusline=\ %f%m%r%h%w\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
+" set statusline=\ %f%m%r%h%w\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
 
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
@@ -104,7 +97,7 @@ set pastetoggle=<F11>
 "set clipboard=unnamed
 
 "------------------------------------------------------------
-" Indentation options {{{1
+" Indentation options
 "
 " Indentation settings according to personal preference.
 
@@ -121,9 +114,8 @@ au FileType python setlocal tabstop=8 expandtab shiftwidth=4 softtabstop=4
 "set shiftwidth=2
 "set tabstop=2
 
-
 "------------------------------------------------------------
-" Mappings {{{1
+" Mappings
 "
 " Useful mappings
 
@@ -144,7 +136,6 @@ map <C-S-Tab> :bprevious<cr>
 " Map semicolon to colon for convenience
 map ; :
 noremap ;; ;
-
 
 highlight Cursor guifg=black guibg=white
 
@@ -193,6 +184,11 @@ nmap <F2> :update<CR>
 vmap <F2> <Esc><F2>gv
 imap <F2> <c-o><F2>
 
+map <C-J> <C-W>j<C-W>_
+map <C-K> <C-W>k<C-W>_
+map <C-L> <C-W>l<C-W>_
+map <C-H> <C-W>h<C-W>_
+
 au BufNewfile,BufRead *.ll set filetype=lex
 
 "set guioptions-=m  "remove menu bar
@@ -203,6 +199,13 @@ set grepprg=grep\ -nH\ $*
 let g:tex_flavor = "latex"
 
 "set runtimepath=~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after
+
+set backup " Backups are nice ...
+if has('persistent_undo')
+  set undofile " So is persistent undo ...
+  set undolevels=1000 " Maximum number of changes that can be undone
+  set undoreload=10000 " Maximum number lines to save for undo on a buffer reload
+endif
 
 "VUNDLE XOXO
 set rtp+=~/.vim/bundle/vundle/
@@ -223,6 +226,7 @@ Bundle 'Shougo/neocomplete.vim'
 Bundle 'msanders/snipmate.vim'
 Bundle 'jcf/vim-latex'
 Bundle 'kien/ctrlp.vim'
+"Bundle 'bling/vim-airline'
 
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-ragtag'

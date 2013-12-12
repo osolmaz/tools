@@ -27,6 +27,8 @@ bindsym $mod+z kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec dmenu_run
+#bindsym $mod+d exec j4-dmenu-desktop 
+
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
@@ -72,6 +74,8 @@ bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
+#workspace_layout tabbed
+
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
 
@@ -93,7 +97,7 @@ bindsym $mod+5 workspace 5
 bindsym $mod+6 workspace 6
 bindsym $mod+7 workspace 7
 bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
+bindsym $mod+9 workspace 9: dt
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
@@ -105,7 +109,7 @@ bindsym $mod+Shift+5 move container to workspace 5
 bindsym $mod+Shift+6 move container to workspace 6
 bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+9 move container to workspace 9: dt
 bindsym $mod+Shift+0 move container to workspace 10
 
 # reload the configuration file
@@ -170,16 +174,21 @@ bindsym $mod+Shift+b exec doublecmd
 bindsym $mod+b exec pcmanfm -n ~/Downloads/
 #bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
+bindsym $mod+Shift+v exec vlc&
 bindsym Control+Shift+$mod+k exec systemctl poweroff
 hide_edge_borders vertical
 
 exec mate-power-manager
 exec nm-applet
 exec mate-volume-control-applet
+exec /usr/lib/mate-settings-daemon/mate-settings-daemon
 exec dropboxd
 exec tilda --hidden
 exec urxvtd
 exec dropboxd
+exec conky
+exec pcmanfm --desktop
+#exec feh --bg-scale /home/onur/Desktop/arstotzka_wp_1366x768.png
 
 bindsym $mod+p workspace prev
 bindsym $mod+n workspace next
@@ -192,7 +201,6 @@ workspace_auto_back_and_forth yes
 for_window [class="Tilda"] floating enable
 for_window [class="Gnuplot"] floating enable
 
-exec feh --bg-scale /home/onur/Desktop/arstotzka_wp_1366x768.png
 
 # class border backgr. text indicator
 client.focused #859900 #859900 #fdf6e3 #2e9ef4
@@ -201,3 +209,4 @@ client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
+assign [class="Pcmanfm" title="pcmanfm"] 9: dt
