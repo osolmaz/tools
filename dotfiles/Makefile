@@ -9,6 +9,7 @@ copy:
 	cp -f ~/.i3/config i3/
 	cp -f ~/.Xdefaults Xdefaults
 	cp -f ~/.bashrc bashrc
+	cp -f ~/.zshrc zshrc
 	cp -f ~/.conkyrc conkyrc
 	cp -f ~/.xinitrc xinitrc
 
@@ -19,6 +20,7 @@ install:
 	cp i3/config ~/.i3/config
 	cp -f Xdefaults ~/.Xdefaults
 	cp -f bashrc ~/.bashrc
+	cp -f zshrc ~/.zshrc
 	cp -f conkyrc ~/.conkyrc
 
 urxvt-perl:

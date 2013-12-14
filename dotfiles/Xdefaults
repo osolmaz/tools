@@ -97,6 +97,7 @@ URxvt*letterSpace:      -2
 !URxvt.keysym.Mod4-o: perl:clipboard:paste
 
 
+!Bindings for copying and pasting
 URxvt.perl-ext-common: clipboard
 URxvt.keysym.M-C-c: perl:clipboard:copy
 URxvt.keysym.M-C-v: perl:clipboard:paste

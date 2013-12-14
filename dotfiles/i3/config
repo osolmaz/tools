@@ -169,15 +169,18 @@ bar {
     #}
 }
 
-# LOL
+# Bindings for programs
 bindsym $mod+Shift+b exec doublecmd
 bindsym $mod+b exec pcmanfm -n ~/Downloads/
 #bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
 bindsym $mod+Shift+v exec vlc&
 bindsym Control+Shift+$mod+k exec systemctl poweroff
+
+# Gonna save some screen space
 hide_edge_borders vertical
 
+# Startup programs
 exec mate-power-manager
 exec nm-applet
 exec mate-volume-control-applet
@@ -188,16 +191,18 @@ exec urxvtd
 exec dropboxd
 exec conky
 exec pcmanfm --desktop
-#exec feh --bg-scale /home/onur/Desktop/arstotzka_wp_1366x768.png
+#exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 
+# Bind emacs like shortcuts for previous and next workspaces
 bindsym $mod+p workspace prev
 bindsym $mod+n workspace next
-
 bindsym $mod+Shift+p move container to workspace prev; workspace prev
 bindsym $mod+Shift+n move container to workspace next; workspace next
 
+# Nice functionality, thanks i3
 workspace_auto_back_and_forth yes
 
+# Some windows just need to float
 for_window [class="Tilda"] floating enable
 for_window [class="Gnuplot"] floating enable
 
@@ -207,6 +212,7 @@ client.focused #859900 #859900 #fdf6e3 #2e9ef4
 client.focused_inactive #268bd2 #268bd2 #fdf6e3 #484e50
 client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
+# Assign classes to some programs so they get automatically segregated
 assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
 assign [class="Pcmanfm" title="pcmanfm"] 9: dt

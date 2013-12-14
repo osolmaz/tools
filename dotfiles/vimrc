@@ -154,8 +154,6 @@ command! Rso :source ~/.vimrc
 vnoremap <  <gv 
 vnoremap >  >gv
 
-"python from powerline.bindings.vim import source_plugin; source_plugin()
-
 " Mappings to access buffers (don't use "\p" because a
 " delay before pressing "p" would accidentally paste).
 " \l       : list buffers
@@ -176,14 +174,18 @@ nnoremap <Leader>8 :8b<CR>
 nnoremap <Leader>9 :9b<CR>
 nnoremap <Leader>0 :10b<CR>
 
+" I almost don't use this one, but could be useful someday
 nmap <c-s> :w<CR>
 vmap <c-s> <Esc><c-s>gv
 imap <c-s> <Esc><c-s>
 
+" Map F2 to :update. If I had a penny for every keystroke saved,
+" well I'd have copious amounts of pennies.
 nmap <F2> :update<CR>
 vmap <F2> <Esc><F2>gv
 imap <F2> <c-o><F2>
 
+" Awww yiss, workspace switching made easier
 map <C-J> <C-W>j<C-W>_
 map <C-K> <C-W>k<C-W>_
 map <C-L> <C-W>l<C-W>_
