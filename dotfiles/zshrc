@@ -69,5 +69,5 @@ function listbiggest(){
         du -a . | sort -r -n | head -n 10
 }
 
-
+zstyle ':completion:*' special-dirs true
 source ~/.bash_aliases

@@ -21,3 +21,4 @@ exec i3
 # exec startkde
 # exec ck-launch-session startxfce4
 # ...or the Window Manager of your choice
+exec tilda --hidden

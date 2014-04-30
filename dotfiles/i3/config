@@ -2,6 +2,7 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
+#set $mod Mod1
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -12,7 +13,9 @@ set $mod Mod4
 # right-to-left text rendering, you should instead use pango for rendering and
 # chose a FreeType font, such as:
  #font pango:DejaVu Sans Mono 9
-font xft:monospace bold 9
+font xft:monospace bold 11
+
+focus_follows_mouse no
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -39,6 +42,9 @@ bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
 bindsym $mod+l focus right
+
+bindsym $mod+Tab focus right
+bindsym $mod+shift+Tab focus left
 
 #bindsym $mod+semicolon focus back_and_forth
 
@@ -153,20 +159,21 @@ bindsym $mod+r mode "resize"
 
 bar {
     position bottom
-    status_command i3status
-    tray_output LVDS
-    colors {
-        # solarized
-        background #073642
-        statusline #eee8d5
-        focused_workspace #cb4b16 #cb4b16 #eee8d5
-        active_workspace #cb4b16 #cb4b16 #eee8d5
-        inactive_workspace #b58900 #b58900 #eee8d5
+    #status_command i3status
+    status_command i3status -c ~/.i3/i3status.conf
+    tray_output eDP1
+#    colors {
+#        # solarized
+#        background #073642
+#        statusline #eee8d5
+#        focused_workspace #cb4b16 #cb4b16 #eee8d5
+#        active_workspace #cb4b16 #cb4b16 #eee8d5
+#        inactive_workspace #b58900 #b58900 #eee8d5
+#    }
+    colors{
+        background #232323
+        statusline #DCDCDC
     }
-    #colors{
-        #background #232323
-        #statusline #DCDCDC
-    #}
 }
 
 # Bindings for programs
@@ -174,7 +181,8 @@ bindsym $mod+Shift+b exec doublecmd
 bindsym $mod+b exec pcmanfm -n ~/Downloads/
 #bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
-bindsym $mod+Shift+v exec vlc&
+bindsym $mod+Shift+v exec vlc
+bindsym $mod+Shift+f exec firefox
 bindsym Control+Shift+$mod+k exec systemctl poweroff
 
 # Gonna save some screen space
@@ -186,6 +194,7 @@ exec nm-applet
 exec mate-volume-control-applet
 exec /usr/lib/mate-settings-daemon/mate-settings-daemon
 exec dropboxd
+#exec terra
 exec tilda --hidden
 exec urxvtd
 exec dropboxd
@@ -203,14 +212,22 @@ bindsym $mod+Shift+n move container to workspace next; workspace next
 workspace_auto_back_and_forth yes
 
 # Some windows just need to float
+for_window [class="Terra"] floating enable
 for_window [class="Tilda"] floating enable
 for_window [class="Gnuplot"] floating enable
+for_window [class="love"] floating enable
+#for_window [class="Firefox"] border none
+#for_window [class="Chromium"] border pixel 1
+for_window [title="FEAP Graphics Window"] floating enable
 
+#bindsym Control+Shift+1 [class="^.*"] border toggle
+for_window [class="^.*"] border none
+#new_window none
 
 # class border backgr. text indicator
-client.focused #859900 #859900 #fdf6e3 #2e9ef4
-client.focused_inactive #268bd2 #268bd2 #fdf6e3 #484e50
-client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
+#client.focused #859900 #859900 #fdf6e3 #2e9ef4
+#client.focused_inactive #268bd2 #268bd2 #fdf6e3 #484e50
+#client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 # Assign classes to some programs so they get automatically segregated
 assign [class="Firefox"] 1: www

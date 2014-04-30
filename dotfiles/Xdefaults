@@ -85,7 +85,8 @@ URxvt*color15: #DDDDDD
 !URxvt*font:             xft:terminus:size=8
 !urxvt*font:             xft:Bitstream Vera Sans Mono:pixelsize=12
 !urxvt*font:             xft:Fixed:pixelsize=14:antialias=true:hinting=true
-urxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
+!urxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
+urxvt*font:             xft:Dejavu Sans Mono:pixelsize=16
 URxvt*urlLauncher:      firefox  
 URxvt*scrollBar:        true
 URxvt*scrollBar_right:  true

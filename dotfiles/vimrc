@@ -24,7 +24,7 @@ let &cpo=s:cpo_save
 unlet s:cpo_save
 set background=dark
 set backspace=indent,eol,start
-set guifont=DejaVu\ Sans\ Mono\ 9
+set guifont=DejaVu\ Sans\ Mono\ 11
 set history=50
 set mouse=a
 
@@ -230,6 +230,7 @@ Bundle 'jcf/vim-latex'
 Bundle 'kien/ctrlp.vim'
 "Bundle 'bling/vim-airline'
 
+Bundle 'bkad/CamelCaseMotion'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-ragtag'
 Bundle 'tpope/vim-surround'
@@ -257,3 +258,18 @@ colorscheme forthran
 "Nerdtree>
 map <F12> :NERDTreeToggle<cr>
 
+"map <silent> w <Plug>CamelCaseMotion_w
+"map <silent> b <Plug>CamelCaseMotion_b
+"map <silent> e <Plug>CamelCaseMotion_e
+"sunmap w
+"sunmap b
+"sunmap e
+"omap <silent> iw <Plug>CamelCaseMotion_iw
+"xmap <silent> iw <Plug>CamelCaseMotion_iw
+"omap <silent> ib <Plug>CamelCaseMotion_ib
+"xmap <silent> ib <Plug>CamelCaseMotion_ib
+"omap <silent> ie <Plug>CamelCaseMotion_ie
+"xmap <silent> ie <Plug>CamelCaseMotion_ie
+
+" For smarter renaming
+:nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>

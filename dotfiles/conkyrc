@@ -71,7 +71,7 @@ gap_y 10
 # stuff after 'TEXT' will be formatted on screen
 
 #override_utf8_locale no
-xftfont Dejavu Sans Mono:size=9 style:bold
+xftfont Dejavu Sans Mono:size=11 style:bold
 #xftfont Open Sans:size=8 style:bold
 #xftfont Terminus:size=8
 xftalpha 0.8
