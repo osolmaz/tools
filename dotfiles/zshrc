@@ -48,6 +48,15 @@ source $ZSH/oh-my-zsh.sh
 #setopt autolist
 #unsetopt menucomplete
 setopt noautomenu
+setopt extended_glob
+setopt auto_cd
+autoload zmv
+setopt pushdsilent
+
+#setopt auto_pushd
+#setopt pushd_ignore_dups
+#setopt pushdminus
+
 
 # Customize to your needs...
 # Some setting directly from bashrc
@@ -70,4 +79,7 @@ function listbiggest(){
 }
 
 zstyle ':completion:*' special-dirs true
+
 source ~/.bash_aliases
+
+set noclobber

@@ -23,5 +23,10 @@ install:
 	cp -f zshrc ~/.zshrc
 	cp -f conkyrc ~/.conkyrc
 
+install-vim:
+	cp -f vimrc ~/.vimrc
+	git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+	vim +BundleInstall +qall
+
 urxvt-perl:
 	git clone https://github.com/muennich/urxvt-perls

@@ -127,6 +127,13 @@ map Y y$
 " next search
 nnoremap <C-L> :nohl<CR><C-L>
 
+nmap <C-c> \c<space>
+vmap <C-c> \c<space>
+"nnoremap <C-c> :NERDCommenterToggle<CR>
+
+imap <C-space> <C-n>
+imap <C-S-space> <C-p>
+
 set autochdir
 
 " Switch to alternate file
@@ -145,6 +152,10 @@ autocmd! bufwritepost .vimrc source %
 command! Rso :source ~/.vimrc
 "command Pyrun execute "!python %"
 "command! Wrap :set tw=50 | :normal gggqG
+
+" Toggling the menu bar
+command! ToggleMenu if &go=~#'m'<Bar>set go-=m<Bar>else<Bar>set go+=m<Bar>endif
+command! ToggleToolbar if &go=~#'T'<Bar>set go-=T<Bar>else<Bar>set go+=T<Bar>endif
 
 "Insert newline
 "map <S-Enter> O<Esc>j
@@ -193,7 +204,7 @@ map <C-H> <C-W>h<C-W>_
 
 au BufNewfile,BufRead *.ll set filetype=lex
 
-"set guioptions-=m  "remove menu bar
+set guioptions-=m  "remove menu bar
 set guioptions-=T  "remove toolbar
 "set guioptions-=r  "remove right-hand scroll bar
 
@@ -225,6 +236,7 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'scrooloose/nerdtree'
 Bundle 'scrooloose/syntastic'
 Bundle 'Shougo/neocomplete.vim'
+"Bundle 'Valloric/YouCompleteMe'
 Bundle 'msanders/snipmate.vim'
 Bundle 'jcf/vim-latex'
 Bundle 'kien/ctrlp.vim'
@@ -236,6 +248,8 @@ Bundle 'tpope/vim-ragtag'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+Bundle 'tomasr/molokai'
+Bundle 'klen/python-mode'
 " Bundle 'tpope/vim-rails.git'
 "
 " vim-scripts repos
@@ -250,7 +264,8 @@ Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
 " :BundleClean(!)      - confirm (or auto-approve) removal of unused bundles
 
 "colorscheme koehler
-colorscheme forthran
+"colorscheme forthran
+colorscheme molokai
 
 "call pathogen#infect()
 "call pathogen#infect('bundle/*')
@@ -273,3 +288,13 @@ map <F12> :NERDTreeToggle<cr>
 
 " For smarter renaming
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+
+" Disable folding
+set nofoldenable
+
+let g:pymode_lint_on_write = 0
+let g:pymode_lint_unmodified = 0
+let g:pymode_rope_regenerate_on_write = 0
+let g:pymode_rope_complete_on_dot = 0
+let g:pymode_rope = 0
+

@@ -36,7 +36,7 @@
 ;;(set-face-attribute 'default nil
 ;;                    :family "Consolas" :height 100)
 
-(set-cursor-color "white")
+;; (set-cursor-color "white")
 ;; (set-foreground-color "#FDF8FF"); #dbdbdb")
 ;; (set-background-color "#000000")
 
@@ -381,11 +381,11 @@ With argument, do this that many times."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
-;; '(custom-enabled-themes (quote (solarized-dark)))
-;; '(custom-safe-themes (quote ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" default)))
+ '(custom-safe-themes (quote ("479eba125f9e97a0208b642a99eee1d816fa208fe3a06f73e444504beb0b17f7" default)))
  '(font-use-system-font t)
  '(line-number-mode 1)
  '(load-home-init-file t t)
+ '(menu-bar-mode nil)
  '(scroll-bar-mode (quote right))
  '(scroll-bar-position (quote left))
  '(show-paren-mode t)
@@ -397,28 +397,33 @@ With argument, do this that many times."
 
 
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#FDF8FF"))))
- '(Font-lock-builtin-face ((t (:foreground "deepskyblue"))))
- '(diff-added-face ((t (:foreground "green"))))
- '(diff-changed-face ((t (:foreground "yellow"))))
- '(diff-header-face ((t (:foreground "blue"))))
- '(diff-hunk-header-face ((t (:foreground "blue"))))
- '(diff-removed-face ((t (:foreground "darkgreen"))))
- '(font-lock-comment-face ((t (:foreground "green4"))))
- '(font-lock-doc-face ((t (:foreground "darkkhaki"))))
- '(font-lock-function-name-face ((t (:foreground "red"))))
- '(font-lock-keyword-face ((t (:foreground "orange"))))
- '(font-lock-string-face ((t (:foreground "green2"))))
- '(font-lock-type-face ((t (:foreground "darkseagreen2"))))
- '(font-lock-variable-name-face ((t (:foreground "yellow"))))
- '(highlight ((t (:foreground "black" :background "darkseagreen2"))))
- '(mode-line ((t (:foreground "plum1" :background "navy"))))
- '(region ((t (:background "turquoise")))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#FDF8FF"))))
+;;  '(Font-lock-builtin-face ((t (:foreground "deepskyblue"))))
+;;  '(diff-added-face ((t (:foreground "green"))))
+;;  '(diff-changed-face ((t (:foreground "yellow"))))
+;;  '(diff-header-face ((t (:foreground "blue"))))
+;;  '(diff-hunk-header-face ((t (:foreground "blue"))))
+;;  '(diff-removed-face ((t (:foreground "darkgreen"))))
+;;  '(font-lock-comment-face ((t (:foreground "green4"))))
+;;  '(font-lock-doc-face ((t (:foreground "darkkhaki"))))
+;;  '(font-lock-function-name-face ((t (:foreground "red"))))
+;;  '(font-lock-keyword-face ((t (:foreground "orange"))))
+;;  '(font-lock-string-face ((t (:foreground "green2"))))
+;;  '(font-lock-type-face ((t (:foreground "darkseagreen2"))))
+;;  '(font-lock-variable-name-face ((t (:foreground "yellow"))))
+;;  '(highlight ((t (:foreground "black" :background "darkseagreen2"))))
+;;  '(mode-line ((t (:foreground "plum1" :background "navy"))))
+;;  '(region ((t (:background "turquoise")))))
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(load-theme 'monokai t)
+;; (load-theme 'molokai t)
+;; (setq molokai-theme-kit t)
 
 ; COMPILATION COMMAND
 (global-set-key [f5] 'compile)
@@ -649,3 +654,9 @@ With argument, do this that many times."
 
 (yas-global-mode 1)
 (global-undo-tree-mode)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
