@@ -129,12 +129,14 @@ nnoremap <C-L> :nohl<CR><C-L>
 
 nmap <C-c> \c<space>
 vmap <C-c> \c<space>
+
+nmap <C-M-e> :e ~/.vimrc<CR>
 "nnoremap <C-c> :NERDCommenterToggle<CR>
 
 imap <C-space> <C-n>
 imap <C-S-space> <C-p>
 
-set autochdir
+"set autochdir
 
 " Switch to alternate file
 map <C-Tab> :bnext<cr>
@@ -190,13 +192,12 @@ nmap <c-s> :w<CR>
 vmap <c-s> <Esc><c-s>gv
 imap <c-s> <Esc><c-s>
 
-" Map F2 to :update. If I had a penny for every keystroke saved,
-" well I'd have copious amounts of pennies.
+" Map F2 to :update.
 nmap <F2> :update<CR>
 vmap <F2> <Esc><F2>gv
 imap <F2> <c-o><F2>
 
-" Awww yiss, workspace switching made easier
+" Awww yiss, window switching made easier
 map <C-J> <C-W>j<C-W>_
 map <C-K> <C-W>k<C-W>_
 map <C-L> <C-W>l<C-W>_
@@ -231,18 +232,21 @@ Bundle 'gmarik/vundle'
 " My bundles here:
 "
 " original repos on GitHub
-Bundle 'nrs/vim-forthran'
+"Bundle 'nrs/vim-forthran'
+"Bundle 'scrooloose/nerdtree'
+"Bundle 'bling/vim-airline'
+"Bundle 'bkad/CamelCaseMotion'
+"Bundle 'Shougo/vimshell.vim'
+"Bundle 'Shougo/vimproc.vim'
+"Bundle 'tpope/vim-rails.git'
+
 Bundle 'scrooloose/nerdcommenter'
-Bundle 'scrooloose/nerdtree'
 Bundle 'scrooloose/syntastic'
 Bundle 'Shougo/neocomplete.vim'
-"Bundle 'Valloric/YouCompleteMe'
+Bundle 'Shougo/unite.vim'
 Bundle 'msanders/snipmate.vim'
 Bundle 'jcf/vim-latex'
 Bundle 'kien/ctrlp.vim'
-"Bundle 'bling/vim-airline'
-
-Bundle 'bkad/CamelCaseMotion'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-ragtag'
 Bundle 'tpope/vim-surround'
@@ -250,41 +254,21 @@ Bundle 'Lokaltog/vim-easymotion'
 Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'tomasr/molokai'
 Bundle 'klen/python-mode'
-" Bundle 'tpope/vim-rails.git'
-"
-" vim-scripts repos
-" Bundle 'L9'
-" Bundle 'FuzzyFinder'
+Bundle 'altercation/vim-colors-solarized'
 
-"
 " Brief help
 " :BundleList          - list configured bundles
 " :BundleInstall(!)    - install (update) bundles
 " :BundleSearch(!) foo - search (or refresh cache first) for foo
 " :BundleClean(!)      - confirm (or auto-approve) removal of unused bundles
 
+" Color !!!!
 "colorscheme koehler
 "colorscheme forthran
 colorscheme molokai
 
-"call pathogen#infect()
-"call pathogen#infect('bundle/*')
-
 "Nerdtree>
-map <F12> :NERDTreeToggle<cr>
-
-"map <silent> w <Plug>CamelCaseMotion_w
-"map <silent> b <Plug>CamelCaseMotion_b
-"map <silent> e <Plug>CamelCaseMotion_e
-"sunmap w
-"sunmap b
-"sunmap e
-"omap <silent> iw <Plug>CamelCaseMotion_iw
-"xmap <silent> iw <Plug>CamelCaseMotion_iw
-"omap <silent> ib <Plug>CamelCaseMotion_ib
-"xmap <silent> ib <Plug>CamelCaseMotion_ib
-"omap <silent> ie <Plug>CamelCaseMotion_ie
-"xmap <silent> ie <Plug>CamelCaseMotion_ie
+"map <F12> :NERDTreeToggle<cr>
 
 " For smarter renaming
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
@@ -292,6 +276,7 @@ map <F12> :NERDTreeToggle<cr>
 " Disable folding
 set nofoldenable
 
+" Python options
 let g:pymode_lint_on_write = 0
 let g:pymode_lint_unmodified = 0
 let g:pymode_rope_regenerate_on_write = 0
