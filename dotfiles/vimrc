@@ -136,7 +136,7 @@ nmap <C-M-e> :e ~/.vimrc<CR>
 imap <C-space> <C-n>
 imap <C-S-space> <C-p>
 
-"set autochdir
+set autochdir
 
 " Switch to alternate file
 map <C-Tab> :bnext<cr>
@@ -146,7 +146,7 @@ map <C-S-Tab> :bprevious<cr>
 map ; :
 noremap ;; ;
 
-highlight Cursor guifg=black guibg=white
+"highlight Cursor guifg=black guibg=white
 
 "Reload .vimrc
 
@@ -237,9 +237,9 @@ Bundle 'gmarik/vundle'
 "Bundle 'bling/vim-airline'
 "Bundle 'bkad/CamelCaseMotion'
 "Bundle 'Shougo/vimshell.vim'
-"Bundle 'Shougo/vimproc.vim'
 "Bundle 'tpope/vim-rails.git'
 
+Bundle 'Shougo/vimproc.vim'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'scrooloose/syntastic'
 Bundle 'Shougo/neocomplete.vim'
@@ -255,6 +255,7 @@ Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
 Bundle 'tomasr/molokai'
 Bundle 'klen/python-mode'
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'FredKSchott/CoVim'
 
 " Brief help
 " :BundleList          - list configured bundles
@@ -282,4 +283,29 @@ let g:pymode_lint_unmodified = 0
 let g:pymode_rope_regenerate_on_write = 0
 let g:pymode_rope_complete_on_dot = 0
 let g:pymode_rope = 0
+
+" Unite
+
+nnoremap [unite] <Nop>
+nmap <space> [unite]
+
+"nnoremap <space>/ :Unite grep:.<cr>
+nnoremap <C-M-a> :UniteResume<cr>
+
+if executable('ag')
+  let g:unite_source_grep_command = 'ag'
+  let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+  let g:unite_source_grep_recursive_opt = ''
+endif
+
+" Grepping
+nnoremap [unite]g :Unite -no-split grep:.<cr>
+nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
+
+" General purpose
+nnoremap [unite]<space> :Unite -no-split -start-insert source<cr>
+
+" Files
+nnoremap [unite]f :Unite -no-split -start-insert file_rec/async<cr>
+
 
