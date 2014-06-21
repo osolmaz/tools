@@ -225,9 +225,12 @@ for_window [class="Terra"] floating enable
 for_window [class="Tilda"] floating enable
 for_window [class="Gnuplot"] floating enable
 for_window [class="love"] floating enable
+for_window [title="FEAP Graphics Window"] floating enable
+
+# Borderless programs
+
 for_window [class="Firefox"] border none
 for_window [class="Chromium"] border none
-for_window [title="FEAP Graphics Window"] floating enable
 
 #bindsym Control+Shift+1 [class="^.*"] border toggle
 #for_window [class="^.*"] border none

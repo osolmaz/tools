@@ -3,7 +3,7 @@
 " nrs
 "
 " The plugins require git and vundle
-" 
+"
 " First time installation guide:
 "
 " 0. Copy this file to your ~/.vimrc
@@ -70,12 +70,29 @@ set ruler
 set laststatus=2
 
 " Status line colors
-hi StatusLine ctermfg=white  ctermbg=red cterm=bold 
+"hi StatusLine ctermfg=white  ctermbg=red cterm=bold
 
 " set statusline=%<%f%m\ \[%{&ff}:%{&fenc}:%Y]\ %{getcwd()}\ \ \[%{strftime('%Y/%b/%d\ %a\ %I:%M\ %p')}\]\ %=\ Line:%l\/%L\ Column:%c%V\ %P
 
-set statusline=\ %f%m%r%h%w\ %{getcwd()}\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
-" set statusline=\ %f%m%r%h%w\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
+set statusline=\ %{split(getcwd(),'/')[-1]}/
+set statusline+=%f%m%r%h%w
+set statusline+=\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)
+set statusline+=\ %([%l,%v][%p%%]\ %)
+"
+"set statusline=\ %f%m%r%h%w\ %{getcwd()}\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
+"set statusline=\ %f%m%r%h%w\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
+
+" *******************************
+" * status line *
+" *******************************
+"set laststatus=2 " always show status line
+"set statusline=%<%f\ " Filename
+"set statusline+=%w%h%m%r " Options
+"set statusline+=\ [%{&ff}/%Y] " filetype
+"set statusline+=\ [%{split(getcwd(),'/')[-1]}] " current dir
+"set statusline+=%=%-14.(%l,%c%V%)\ %p%% " Right aligned file nav info
+
+
 
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
@@ -152,6 +169,8 @@ noremap ;; ;
 
 autocmd! bufwritepost .vimrc source %
 command! Rso :source ~/.vimrc
+command! RemoveTrailingWhitespace :%s/\s\+$//e
+
 "command Pyrun execute "!python %"
 "command! Wrap :set tw=50 | :normal gggqG
 
@@ -164,7 +183,7 @@ command! ToggleToolbar if &go=~#'T'<Bar>set go-=T<Bar>else<Bar>set go+=T<Bar>end
 "map <CR> o<Esc>k
 
 " easier moving of code blocks
-vnoremap <  <gv 
+vnoremap <  <gv
 vnoremap >  >gv
 
 " Mappings to access buffers (don't use "\p" because a
@@ -226,7 +245,7 @@ set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
 " let Vundle manage Vundle
-" required! 
+" required!
 Bundle 'gmarik/vundle'
 
 " My bundles here:
@@ -256,6 +275,7 @@ Bundle 'tomasr/molokai'
 Bundle 'klen/python-mode'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'FredKSchott/CoVim'
+Bundle 'terryma/vim-multiple-cursors'
 
 " Brief help
 " :BundleList          - list configured bundles
@@ -308,4 +328,10 @@ nnoremap [unite]<space> :Unite -no-split -start-insert source<cr>
 " Files
 nnoremap [unite]f :Unite -no-split -start-insert file_rec/async<cr>
 
+" Multi cursor stuff
 
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_next_key='<C-S-n>'
+let g:multi_cursor_prev_key='<C-S-p>'
+let g:multi_cursor_skip_key='<C-S-x>'
+let g:multi_cursor_quit_key='<Esc>'
