@@ -22,7 +22,8 @@ floating_modifier $mod
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec urxvtc
+#bindsym $mod+Return exec urxvtc
+bindsym $mod+Return exec urxvt
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -190,26 +191,12 @@ bindsym $mod+b exec pcmanfm -n ~/Downloads/
 #bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
 bindsym $mod+u exec emacs
-bindsym $mod+Shift+v exec vlc
+bindsym $mod+g exec vlc
 bindsym $mod+Shift+f exec firefox
 bindsym Control+Shift+$mod+k exec systemctl poweroff
 
 # Gonna save some screen space
 hide_edge_borders vertical
-
-# Startup programs
-exec mate-power-manager
-exec nm-applet
-exec mate-volume-control-applet
-exec /usr/lib/mate-settings-daemon/mate-settings-daemon
-exec dropboxd
-#exec terra
-exec tilda --hidden
-exec urxvtd
-exec dropboxd
-exec conky
-exec pcmanfm --desktop
-#exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 
 # Bind emacs like shortcuts for previous and next workspaces
 bindsym $mod+p workspace prev
@@ -223,9 +210,11 @@ workspace_auto_back_and_forth yes
 # Some windows just need to float
 for_window [class="Terra"] floating enable
 for_window [class="Tilda"] floating enable
+for_window [class="floating"] floating enable
 for_window [class="Gnuplot"] floating enable
 for_window [class="love"] floating enable
 for_window [title="FEAP Graphics Window"] floating enable
+for_window [class="pcmanfmdesktop"] floating disable;
 
 # Borderless programs
 
@@ -244,4 +233,25 @@ client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 # Assign classes to some programs so they get automatically segregated
 assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
-assign [class="Pcmanfm" title="pcmanfm"] 9: dt
+#assign [class="pcmanfmdesktop"] 9: dt
+
+# Startup programs
+exec mate-power-manager
+exec nm-applet
+exec mate-volume-control-applet
+exec /usr/lib/mate-settings-daemon/mate-settings-daemon
+exec dropboxd
+#exec terra
+#exec tilda --hidden
+#exec urxvtd
+exec dropboxd
+exec conky
+exec pcmanfm --desktop --class="pcmanfmdesktop"
+#exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
+
+
+## quick terminal
+exec urxvt -name metask
+for_window [instance="metask"] floating enable;
+for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 650px; resize width 1100px; move scratchpad
+bindsym F1 [instance="metask"] scratchpad show

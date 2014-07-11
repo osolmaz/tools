@@ -64,11 +64,14 @@ setopt pushdsilent
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias em='emacs -nw'
-alias emc='emacsclient -c'
-alias emt='emacsclient -t'
+#alias em='emacs -nw'
+#alias emc='emacsclient -c'
+#alias emt='emacsclient -t'
 alias rm='rm -i'
 alias vi='vim'
+alias matlab='matlab -nodesktop'
+alias ipy='ipython'
+alias ipy2='ipython2'
 
 function rld (){
         source ~/.zshrc
@@ -76,6 +79,10 @@ function rld (){
 
 function listbiggest(){
         du -a . | sort -r -n | head -n 10
+}
+
+function em() {
+  (emacs "$@"&)
 }
 
 zstyle ':completion:*' special-dirs true

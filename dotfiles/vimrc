@@ -9,7 +9,7 @@
 " 0. Copy this file to your ~/.vimrc
 " 1. Make sure git is installed.
 " 2. $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-" 2. Run :BundleInstall to install all the bundles.
+" 2. Run :PluginInstall to install all the bundles.
 " 3. Profit.
 "
 
@@ -74,8 +74,13 @@ set laststatus=2
 
 " set statusline=%<%f%m\ \[%{&ff}:%{&fenc}:%Y]\ %{getcwd()}\ \ \[%{strftime('%Y/%b/%d\ %a\ %I:%M\ %p')}\]\ %=\ Line:%l\/%L\ Column:%c%V\ %P
 
-set statusline=\ %{split(getcwd(),'/')[-1]}/
-set statusline+=%f%m%r%h%w
+set statusline=\ %{split(getcwd(),'/')[-1]}/ " the directory file is in
+"set statusline+=%f " relative path of the file w. r. to working dir
+set statusline+=%t " tail of the path
+set statusline+=%m " modified flag
+set statusline+=%r " readonly flag
+set statusline+=%h " help buffer flag
+set statusline+=%w " preview window flag
 set statusline+=\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)
 set statusline+=\ %([%l,%v][%p%%]\ %)
 "
@@ -222,6 +227,16 @@ map <C-K> <C-W>k<C-W>_
 map <C-L> <C-W>l<C-W>_
 map <C-H> <C-W>h<C-W>_
 
+" Ignored files with vim and ctrl-p
+set wildignore+=*.so,*.o,*.swp,*.zip 
+
+"let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+"let g:ctrlp_custom_ignore = {
+  "\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  "\ 'file': '\v\.(exe|so|dll)$',
+  "\ 'link': 'some_bad_symbolic_links',
+  "\ }
+
 au BufNewfile,BufRead *.ll set filetype=lex
 
 set guioptions-=m  "remove menu bar
@@ -246,42 +261,43 @@ call vundle#rc()
 
 " let Vundle manage Vundle
 " required!
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/vundle'
 
 " My bundles here:
 "
 " original repos on GitHub
-"Bundle 'nrs/vim-forthran'
-"Bundle 'scrooloose/nerdtree'
-"Bundle 'bling/vim-airline'
-"Bundle 'bkad/CamelCaseMotion'
-"Bundle 'Shougo/vimshell.vim'
-"Bundle 'tpope/vim-rails.git'
+"Plugin 'nrs/vim-forthran'
+"Plugin 'scrooloose/nerdtree'
+"Plugin 'bling/vim-airline'
+"Plugin 'bkad/CamelCaseMotion'
+"Plugin 'Shougo/vimshell.vim'
+"Plugin 'tpope/vim-rails.git'
 
-Bundle 'Shougo/vimproc.vim'
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'scrooloose/syntastic'
-Bundle 'Shougo/neocomplete.vim'
-Bundle 'Shougo/unite.vim'
-Bundle 'msanders/snipmate.vim'
-Bundle 'jcf/vim-latex'
-Bundle 'kien/ctrlp.vim'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-ragtag'
-Bundle 'tpope/vim-surround'
-Bundle 'Lokaltog/vim-easymotion'
-Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
-Bundle 'tomasr/molokai'
-Bundle 'klen/python-mode'
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'FredKSchott/CoVim'
-Bundle 'terryma/vim-multiple-cursors'
+Plugin 'Shougo/vimproc.vim'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'scrooloose/syntastic'
+Plugin 'Shougo/neocomplete.vim'
+Plugin 'Shougo/unite.vim'
+Plugin 'msanders/snipmate.vim'
+Plugin 'jcf/vim-latex'
+Plugin 'kien/ctrlp.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-ragtag'
+Plugin 'tpope/vim-surround'
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+Plugin 'tomasr/molokai'
+Plugin 'klen/python-mode'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'FredKSchott/CoVim'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'nanotech/jellybeans.vim'
 
 " Brief help
-" :BundleList          - list configured bundles
-" :BundleInstall(!)    - install (update) bundles
-" :BundleSearch(!) foo - search (or refresh cache first) for foo
-" :BundleClean(!)      - confirm (or auto-approve) removal of unused bundles
+" :PluginList          - list configured bundles
+" :PluginInstall(!)    - install (update) bundles
+" :PluginSearch(!) foo - search (or refresh cache first) for foo
+" :PluginClean(!)      - confirm (or auto-approve) removal of unused bundles
 
 " Color !!!!
 "colorscheme koehler
