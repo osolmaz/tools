@@ -194,6 +194,7 @@ bindsym $mod+u exec emacs
 bindsym $mod+g exec vlc
 bindsym $mod+Shift+f exec firefox
 bindsym Control+Shift+$mod+k exec systemctl poweroff
+bindsym $mod+i exec "urxvt -e paradise.d"
 
 # Gonna save some screen space
 hide_edge_borders vertical
@@ -207,6 +208,7 @@ bindsym $mod+Shift+n move container to workspace next; workspace next
 # Nice functionality, thanks i3
 workspace_auto_back_and_forth yes
 
+#
 # Some windows just need to float
 for_window [class="Terra"] floating enable
 for_window [class="Tilda"] floating enable
@@ -216,9 +218,9 @@ for_window [class="love"] floating enable
 for_window [title="FEAP Graphics Window"] floating enable
 for_window [class="pcmanfmdesktop"] floating disable;
 
-# Borderless programs
-
+# Borderless programs - learn class with xprop
 for_window [class="Firefox"] border none
+for_window [class="Dwb"] border none
 for_window [class="Chromium"] border none
 
 #bindsym Control+Shift+1 [class="^.*"] border toggle

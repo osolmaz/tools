@@ -85,6 +85,10 @@ function em() {
   (emacs "$@"&)
 }
 
+function paradise(){
+    mplayer http://stream-dc1.radioparadise.com/aac-128
+}
+
 zstyle ':completion:*' special-dirs true
 
 source ~/.bash_aliases
