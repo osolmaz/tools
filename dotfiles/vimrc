@@ -1,6 +1,4 @@
-" My Delicious Vim Config
-" a.k.a. Mechanician's Humble Vim Config
-" nrs
+" @nrs' vim config
 "
 " The plugins require git and vundle
 "
@@ -8,11 +6,62 @@
 "
 " 0. Copy this file to your ~/.vimrc
 " 1. Make sure git is installed.
-" 2. $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+" 2. $ git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/vundle
 " 2. Run :PluginInstall to install all the bundles.
-" 3. Profit.
 "
 
+"------------------------------------------------------------
+" Vundle
+"
+set nocompatible              " be iMproved, required
+filetype off                  " required
+"
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" let Vundle manage Vundle
+" required!
+Plugin 'gmarik/Vundle.vim'
+
+" My bundles here:
+"
+" original repos on GitHub
+"Plugin 'nrs/vim-forthran'
+"Plugin 'scrooloose/nerdtree'
+"Plugin 'bling/vim-airline'
+"Plugin 'bkad/CamelCaseMotion'
+"Plugin 'Shougo/vimshell.vim'
+"Plugin 'tpope/vim-rails.git'
+
+Plugin 'Shougo/vimproc.vim'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'scrooloose/syntastic'
+Plugin 'Shougo/neocomplete.vim'
+Plugin 'Shougo/unite.vim'
+Plugin 'msanders/snipmate.vim'
+Plugin 'jcf/vim-latex'
+Plugin 'kien/ctrlp.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-ragtag'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-commentary'
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+Plugin 'tomasr/molokai'
+Plugin 'klen/python-mode'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'FredKSchott/CoVim'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'nanotech/jellybeans.vim'
+"
+call vundle#end()            " required
+filetype plugin indent on    " required
+"
+" End Vundle config
+
+"------------------------------------------------------------
+" Sane defaults
+"
 if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
@@ -24,7 +73,17 @@ let &cpo=s:cpo_save
 unlet s:cpo_save
 set background=dark
 set backspace=indent,eol,start
-set guifont=DejaVu\ Sans\ Mono\ 11
+
+" Set the font
+if has('gui_running')
+  if has('gui_win32')
+    set guifont=DejaVu_Sans_Mono:h11:cANSI
+  else
+    set guifont=DejaVu\ Sans\ Mono\ 11
+  endif
+endif
+
+
 set history=50
 set mouse=a
 
@@ -35,7 +94,6 @@ set window=45
 set shortmess+=I
 
 syntax on
-filetype indent plugin on
 set modeline
 
 set nu " line numbers
@@ -69,11 +127,8 @@ set ruler
 " Always display the status line, even if only one window is displayed
 set laststatus=2
 
-" Status line colors
+" Status line
 "hi StatusLine ctermfg=white  ctermbg=red cterm=bold
-
-" set statusline=%<%f%m\ \[%{&ff}:%{&fenc}:%Y]\ %{getcwd()}\ \ \[%{strftime('%Y/%b/%d\ %a\ %I:%M\ %p')}\]\ %=\ Line:%l\/%L\ Column:%c%V\ %P
-
 set statusline=\ %{split(getcwd(),'/')[-1]}/ " the directory file is in
 "set statusline+=%f " relative path of the file w. r. to working dir
 set statusline+=%t " tail of the path
@@ -84,24 +139,11 @@ set statusline+=%w " preview window flag
 set statusline+=\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)
 set statusline+=\ %([%l,%v][%p%%]\ %)
 "
-"set statusline=\ %f%m%r%h%w\ %{getcwd()}\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
-"set statusline=\ %f%m%r%h%w\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)\ %([%l,%v][%p%%]\ %)
-
-" *******************************
-" * status line *
-" *******************************
-"set laststatus=2 " always show status line
-"set statusline=%<%f\ " Filename
-"set statusline+=%w%h%m%r " Options
-"set statusline+=\ [%{&ff}/%Y] " filetype
-"set statusline+=\ [%{split(getcwd(),'/')[-1]}] " current dir
-"set statusline+=%=%-14.(%l,%c%V%)\ %p%% " Right aligned file nav info
-
-
-
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
 set confirm
+
+set autochdir
 
 " Use visual bell instead of beeping when doing something wrong
 "set visualbell
@@ -118,6 +160,57 @@ set notimeout ttimeout ttimeoutlen=200
 set pastetoggle=<F11>
 "set clipboard=unnamed
 
+" Ignored files with vim and ctrl-p
+set wildignore+=*.so,*.o,*.swp,*.zip
+
+"let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+"let g:ctrlp_custom_ignore = {
+  "\ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  "\ 'file': '\v\.(exe|so|dll)$',
+  "\ 'link': 'some_bad_symbolic_links',
+  "\ }
+
+au BufNewfile,BufRead *.ll set filetype=lex
+
+set guioptions-=m  "remove menu bar
+set guioptions-=T  "remove toolbar
+"set guioptions-=r  "remove right-hand scroll bar
+
+set grepprg=grep\ -nH\ $*
+let g:tex_flavor = "latex"
+
+" Disable folding
+set nofoldenable
+
+"set runtimepath=~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after
+
+set backup " Backups are nice ...
+if has('persistent_undo')
+  set undofile " So is persistent undo ...
+  set undolevels=1000 " Maximum number of changes that can be undone
+  set undoreload=10000 " Maximum number lines to save for undo on a buffer reload
+endif
+
+"Reload .vimrc
+autocmd! bufwritepost .vimrc source %
+command! ReloadVimrc :source ~/.vimrc
+
+" Command fo removing trailing whitespace
+command! RemoveTrailingWhitespace :%s/\s\+$//e
+
+"command Pyrun execute "!python %"
+"command! Wrap :set tw=50 | :normal gggqG
+
+" Toggling the menu bar
+command! ToggleMenu if &go=~#'m'<Bar>set go-=m<Bar>else<Bar>set go+=m<Bar>endif
+command! ToggleToolbar if &go=~#'T'<Bar>set go-=T<Bar>else<Bar>set go+=T<Bar>endif
+
+"------------------------------------------------------------
+" Color 
+" colorscheme koehler
+" colorscheme forthran
+colorscheme molokai
+
 "------------------------------------------------------------
 " Indentation options
 "
@@ -133,8 +226,8 @@ au FileType python setlocal tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 " Indentation settings for using hard tabs for indent. Display tabs as
 " two characters wide.
-"set shiftwidth=2
-"set tabstop=2
+" set shiftwidth=2
+" set tabstop=2
 
 "------------------------------------------------------------
 " Mappings
@@ -149,47 +242,30 @@ map Y y$
 " next search
 nnoremap <C-L> :nohl<CR><C-L>
 
-nmap <C-c> \c<space>
-vmap <C-c> \c<space>
-
+" Edit the config
 nmap <C-M-e> :e ~/.vimrc<CR>
-"nnoremap <C-c> :NERDCommenterToggle<CR>
 
+" Eclipse like shortcuts for completion
 imap <C-space> <C-n>
 imap <C-S-space> <C-p>
-
-set autochdir
 
 " Switch to alternate file
 map <C-Tab> :bnext<cr>
 map <C-S-Tab> :bprevious<cr>
 
 " Map semicolon to colon for convenience
-map ; :
-noremap ;; ;
+" map ; :
+" noremap ;; ;
 
 "highlight Cursor guifg=black guibg=white
-
-"Reload .vimrc
-
-autocmd! bufwritepost .vimrc source %
-command! Rso :source ~/.vimrc
-command! RemoveTrailingWhitespace :%s/\s\+$//e
-
-"command Pyrun execute "!python %"
-"command! Wrap :set tw=50 | :normal gggqG
-
-" Toggling the menu bar
-command! ToggleMenu if &go=~#'m'<Bar>set go-=m<Bar>else<Bar>set go+=m<Bar>endif
-command! ToggleToolbar if &go=~#'T'<Bar>set go-=T<Bar>else<Bar>set go+=T<Bar>endif
 
 "Insert newline
 "map <S-Enter> O<Esc>j
 "map <CR> o<Esc>k
 
 " easier moving of code blocks
-vnoremap <  <gv
-vnoremap >  >gv
+vnoremap < <gv
+vnoremap > >gv
 
 " Mappings to access buffers (don't use "\p" because a
 " delay before pressing "p" would accidentally paste).
@@ -227,92 +303,12 @@ map <C-K> <C-W>k<C-W>_
 map <C-L> <C-W>l<C-W>_
 map <C-H> <C-W>h<C-W>_
 
-" Ignored files with vim and ctrl-p
-set wildignore+=*.so,*.o,*.swp,*.zip 
-
-"let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-"let g:ctrlp_custom_ignore = {
-  "\ 'dir':  '\v[\/]\.(git|hg|svn)$',
-  "\ 'file': '\v\.(exe|so|dll)$',
-  "\ 'link': 'some_bad_symbolic_links',
-  "\ }
-
-au BufNewfile,BufRead *.ll set filetype=lex
-
-set guioptions-=m  "remove menu bar
-set guioptions-=T  "remove toolbar
-"set guioptions-=r  "remove right-hand scroll bar
-
-set grepprg=grep\ -nH\ $*
-let g:tex_flavor = "latex"
-
-"set runtimepath=~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after
-
-set backup " Backups are nice ...
-if has('persistent_undo')
-  set undofile " So is persistent undo ...
-  set undolevels=1000 " Maximum number of changes that can be undone
-  set undoreload=10000 " Maximum number lines to save for undo on a buffer reload
-endif
-
-"VUNDLE XOXO
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-
-" let Vundle manage Vundle
-" required!
-Plugin 'gmarik/vundle'
-
-" My bundles here:
-"
-" original repos on GitHub
-"Plugin 'nrs/vim-forthran'
-"Plugin 'scrooloose/nerdtree'
-"Plugin 'bling/vim-airline'
-"Plugin 'bkad/CamelCaseMotion'
-"Plugin 'Shougo/vimshell.vim'
-"Plugin 'tpope/vim-rails.git'
-
-Plugin 'Shougo/vimproc.vim'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'scrooloose/syntastic'
-Plugin 'Shougo/neocomplete.vim'
-Plugin 'Shougo/unite.vim'
-Plugin 'msanders/snipmate.vim'
-Plugin 'jcf/vim-latex'
-Plugin 'kien/ctrlp.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-ragtag'
-Plugin 'tpope/vim-surround'
-Plugin 'Lokaltog/vim-easymotion'
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-Plugin 'tomasr/molokai'
-Plugin 'klen/python-mode'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'FredKSchott/CoVim'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'nanotech/jellybeans.vim'
-
-" Brief help
-" :PluginList          - list configured bundles
-" :PluginInstall(!)    - install (update) bundles
-" :PluginSearch(!) foo - search (or refresh cache first) for foo
-" :PluginClean(!)      - confirm (or auto-approve) removal of unused bundles
-
-" Color !!!!
-"colorscheme koehler
-"colorscheme forthran
-colorscheme molokai
-
-"Nerdtree>
-"map <F12> :NERDTreeToggle<cr>
-
 " For smarter renaming
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 
-" Disable folding
-set nofoldenable
-
+"------------------------------------------------------------
+" Plugin specific options
+"
 " Python options
 let g:pymode_lint_on_write = 0
 let g:pymode_lint_unmodified = 0
@@ -321,7 +317,7 @@ let g:pymode_rope_complete_on_dot = 0
 let g:pymode_rope = 0
 
 " Unite
-
+"
 nnoremap [unite] <Nop>
 nmap <space> [unite]
 
@@ -345,9 +341,12 @@ nnoremap [unite]<space> :Unite -no-split -start-insert source<cr>
 nnoremap [unite]f :Unite -no-split -start-insert file_rec/async<cr>
 
 " Multi cursor stuff
-
+"
 let g:multi_cursor_use_default_mapping=0
 let g:multi_cursor_next_key='<C-S-n>'
 let g:multi_cursor_prev_key='<C-S-p>'
 let g:multi_cursor_skip_key='<C-S-x>'
 let g:multi_cursor_quit_key='<Esc>'
+
+" Nerdtree>
+"map <F12> :NERDTreeToggle<cr>
