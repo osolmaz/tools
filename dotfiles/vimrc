@@ -6,55 +6,63 @@
 "
 " 0. Copy this file to your ~/.vimrc
 " 1. Make sure git is installed.
-" 2. $ git clone https://github.com/gmarik/Vundle.vim ~/.vim/bundle/vundle
-" 2. Run :PluginInstall to install all the bundles.
+" 2. $ git clone https://github.com/Shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+" 2. Run :NeoBundleInstall to install all the bundles.
 "
 
 "------------------------------------------------------------
-" Vundle
+" Neobundle
 "
-set nocompatible              " be iMproved, required
-filetype off                  " required
 "
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+if has('vim_starting')
+  set nocompatible               " Be iMproved
 
-" let Vundle manage Vundle
-" required!
-Plugin 'gmarik/Vundle.vim'
-
-" My bundles here:
+   " Required:
+   set runtimepath+=~/.vim/bundle/neobundle.vim/
+ endif
+"filetype off                  " required
 "
-" original repos on GitHub
-"Plugin 'nrs/vim-forthran'
-"Plugin 'scrooloose/nerdtree'
-"Plugin 'bling/vim-airline'
-"Plugin 'bkad/CamelCaseMotion'
-"Plugin 'Shougo/vimshell.vim'
-"Plugin 'tpope/vim-rails.git'
+call neobundle#begin(expand('~/.vim/bundle/'))
 
-Plugin 'Shougo/vimproc.vim'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'scrooloose/syntastic'
-Plugin 'Shougo/neocomplete.vim'
-Plugin 'Shougo/unite.vim'
-Plugin 'msanders/snipmate.vim'
-Plugin 'jcf/vim-latex'
-Plugin 'kien/ctrlp.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-ragtag'
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-commentary'
-Plugin 'Lokaltog/vim-easymotion'
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-Plugin 'tomasr/molokai'
-Plugin 'klen/python-mode'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'FredKSchott/CoVim'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'nanotech/jellybeans.vim'
+NeoBundleFetch 'Shougo/neobundle.vim'
 "
-call vundle#end()            " required
+NeoBundle 'Shougo/vimproc.vim', {
+\ 'build' : {
+\     'windows' : 'tools\\update-dll-mingw',
+\     'cygwin' : 'make -f make_cygwin.mak',
+\     'mac' : 'make -f make_mac.mak',
+\     'linux' : 'make',
+\     'unix' : 'gmake',
+\    },
+\ }
+NeoBundle 'scrooloose/nerdcommenter'
+NeoBundle 'scrooloose/syntastic'
+NeoBundle 'Shougo/neocomplete.vim'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'msanders/snipmate.vim'
+NeoBundle 'jcf/vim-latex'
+NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'tpope/vim-ragtag'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'tpope/vim-commentary'
+NeoBundle 'Lokaltog/vim-easymotion'
+NeoBundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+NeoBundle 'tomasr/molokai'
+NeoBundle 'klen/python-mode'
+NeoBundle 'altercation/vim-colors-solarized'
+NeoBundle 'FredKSchott/CoVim'
+NeoBundle 'terryma/vim-multiple-cursors'
+NeoBundle 'nanotech/jellybeans.vim'
+NeoBundle 'bling/vim-airline'
+" NeoBundle 'nrs/vim-forthran'
+" NeoBundle 'scrooloose/nerdtree'
+" NeoBundle 'bling/vim-airline'
+" NeoBundle 'bkad/CamelCaseMotion'
+" NeoBundle 'Shougo/vimshell.vim'
+" NeoBundle 'tpope/vim-rails.git'
+"
+call neobundle#end()
 filetype plugin indent on    " required
 "
 " End Vundle config
@@ -82,8 +90,8 @@ if has('gui_running')
     set guifont=DejaVu\ Sans\ Mono\ 11
   endif
 endif
-
-
+"
+"
 set history=50
 set mouse=a
 
@@ -129,15 +137,16 @@ set laststatus=2
 
 " Status line
 "hi StatusLine ctermfg=white  ctermbg=red cterm=bold
-set statusline=\ %{split(getcwd(),'/')[-1]}/ " the directory file is in
-"set statusline+=%f " relative path of the file w. r. to working dir
-set statusline+=%t " tail of the path
-set statusline+=%m " modified flag
-set statusline+=%r " readonly flag
-set statusline+=%h " help buffer flag
-set statusline+=%w " preview window flag
-set statusline+=\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)
-set statusline+=\ %([%l,%v][%p%%]\ %)
+"
+" set statusline=\ %{split(getcwd(),'/')[-1]}/ " the directory file is in
+" " set statusline+=%f " relative path of the file w. r. to working dir
+" set statusline+=%t " tail of the path
+" set statusline+=%m " modified flag
+" set statusline+=%r " readonly flag
+" set statusline+=%h " help buffer flag
+" set statusline+=%w " preview window flag
+" set statusline+=\%=%({%{&ff}\|%{(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\",B\":\"\")}%k\|%Y}%)
+" set statusline+=\ %([%l,%v][%p%%]\ %)
 "
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
@@ -350,3 +359,9 @@ let g:multi_cursor_quit_key='<Esc>'
 
 " Nerdtree>
 "map <F12> :NERDTreeToggle<cr>
+
+" Airline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+
