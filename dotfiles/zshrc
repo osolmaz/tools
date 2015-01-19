@@ -94,3 +94,4 @@ zstyle ':completion:*' special-dirs true
 source ~/.bash_aliases
 
 set noclobber
+

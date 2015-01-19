@@ -31,7 +31,7 @@ bindsym $mod+z kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec dmenu_run
-#bindsym $mod+d exec j4-dmenu-desktop 
+#bindsym $mod+d exec j4-dmenu-desktop
 
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
@@ -255,5 +255,5 @@ exec pcmanfm --desktop --class="pcmanfmdesktop"
 ## quick terminal
 exec urxvt -name metask
 for_window [instance="metask"] floating enable;
-for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 650px; resize width 1100px; move scratchpad
+for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; move scratchpad
 bindsym F1 [instance="metask"] scratchpad show

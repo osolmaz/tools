@@ -13,7 +13,7 @@ fi
 
 
 #exec mate-session
-exec i3
+#exec i3
 
 
 #exec ck-launch-session mate-session
@@ -21,4 +21,4 @@ exec i3
 # exec startkde
 # exec ck-launch-session startxfce4
 # ...or the Window Manager of your choice
-exec tilda --hidden
+# exec tilda --hidden

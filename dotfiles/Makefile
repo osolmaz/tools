@@ -17,6 +17,7 @@ install-vimrc:
 install-i3:
 	mkdir -p ~/.i3
 	cp i3/config ~/.i3/config
+	cp i3/i3status.conf ~/.i3/i3status.conf
 
 install-bashrc:
 	cp -f bashrc ~/.bashrc
@@ -36,7 +37,8 @@ urxvt-perl:
 copy:
 	cp -f ~/.vimrc vimrc
 	mkdir -p i3
-	cp -f ~/.i3/config i3/
+	cp -f ~/.i3/config i3/config
+	cp -f ~/.i3/i3status.conf i3/i3status.conf
 	cp -f ~/.Xdefaults Xdefaults
 	cp -f ~/.bashrc bashrc
 	cp -f ~/.zshrc zshrc
