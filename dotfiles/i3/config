@@ -12,8 +12,9 @@ set $mod Mod4
 # clear in small sizes. However, if you need a lot of unicode glyphs or
 # right-to-left text rendering, you should instead use pango for rendering and
 # chose a FreeType font, such as:
- #font pango:DejaVu Sans Mono 9
-font xft:monospace bold 11
+ # font pango:DejaVu Sans Mono bold 11
+ font pango:Arial bold 13
+# font xft:monospace bold 11
 
 focus_follows_mouse no
 
@@ -32,6 +33,20 @@ bindsym $mod+z kill
 # start dmenu (a program launcher)
 bindsym $mod+d exec dmenu_run
 #bindsym $mod+d exec j4-dmenu-desktop
+
+# The middle button over a titlebar kills the window
+bindsym --release button2 kill
+
+# The middle button and a modifer over any part of the window kills the window
+bindsym --whole-window $mod+button2 kill
+
+# The right button toggles floating
+bindsym button3 floating toggle
+bindsym $mod+button3 floating toggle
+
+# The side buttons move the window around
+bindsym button9 move left
+bindsym button8 move right
 
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
@@ -186,8 +201,8 @@ bar {
 }
 
 # Bindings for programs
-bindsym $mod+Shift+b exec doublecmd
-bindsym $mod+b exec pcmanfm -n ~/Downloads/
+bindsym $mod+Shift+b exec thunar ~/Downloads
+bindsym $mod+b exec thunar ~/Dropbox/
 #bindsym $mod+b exec caja --no-desktop
 bindsym $mod+o exec gvim
 bindsym $mod+u exec emacs
@@ -239,16 +254,17 @@ assign [class="Chromium"] 1: www
 
 # Startup programs
 exec mate-power-manager
+# exec gnome-power-manager
 exec nm-applet
 exec mate-volume-control-applet
+# exec pasystray
 exec /usr/lib/mate-settings-daemon/mate-settings-daemon
-exec dropboxd
-#exec terra
-#exec tilda --hidden
+# exec /usr/lib/gnome-settings-daemon/gnome-settings-daemon
 #exec urxvtd
 exec dropboxd
 exec conky
-exec pcmanfm --desktop --class="pcmanfmdesktop"
+exec xfdesktop --class="pcmanfmdesktop"
+# exec pcmanfm --desktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 
 
