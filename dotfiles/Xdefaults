@@ -42,8 +42,9 @@ xscreensaver.dateFormat:    %I:%M%P %a %b %d, %Y
 !------------------------------------------------------------------------------
 ! c o l o r -  s e t t i n g s
 
-!*background: #000000 
+!*background: #000000
 URxvt*background: Black
+! URxvt*foreground: #FCAF3E
 URxvt*foreground: #00BB00
 ! #000000
 ! #777777
@@ -81,13 +82,13 @@ URxvt*color15: #DDDDDD
 !------------------------------------------------------------------------------
 ! u r x v t
 
-!URxvt*geometry:         112x22  
+!URxvt*geometry:         112x22
 !URxvt*font:             xft:terminus:size=8
 !URxvt*font:             xft:Bitstream Vera Sans Mono:pixelsize=12
 !URxvt*font:             xft:Fixed:pixelsize=14:antialias=true:hinting=true
-!URxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
-URxvt*font:             xft:Dejavu Sans Mono:pixelsize=16
-URxvt*urlLauncher:      firefox  
+URxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
+! URxvt*font:             xft:Dejavu Sans Mono:pixelsize=16
+URxvt*urlLauncher:      firefox
 URxvt*scrollBar:        true
 URxvt*scrollBar_right:  true
 !URxvt*scrollColor:      #000000

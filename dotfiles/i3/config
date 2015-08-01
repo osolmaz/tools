@@ -13,7 +13,7 @@ set $mod Mod4
 # right-to-left text rendering, you should instead use pango for rendering and
 # chose a FreeType font, such as:
  # font pango:DejaVu Sans Mono bold 11
- font pango:Arial bold 13
+font pango:Arial bold 10
 # font xft:monospace bold 11
 
 focus_follows_mouse no
@@ -177,7 +177,7 @@ bar {
     position bottom
     #status_command i3status
     status_command i3status -c ~/.i3/i3status.conf
-    tray_output eDP1
+    tray_output primary
     colors {
         #separator #dc322f
         #background #002b36
@@ -273,3 +273,6 @@ exec urxvt -name metask
 for_window [instance="metask"] floating enable;
 for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; move scratchpad
 bindsym F1 [instance="metask"] scratchpad show
+
+
+
