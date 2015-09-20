@@ -1,7 +1,7 @@
 ! xrdb -load ~/.Xdefaults
 ! Xft settings ---------------------------------------------------------------
 
-Xft.dpi:        96
+Xft.dpi:        72
 Xft.antialias:  true
 Xft.rgba:       rgb
 Xft.hinting:    true
@@ -86,8 +86,9 @@ URxvt*color15: #DDDDDD
 !URxvt*font:             xft:terminus:size=8
 !URxvt*font:             xft:Bitstream Vera Sans Mono:pixelsize=12
 !URxvt*font:             xft:Fixed:pixelsize=14:antialias=true:hinting=true
-URxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
+! URxvt*font:             xft:Dejavu Sans Mono:pixelsize=12
 ! URxvt*font:             xft:Dejavu Sans Mono:pixelsize=16
+URxvt*font:             xft:Consolas:pixelsize=13
 URxvt*urlLauncher:      firefox
 URxvt*scrollBar:        true
 URxvt*scrollBar_right:  true

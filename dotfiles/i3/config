@@ -177,7 +177,7 @@ bar {
     position bottom
     #status_command i3status
     status_command i3status -c ~/.i3/i3status.conf
-    tray_output primary
+    # tray_output primary
     colors {
         #separator #dc322f
         #background #002b36
@@ -223,7 +223,6 @@ bindsym $mod+Shift+n move container to workspace next; workspace next
 # Nice functionality, thanks i3
 workspace_auto_back_and_forth yes
 
-#
 # Some windows just need to float
 for_window [class="Terra"] floating enable
 for_window [class="Tilda"] floating enable
@@ -252,6 +251,11 @@ assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
 #assign [class="pcmanfmdesktop"] 9: dt
 
+## quick terminal
+for_window [instance="metask"] floating enable;
+for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; move scratchpad
+bindsym F1 [instance="metask"] scratchpad show
+
 # Startup programs
 exec mate-power-manager
 # exec gnome-power-manager
@@ -266,13 +270,6 @@ exec conky
 exec xfdesktop --class="pcmanfmdesktop"
 # exec pcmanfm --desktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
-
-
-## quick terminal
 exec urxvt -name metask
-for_window [instance="metask"] floating enable;
-for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; move scratchpad
-bindsym F1 [instance="metask"] scratchpad show
-
 
 
