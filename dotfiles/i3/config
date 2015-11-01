@@ -252,9 +252,9 @@ assign [class="Chromium"] 1: www
 #assign [class="pcmanfmdesktop"] 9: dt
 
 ## quick terminal
-for_window [instance="metask"] floating enable;
-for_window [instance="metask"] move scratchpad; [instance="metask"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; move scratchpad
-bindsym F1 [instance="metask"] scratchpad show
+for_window [instance="fastterm"] floating enable;
+for_window [instance="fastterm"] move scratchpad;[instance="fastterm"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; movescratchpad; sticky enable;
+bindsym F1 [instance="fastterm"] scratchpad show;
 
 # Startup programs
 exec mate-power-manager
@@ -270,6 +270,6 @@ exec conky
 exec xfdesktop --class="pcmanfmdesktop"
 # exec pcmanfm --desktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
-exec urxvt -name metask
+exec urxvt -name fastterm
 
 
