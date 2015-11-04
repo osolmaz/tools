@@ -1,9 +1,7 @@
-# For urxvt, use the clipboard script for copy-paste functionality (from the github repo below)
-
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -31,8 +29,8 @@ install-conkyrc:
 install-Xresources:
 	cp -f Xresources ~/.Xresources
 
-urxvt-perl:
-	git clone https://github.com/muennich/urxvt-perls
+install-urxvt-perls:
+	cp -rf urxvt-perls ~/.urxvt-perls
 
 copy:
 	cp -f ~/.vimrc vimrc
@@ -44,4 +42,3 @@ copy:
 	cp -f ~/.zshrc zshrc
 	cp -f ~/.conkyrc conkyrc
 	cp -f ~/.xinitrc xinitrc
-
