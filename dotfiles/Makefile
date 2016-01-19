@@ -3,7 +3,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xdefaults
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -28,8 +28,8 @@ install-zshrc:
 install-conkyrc:
 	cp -f conkyrc ~/.conkyrc
 
-install-Xdefaults:
-	cp -f Xdefaults ~/.Xdefaults
+install-Xresources:
+	cp -f Xresources ~/.Xresources
 
 urxvt-perl:
 	git clone https://github.com/muennich/urxvt-perls
@@ -39,7 +39,7 @@ copy:
 	mkdir -p i3
 	cp -f ~/.i3/config i3/config
 	cp -f ~/.i3/i3status.conf i3/i3status.conf
-	cp -f ~/.Xdefaults Xdefaults
+	cp -f ~/.Xresources Xresources
 	cp -f ~/.bashrc bashrc
 	cp -f ~/.zshrc zshrc
 	cp -f ~/.conkyrc conkyrc

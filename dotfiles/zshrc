@@ -81,6 +81,7 @@ function paradise(){
 zstyle ':completion:*' special-dirs true
 
 source ~/.bash_aliases
+# source /etc/profile.d/fzf.zsh
 
 set noclobber
 

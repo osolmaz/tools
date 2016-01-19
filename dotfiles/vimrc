@@ -69,6 +69,7 @@ let &cpo=s:cpo_save
 unlet s:cpo_save
 set background=dark
 set backspace=indent,eol,start
+set nowrap
 
 " Set the font
 if has('gui_running')
@@ -77,7 +78,7 @@ if has('gui_running')
     set guifont=Consolas:h11:cANSI
   else
     " set guifont=DejaVu\ Sans\ Mono\ 12
-    set guifont=Consolas\ 13
+    set guifont=Consolas\ 11
     set linespace=3
   endif
 endif

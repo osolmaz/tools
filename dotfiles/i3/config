@@ -272,4 +272,3 @@ exec xfdesktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 exec urxvt -name fastterm
 
-
