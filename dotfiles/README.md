@@ -1,7 +1,9 @@
-# @hos' dotfiles
+### dotfiles @hos
 
-* I use Arch Linux.
-* I use ``urxvt`` for terminal emulation.
-* I use pcmanfm for file management.
-* ``Dejavu Sans Mono`` and ``Consolas`` are my most preferred fonts for programming.
+##### Installing to a new system
 
+     make install
+
+##### Getting changes done to system files
+
+     make copy
