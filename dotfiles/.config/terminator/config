@@ -1,6 +1,8 @@
 [global_config]
   scroll_tabbar = True
 [keybindings]
+  cycle_next = <Primary>Tab
+  cycle_prev = <Primary><Shift>Tab
 [layouts]
   [[default]]
     [[[child1]]]
@@ -16,5 +18,7 @@
     background_image = None
     font = Consolas 11
     foreground_color = "#839496"
+    scroll_on_output = False
+    scrollback_lines = 3000
     show_titlebar = False
     use_system_font = False

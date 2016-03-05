@@ -31,7 +31,7 @@ bindsym $mod+Shift+q kill
 bindsym $mod+z kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
+bindsym Mod1+F2 exec dmenu_run
 #bindsym $mod+d exec j4-dmenu-desktop
 
 # The middle button over a titlebar kills the window
@@ -108,7 +108,7 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 
 # focus the child container
-#bindsym $mod+d focus child
+bindsym $mod+d focus child
 
 # switch to workspace
 bindsym $mod+1 workspace 1: www
@@ -204,7 +204,7 @@ bar {
 bindsym $mod+Shift+b exec thunar ~/Downloads
 bindsym $mod+b exec thunar ~/Dropbox/
 #bindsym $mod+b exec caja --no-desktop
-bindsym $mod+o exec gvim
+bindsym $mod+o exec atom
 bindsym $mod+u exec emacs
 bindsym $mod+g exec vlc
 bindsym $mod+Shift+f exec firefox
@@ -229,6 +229,8 @@ for_window [class="Tilda"] floating enable
 for_window [class="floating"] floating enable
 for_window [class="Gnuplot"] floating enable
 for_window [class="love"] floating enable
+for_window [class="crunchy_workbench.py"] floating enable
+for_window [class="crunchy_config.py"] floating enable
 for_window [title="FEAP Graphics Window"] floating enable
 for_window [class="pcmanfmdesktop"] floating disable;
 
@@ -273,3 +275,6 @@ exec xfdesktop --class="pcmanfmdesktop"
 exec terminator -c fastterm
 
 
+# Temporary
+bindsym $mod+Shift+m exec urxvt -e $SHELL -c 'ssh -X h_solmaz@bohr.isr.uni-stuttgart.de -t screen -DR'
+bindsym $mod+Shift+u exec "killall -9 pandas.bin; killall -9 pandas; killall -9 python; killall -9 python2;"
