@@ -63,11 +63,17 @@ setopt pushdsilent
 
 
 function rld (){
-        source ~/.zshrc
+    source ~/.zshrc
 }
 
+function gmp (){
+    git commit -a -m "Minor";
+    git push;
+}
+
+
 function listbiggest(){
-        du -a . | sort -r -n | head -n 10
+    du -a . | sort -r -n | head -n 10
 }
 
 function em() {

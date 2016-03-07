@@ -31,7 +31,7 @@ bindsym $mod+Shift+q kill
 bindsym $mod+z kill
 
 # start dmenu (a program launcher)
-bindsym Mod1+F2 exec dmenu_run
+bindsym $mod+d exec dmenu_run
 #bindsym $mod+d exec j4-dmenu-desktop
 
 # The middle button over a titlebar kills the window
@@ -108,7 +108,7 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 
 # focus the child container
-bindsym $mod+d focus child
+bindsym $mod+x focus child
 
 # switch to workspace
 bindsym $mod+1 workspace 1: www
@@ -209,6 +209,7 @@ bindsym $mod+u exec emacs
 bindsym $mod+g exec vlc
 bindsym $mod+Shift+f exec firefox
 bindsym Control+Shift+$mod+k exec systemctl poweroff
+bindsym Control+Shift+$mod+s exec systemctl suspend
 bindsym $mod+i exec "urxvt -e paradise.d"
 
 # Gonna save some screen space
