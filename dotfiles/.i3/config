@@ -201,13 +201,15 @@ bar {
 }
 
 # Bindings for programs
-bindsym $mod+Shift+b exec thunar ~/Downloads
-bindsym $mod+b exec thunar ~/Dropbox/
+bindsym $mod+Shift+b exec pcmanfm -n ~/Downloads
+bindsym $mod+b exec pcmanfm -n ~/Dropbox/
 #bindsym $mod+b exec caja --no-desktop
-bindsym $mod+o exec atom
+bindsym $mod+o exec gvim
+# bindsym $mod+o exec atom
 bindsym $mod+u exec emacs
 bindsym $mod+g exec vlc
-bindsym $mod+Shift+f exec firefox
+bindsym $mod+Shift+f exec chromium
+# bindsym $mod+Shift+f exec firefox
 bindsym Control+Shift+$mod+k exec systemctl poweroff
 bindsym Control+Shift+$mod+s exec systemctl suspend
 bindsym $mod+i exec "urxvt -e paradise.d"
@@ -239,6 +241,7 @@ for_window [class="pcmanfmdesktop"] floating disable;
 for_window [class="Firefox"] border none
 for_window [class="Dwb"] border none
 for_window [class="Chromium"] border none
+for_window [class="chromium"] border none
 
 #bindsym Control+Shift+1 [class="^.*"] border toggle
 #for_window [class="^.*"] border none
@@ -252,6 +255,7 @@ client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 # Assign classes to some programs so they get automatically segregated
 assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
+assign [class="chromium"] 1: www
 #assign [class="pcmanfmdesktop"] 9: dt
 
 ## quick terminal

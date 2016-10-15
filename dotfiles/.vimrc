@@ -75,10 +75,10 @@ set nowrap
 if has('gui_running')
   if has('gui_win32')
     " set guifont=DejaVu_Sans_Mono:h11:cANSI
-    set guifont=Consolas:h11:cANSI
+    set guifont=Consolas:h9:cANSI
   else
     " set guifont=DejaVu\ Sans\ Mono\ 12
-    set guifont=Consolas\ 11
+    set guifont=Consolas\ 9
     set linespace=3
   endif
 endif
