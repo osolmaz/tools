@@ -9,8 +9,8 @@ install-emacsd:
 
 install-vimrc:
 	cp -f .vimrc ~/.vimrc
-	git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-	vim +BundleInstall +qall
+	git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+	vim +PluginInstall +qall
 
 install-i3:
 	mkdir -p ~/.i3
