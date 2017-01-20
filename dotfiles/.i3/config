@@ -253,15 +253,24 @@ client.focused_inactive #268bd2 #268bd2 #fdf6e3 #484e50
 client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 # Assign classes to some programs so they get automatically segregated
-assign [class="Firefox"] 1: www
+# assign [class="Firefox"] 1: www
 assign [class="Chromium"] 1: www
 assign [class="chromium"] 1: www
 #assign [class="pcmanfmdesktop"] 9: dt
 
 ## quick terminal
-for_window [instance="fastterm"] floating enable;
-for_window [instance="fastterm"] move scratchpad;[instance="fastterm"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; movescratchpad; sticky enable;
-bindsym F1 [instance="fastterm"] scratchpad show;
+# for_window [class="fastterm"] floating enable;
+# for_window [class="fastterm"] move scratchpad;[class="fastterm"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; movescratchpad; sticky enable;
+# bindsym F1 [class="fastterm"] scratchpad show;
+
+# Make the currently focused window a scratchpad
+bindsym $mod+m move scratchpad
+
+# Show the first scratchpad window
+bindsym F1 scratchpad show
+
+# Show the sup-mail scratchpad window, if any.
+# bindsym mod4+s [title="^Sup ::"] scratchpad show
 
 # Startup programs
 exec mate-power-manager
