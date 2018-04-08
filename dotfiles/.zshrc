@@ -12,7 +12,12 @@ ZSH=$HOME/.oh-my-zsh
 #ZSH_THEME="af-magic"
 #ZSH_THEME="agnoster"
 ZSH_THEME="afowler"
-#ZSH_THEME="bira"
+# ZSH_THEME="ys"
+# ZSH_THEME="smt"
+# ZSH_THEME="bira"
+# ZSH_THEME="bureau"
+# ZSH_THEME="terminalparty"
+# ZSH_THEME="Honukai"
 #ZSH_THEME="amuse"
 #ZSH_THEME="pygmalion"
 
@@ -41,7 +46,7 @@ CASE_SENSITIVE="true"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git cp)
+plugins=(cp)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -66,8 +71,13 @@ function rld (){
     source ~/.zshrc
 }
 
-function gmp (){
-    git commit -a -m "Minor";
+function gmp {
+    if [ ! -z $1 ]
+    then
+        git commit -a -m "$1";
+    else
+        git commit -a -m "Minor";
+    fi
     git push;
 }
 

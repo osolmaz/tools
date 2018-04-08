@@ -1,5 +1,6 @@
 [global_config]
   scroll_tabbar = True
+  suppress_multiple_term_dialog = True
 [keybindings]
   cycle_next = <Primary>Tab
   cycle_prev = <Primary><Shift>Tab
@@ -16,7 +17,7 @@
   [[default]]
     background_color = "#002b36"
     background_image = None
-    font = Consolas 11
+    font = Consolas 9
     foreground_color = "#839496"
     scroll_on_output = False
     scrollback_lines = 3000

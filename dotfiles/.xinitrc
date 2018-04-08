@@ -1,25 +1,16 @@
+
 #!/bin/sh
+
 #
 # ~/.xinitrc
 #
 # Executed by startx (run your window manager from here)
+#
 
-if [ -d /etc/X11/xinit/xinitrc.d ]; then
-  for f in /etc/X11/xinit/xinitrc.d/*; do
-    [ -x "$f" ] && . "$f"
-  done
-  unset f
-fi
+export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
 
-
-#exec gnome-session
-#exec mate-session
-#exec i3
-
-
-#exec ck-launch-session mate-session
-# exec ck-launch-session gnome-session
-# exec startkde
-# exec ck-launch-session startxfce4
-# ...or the Window Manager of your choice
-# exec tilda --hidden
+DEFAULT_SESSION=xfce4-session
+case $1 in
+  xfce) exec dbus-launch xfce4-session ;;
+  *) exec dbus-launch  $DEFAULT_SESSION ;;
+esac
