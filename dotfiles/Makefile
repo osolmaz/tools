@@ -23,9 +23,6 @@ install-bashrc:
 install-zshrc:
 	cp -f .zshrc ~/.zshrc
 
-install-conkyrc:
-	cp -f .conkyrc ~/.conkyrc
-
 install-Xresources:
 	cp -f .Xresources ~/.Xresources
 
@@ -55,7 +52,6 @@ copy:
 	cp -f ~/.Xresources .Xresources
 	cp -f ~/.bashrc .bashrc
 	cp -f ~/.zshrc .zshrc
-	cp -f ~/.conkyrc .conkyrc
 	cp -f ~/.xinitrc .xinitrc
 	mkdir -p .config/terminator/
 	cp -f ~/.config/terminator/config .config/terminator/config
