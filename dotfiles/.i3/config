@@ -273,6 +273,7 @@ client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 # Make the currently focused window a scratchpad
 bindsym $mod+m move scratchpad
+bindsym Control+Shift+$mod+c exec bash ~/Dropbox/org/restart_conky.sh
 
 # Show the first scratchpad window
 bindsym F1 scratchpad show
@@ -290,13 +291,12 @@ exec /usr/lib/mate-settings-daemon/mate-settings-daemon
 # exec /usr/lib/gnome-settings-daemon/gnome-settings-daemon
 #exec urxvtd
 exec dropboxd
-exec conky
 exec xfdesktop --class="pcmanfmdesktop"
 # exec pcmanfm --desktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 exec terminator -c fastterm
 
+exec conky -c ~/.conkyrc
+exec conky -c ~/Dropbox/org/conky_config.lua
 
-# Temporary
-bindsym $mod+Shift+m exec urxvt -e $SHELL -c 'ssh -X h_solmaz@bohr.isr.uni-stuttgart.de -t screen -DR'
-bindsym $mod+Shift+u exec "killall -9 pandas.bin; killall -9 pandas; killall -9 python; killall -9 python2;"
+
