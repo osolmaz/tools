@@ -273,7 +273,7 @@ client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 # Make the currently focused window a scratchpad
 bindsym $mod+m move scratchpad
-bindsym Control+Shift+$mod+c exec bash ~/Dropbox/org/restart_conky.sh
+bindsym Control+Shift+$mod+c exec bash ~/Dropbox/org/conky/restart_conky.sh
 
 # Show the first scratchpad window
 bindsym F1 scratchpad show
@@ -296,7 +296,7 @@ exec xfdesktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 exec terminator -c fastterm
 
-exec conky -c ~/.conkyrc
-exec conky -c ~/Dropbox/org/conky_config.lua
+# exec conky -c ~/.conkyrc
+# exec conky -c ~/Dropbox/org/conky/conky_config.lua
 
 

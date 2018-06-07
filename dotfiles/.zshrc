@@ -41,7 +41,7 @@ CASE_SENSITIVE="true"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment following line if you want red dots to be displayed while waiting for completion
-# COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -93,6 +93,11 @@ function em() {
 function paradise(){
     mplayer http://stream-dc1.radioparadise.com/aac-128
 }
+
+function md2pdf {
+  pandoc "$1" -o "$(basename "$1" .md).pdf"
+}
+
 
 zstyle ':completion:*' special-dirs true
 

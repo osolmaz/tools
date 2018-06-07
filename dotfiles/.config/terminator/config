@@ -16,10 +16,9 @@
 [profiles]
   [[default]]
     background_color = "#002b36"
-    background_image = None
-    font = Consolas 9
+    cursor_color = "#839496"
+    font = Consolas 11
     foreground_color = "#839496"
-    scroll_on_output = False
     scrollback_lines = 3000
     show_titlebar = False
     use_system_font = False
