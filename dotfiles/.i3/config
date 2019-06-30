@@ -13,7 +13,7 @@ set $mod Mod4
 # right-to-left text rendering, you should instead use pango for rendering and
 # chose a FreeType font, such as:
  # font pango:DejaVu Sans Mono bold 11
-font pango:Arial bold 10
+font pango:Arial bold 8
 # font xft:monospace bold 11
 
 focus_follows_mouse no
@@ -111,7 +111,7 @@ bindsym $mod+a focus parent
 bindsym $mod+x focus child
 
 # switch to workspace
-bindsym $mod+1 workspace 1: www
+bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
 bindsym $mod+3 workspace 3
 bindsym $mod+4 workspace 4
@@ -119,11 +119,11 @@ bindsym $mod+5 workspace 5
 bindsym $mod+6 workspace 6
 bindsym $mod+7 workspace 7
 bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9: dt
+bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1: www
+bindsym $mod+Shift+1 move container to workspace 1
 bindsym $mod+Shift+2 move container to workspace 2
 bindsym $mod+Shift+3 move container to workspace 3
 bindsym $mod+Shift+4 move container to workspace 4
@@ -131,7 +131,7 @@ bindsym $mod+Shift+5 move container to workspace 5
 bindsym $mod+Shift+6 move container to workspace 6
 bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9: dt
+bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 # reload the configuration file
@@ -248,6 +248,9 @@ for_window [class="Firefox"] border none
 for_window [class="Dwb"] border none
 for_window [class="Chromium"] border none
 for_window [class="chromium"] border none
+for_window [class="Franz"] border none
+for_window [class="brave-browser"] border none
+for_window [class="Brave-browser"] border none
 for_window [class="google-chrome"] border none
 for_window [class="Opera"] border none
 for_window [class="brave"] border none
@@ -262,14 +265,16 @@ client.focused_inactive #268bd2 #268bd2 #fdf6e3 #484e50
 client.unfocused #333333 #93a1a1 #fdf6e3 #292d2e
 
 # Assign classes to some programs so they get automatically segregated
-# assign [class="Firefox"] 1: www
-# assign [class="Chromium"] 1: www
-#assign [class="pcmanfmdesktop"] 9: dt
+# assign [class="Firefox"] 1
+# assign [class="Chromium"] 1
+#assign [class="pcmanfmdesktop"] 9
 
 ## quick terminal
 # for_window [class="fastterm"] floating enable;
 # for_window [class="fastterm"] move scratchpad;[class="fastterm"] scratchpad show; move position 450px 250px; resize height 750px; resize width 1500px; movescratchpad; sticky enable;
 # bindsym F1 [class="fastterm"] scratchpad show;
+
+bindsym $mod+Shift+u exec DISPLAY=:0 mate-screenshot -a
 
 # Make the currently focused window a scratchpad
 bindsym $mod+m move scratchpad
@@ -285,7 +290,7 @@ bindsym F1 scratchpad show
 exec mate-power-manager
 # exec gnome-power-manager
 exec nm-applet
-exec mate-volume-control-applet
+exec mate-volume-control-status-icon
 # exec pasystray
 exec /usr/lib/mate-settings-daemon/mate-settings-daemon
 # exec /usr/lib/gnome-settings-daemon/gnome-settings-daemon
@@ -295,6 +300,7 @@ exec xfdesktop --class="pcmanfmdesktop"
 # exec pcmanfm --desktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 exec terminator -c fastterm
+exec bash ~/Dropbox/org/conky/restart_conky.sh
 
 # exec conky -c ~/.conkyrc
 # exec conky -c ~/Dropbox/org/conky/conky_config.lua
