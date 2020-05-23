@@ -209,11 +209,12 @@ bindsym $mod+Shift+b exec pcmanfm -n ~/Downloads
 bindsym $mod+b exec pcmanfm -n ~/Dropbox/
 #bindsym $mod+b exec caja --no-desktop
 #bindsym $mod+o exec gvim
-bindsym $mod+o exec fzfopen
-bindsym $mod+Shift+o exec fzfopen --find
+bindsym $mod+o exec xterm -fa "Consolas" -fs 14 -e oil
+bindsym $mod+Shift+o exec fzfopen
+# bindsym $mod+Shift+o exec fzfopen --find
 bindsym $mod+u exec emacs
 bindsym $mod+g exec vlc
-bindsym $mod+Shift+f exec opera
+bindsym $mod+Shift+f exec brave
 # bindsym $mod+Shift+f exec firefox
 # bindsym $mod+Shift+f exec chromium --disable-gpu --force-device-scale-factor=1
 bindsym Control+Shift+$mod+k exec systemctl poweroff
@@ -245,6 +246,7 @@ for_window [class="pcmanfmdesktop"] floating disable;
 
 # Borderless programs - learn class with xprop
 for_window [class="Firefox"] border none
+for_window [class="firefox"] border none
 for_window [class="Dwb"] border none
 for_window [class="Chromium"] border none
 for_window [class="chromium"] border none
@@ -279,6 +281,7 @@ bindsym $mod+Shift+u exec DISPLAY=:0 mate-screenshot -a
 # Make the currently focused window a scratchpad
 bindsym $mod+m move scratchpad
 bindsym Control+Shift+$mod+c exec bash ~/Dropbox/org/conky/restart_conky.sh
+bindsym Control+Shift+$mod+p exec killall -9 firefox zoom dropbox
 
 # Show the first scratchpad window
 bindsym F1 scratchpad show
@@ -301,6 +304,7 @@ exec xfdesktop --class="pcmanfmdesktop"
 #exec feh --bg-scale path_to_my_wallpaper.jpg # use if you don't use pcmanfm desktop
 exec terminator -c fastterm
 exec bash ~/Dropbox/org/conky/restart_conky.sh
+exec blueman-applet
 
 # exec conky -c ~/.conkyrc
 # exec conky -c ~/Dropbox/org/conky/conky_config.lua
