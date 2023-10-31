@@ -46,7 +46,8 @@ COMPLETION_WAITING_DOTS="true"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(cp zsh-autosuggestions)
+# plugins=(cp zsh-autosuggestions)
+plugins=(cp)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -72,6 +73,9 @@ function rld (){
 }
 
 function gmp {
+    # First, pull all the changes from the remote repository
+    # We don't want to have a conflict
+    git pull;
     if [ ! -z $1 ]
     then
         git commit -a -m "$1";
@@ -79,6 +83,54 @@ function gmp {
         git commit -a -m "Minor";
     fi
     git push;
+}
+
+function gdf() {
+  git diff "$@"
+}
+
+function gst() {
+  git status
+}
+
+function glg() {
+  git log
+}
+
+function gpl() {
+  git pull
+}
+
+function gps() {
+  git push
+}
+
+function gco() {
+    if [ -z "$1" ]
+    then
+        echo "No branch name provided"
+        return 1
+    fi
+
+    # Check if the branch exists
+    git show-ref --verify --quiet refs/heads/$1
+
+    if [ $? -eq 0 ]
+    then
+        echo "Switching to branch '$1'"
+        git checkout $1
+    else
+        read "?Branch '$1' does not exist. Would you like to create it? [Y/n] " input
+
+        if [[ $input == "Y" || $input == "y" ]]
+        then
+            echo "Creating and switching to branch '$1'"
+            git checkout -b $1
+        else
+            echo "Aborted"
+            return 1
+        fi
+    fi
 }
 
 
@@ -101,8 +153,6 @@ function md2pdf {
 
 zstyle ':completion:*' special-dirs true
 
-source ~/.bash_aliases
 # source /etc/profile.d/fzf.zsh
 
 set noclobber
-
