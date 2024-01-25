@@ -120,7 +120,9 @@ function gco() {
         echo "Switching to branch '$1'"
         git checkout $1
     else
+        # Default input to 'Y' if nothing is entered
         read "?Branch '$1' does not exist. Would you like to create it? [Y/n] " input
+        input=${input:-Y}
 
         if [[ $input == "Y" || $input == "y" ]]
         then
@@ -132,7 +134,6 @@ function gco() {
         fi
     fi
 }
-
 
 function listbiggest(){
     du -a . | sort -r -n | head -n 10
@@ -156,3 +157,4 @@ zstyle ':completion:*' special-dirs true
 # source /etc/profile.d/fzf.zsh
 
 set noclobber
+
