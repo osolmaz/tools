@@ -76,11 +76,24 @@ function gmp {
     # First, pull all the changes from the remote repository
     # We don't want to have a conflict
     git pull;
+
+    # Check if we're in a git repository
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        # Get the root directory of the git repository
+        local git_root=$(git rev-parse --show-toplevel)
+
+        # Check if .pre-commit-config.yaml exists in the project root
+        if [ -f "$git_root/.pre-commit-config.yaml" ]; then
+            echo "Found .pre-commit-config.yaml in repository root, running pre-commit hooks..."
+            git add --all && (cd "$git_root" && uv run pre-commit run)
+        fi
+    fi
+
     if [ ! -z $1 ]
     then
         git commit -a -m "$1";
     else
-        git commit -a -m "Minor";
+        git commit -a -m "Checkpoint";
     fi
     git push;
 }
