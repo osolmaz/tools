@@ -85,7 +85,7 @@ function gmp {
         # Check if .pre-commit-config.yaml exists in the project root
         if [ -f "$git_root/.pre-commit-config.yaml" ]; then
             echo "Found .pre-commit-config.yaml in repository root, running pre-commit hooks..."
-            git add --all && (cd "$git_root" && uv run pre-commit run)
+            git add -u && (cd "$git_root" && uv run pre-commit run)
         fi
     fi
 
