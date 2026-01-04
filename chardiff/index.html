@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>chardiff</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #1e1e1e;  /* Dark background */
+      color: #ffffff;  /* Light text */
+    }
+    h1 {
+      margin-bottom: 1em;
+    }
+    .container {
+      display: flex;
+      gap: 1em;
+    }
+    textarea {
+      width: 45%;
+      height: 150px;
+      font-family: sans-serif;
+      font-size: 14px;
+      padding: 1em;
+      background-color: #2d2d2d;  /* Dark textarea */
+      color: #ffffff;  /* Light text */
+      border: 1px solid #404040;  /* Subtle border */
+    }
+    #diff-output {
+      margin-top: 2em;
+      font-size: 16px;
+      line-height: 1.5;
+      white-space: pre-wrap; /* allows us to see newlines in the diff, if any */
+    }
+    .deleted {
+        background-color: #ff3c3c;
+    }
+    .inserted {
+      background-color: #59ff59;
+      color: #000000;
+    }
+    .github-link {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      margin: 0;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>chardiff</h1>
+  <p class="github-link"><small><a href="https://github.com/osolmaz/chardiff" style="color: #59ff59;">See the source on GitHub</a></small></p>
+  <div class="container">
+    <textarea id="input1" oninput="updateDiff(); saveToLocalStorage()" placeholder="Enter text #1"></textarea>
+    <textarea id="input2" oninput="updateDiff(); saveToLocalStorage()" placeholder="Enter text #2"></textarea>
+  </div>
+  <div id="diff-output"></div>
+
+  <script>
+    // Add these functions at the start of your script section
+    function saveToLocalStorage() {
+        localStorage.setItem('input1', document.getElementById('input1').value);
+        localStorage.setItem('input2', document.getElementById('input2').value);
+    }
+
+    function loadFromLocalStorage() {
+        const defaultText1 = "This text is different than the other one";
+        const defaultText2 = "This text is not the same as the first one";
+
+        const input1 = localStorage.getItem('input1') || defaultText1;
+        const input2 = localStorage.getItem('input2') || defaultText2;
+
+        document.getElementById('input1').value = input1;
+        document.getElementById('input2').value = input2;
+        updateDiff(); // Update the diff display with loaded values
+    }
+
+    // Patched difflib.js, calling self.isjunk(...) instead of isjunk(...)
+    var difflib;
+    (function() {
+      function isindict(d, key) {
+        return d.hasOwnProperty(key);
+      }
+      function get(dict, key, defaultValue) {
+        return isindict(dict, key) ? dict[key] : defaultValue;
+      }
+
+      difflib = {
+        defaultJunkFunction: function(c) {
+          // Remove the whitespace-as-junk behavior
+          return false;  // Consider no characters as junk
+        },
+        SequenceMatcher: function(a, b, isjunk) {
+          var self = this;
+
+          // We only call __chain_b() after both a and b are set
+          self.set_seqs = function(a, b) {
+            self.a = a || "";
+            self.b = b || "";
+            self.matching_blocks = null;
+            self.opcodes = null;
+            self.fullbcount = null;
+            self.__chain_b();
+          };
+
+          // set_seq1 / set_seq2 no longer call __chain_b
+          self.set_seq1 = function(a) {
+            if (a === self.a) return;
+            self.a = a || "";
+            self.matching_blocks = null;
+            self.opcodes = null;
+            self.fullbcount = null;
+          };
+
+          self.set_seq2 = function(b) {
+            if (b === self.b) return;
+            self.b = b || "";
+            self.matching_blocks = null;
+            self.opcodes = null;
+            self.fullbcount = null;
+          };
+
+          self.__chain_b = function() {
+            var b = self.b;
+            var b2j = {};
+            for (var i = 0; i < b.length; i++) {
+              var elt = b[i];
+              // Fix: call self.isjunk instead of isjunk
+              if (!self.isjunk(elt)) {
+                if (!isindict(b2j, elt)) {
+                  b2j[elt] = [];
+                }
+                b2j[elt].push(i);
+              }
+            }
+            self.b2j = b2j;
+          };
+
+          self.find_longest_match = function(alo, ahi, blo, bhi) {
+            var a = self.a;
+            var b = self.b;
+            var b2j = self.b2j;
+            var besti = alo;
+            var bestj = blo;
+            var bestsize = 0;
+            var j2len = {};
+
+            for (var i = alo; i < ahi; i++) {
+              var newj2len = {};
+              var charA = a[i];
+              var jdict = get(b2j, charA, []);
+              for (var jX = 0; jX < jdict.length; jX++) {
+                var j = jdict[jX];
+                if (j < blo) continue;
+                if (j >= bhi) break;
+                var k = get(j2len, j - 1, 0) + 1;
+                newj2len[j] = k;
+                if (k > bestsize) {
+                  besti = i - k + 1;
+                  bestj = j - k + 1;
+                  bestsize = k;
+                }
+              }
+              j2len = newj2len;
+            }
+            return [besti, bestj, bestsize];
+          };
+
+          self.get_matching_blocks = function() {
+            if (self.matching_blocks !== null) {
+              return self.matching_blocks;
+            }
+            var la = self.a.length;
+            var lb = self.b.length;
+            var queue = [[0, la, 0, lb]];
+            var matching_blocks = [];
+
+            while (queue.length > 0) {
+              var q = queue.pop();
+              var alo = q[0], ahi = q[1], blo = q[2], bhi = q[3];
+              var x = self.find_longest_match(alo, ahi, blo, bhi);
+              var i = x[0], j = x[1], k = x[2];
+              if (k) {
+                matching_blocks.push(x);
+                if (alo < i && blo < j) {
+                  queue.push([alo, i, blo, j]);
+                }
+                if (i + k < ahi && j + k < bhi) {
+                  queue.push([i + k, ahi, j + k, bhi]);
+                }
+              }
+            }
+            matching_blocks.sort(function(a, b) {
+              return (a[0] - b[0]) || (a[1] - b[1]);
+            });
+
+            var i1 = 0, j1 = 0, k1 = 0;
+            var non_adj = [];
+            for (var idx = 0; idx < matching_blocks.length; idx++) {
+              var block = matching_blocks[idx];
+              var i2 = block[0];
+              var j2 = block[1];
+              var k2 = block[2];
+              if ((i1 + k1 === i2) && (j1 + k1 === j2)) {
+                k1 += k2;
+              } else {
+                if (k1) {
+                  non_adj.push([i1, j1, k1]);
+                }
+                i1 = i2;
+                j1 = j2;
+                k1 = k2;
+              }
+            }
+            if (k1) {
+              non_adj.push([i1, j1, k1]);
+            }
+            // add the final block
+            non_adj.push([la, lb, 0]);
+            self.matching_blocks = non_adj;
+            return self.matching_blocks;
+          };
+
+          self.get_opcodes = function() {
+            if (self.opcodes !== null) {
+              return self.opcodes;
+            }
+            var i = 0;
+            var j = 0;
+            self.opcodes = [];
+            var blocks = self.get_matching_blocks();
+            for (var idx = 0; idx < blocks.length; idx++) {
+              var b = blocks[idx];
+              var ai = b[0];
+              var bj = b[1];
+              var size = b[2];
+              var tag = "";
+              if (i < ai && j < bj) {
+                tag = "replace";
+              } else if (i < ai) {
+                tag = "delete";
+              } else if (j < bj) {
+                tag = "insert";
+              }
+              if (tag) {
+                self.opcodes.push([tag, i, ai, j, bj]);
+              }
+              i = ai + size;
+              j = bj + size;
+              if (size) {
+                self.opcodes.push(["equal", ai, i, bj, j]);
+              }
+            }
+            return self.opcodes;
+          };
+
+          // If 'isjunk' wasn't provided, default to whitespace
+          self.isjunk = typeof isjunk === "function" ? isjunk : difflib.defaultJunkFunction;
+
+          // Initialize
+          self.set_seqs(a, b);
+        }
+      };
+    })();
+
+    // This function takes two strings, uses our SequenceMatcher, and wraps
+    // the differences in <span class="deleted"> or <span class="inserted">.
+    function colorDiff(str1, str2) {
+      const sm = new difflib.SequenceMatcher(str1, str2);
+      const opcodes = sm.get_opcodes();
+      let result = "";
+      for (let i = 0; i < opcodes.length; i++) {
+        const [tag, i1, i2, j1, j2] = opcodes[i];
+        if (tag === "equal") {
+          result += str1.substring(i1, i2);
+        } else if (tag === "replace") {
+          result += `<span class="deleted">${str1.substring(i1, i2)}</span>`
+                 +  `<span class="inserted">${str2.substring(j1, j2)}</span>`;
+        } else if (tag === "delete") {
+          result += `<span class="deleted">${str1.substring(i1, i2)}</span>`;
+        } else if (tag === "insert") {
+          result += `<span class="inserted">${str2.substring(j1, j2)}</span>`;
+        }
+      }
+      return result;
+    }
+
+    function updateDiff() {
+      const el1 = document.getElementById("input1");
+      const el2 = document.getElementById("input2");
+
+      const str1 = el1 ? el1.value : "";
+      const str2 = el2 ? el2.value : "";
+
+      const diffHtml = colorDiff(str1, str2);
+      document.getElementById("diff-output").innerHTML = diffHtml;
+    }
+
+    // Load saved text when the page loads
+    window.addEventListener('load', loadFromLocalStorage);
+  </script>
+</body>
+</html>
