@@ -10,5 +10,6 @@ This is where I keep various tools that do not yet deserve their own repos.
 - [`claude-code-data/`](claude-code-data/) — library for parsing and analyzing Claude Code conversation files.
 - [`padify/`](padify/) — add padding to images (handy for terminal screenshots).
 - [`prooompter/`](prooompter/) — CLI for constructing prompts from files that fit the context window.
+- [`rmdbg/`](rmdbg/) — CLI for removing debugger statements from Python source code.
 - [`spawn/`](spawn/) — little CLI coding agent orchestrator
 - [`transcribe/`](transcribe/) — CLIs for converting voice messages into text.
