@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "prooompter"
+version = "0.1.0"
+description = "CLI for collecting repo context into prompts."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1",
+]
+
+[project.scripts]
+prooompter = "prooompter.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prooompter"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/prooompter",
+    "README.md",
+]
