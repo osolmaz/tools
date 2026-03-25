@@ -20,6 +20,7 @@ flowchart TD
     P -->|"Not validated"| X(( ))
     T -->|"Not validated"| X
     X --> E
+    X ~~~ F
     class X hidden
 
     F -->|Fundamental| E
