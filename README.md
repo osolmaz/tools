@@ -8,7 +8,6 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 
 ## Tools
 
-- [`agents/`](agents/) — agent-facing assets, including `acpx` workflows, prompts, and helper scripts.
 - [`chardiff/`](chardiff/) — character-level diff tool in a single HTML page.
 - [`claude-code-data/`](claude-code-data/) — library for parsing and analyzing Claude Code conversation files.
 - [`padify/`](padify/) — add padding to images (handy for terminal screenshots).

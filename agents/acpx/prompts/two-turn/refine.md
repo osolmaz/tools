@@ -1,8 +1,0 @@
-Use the earlier draft already in this session.
-Turn it into a concise checklist.
-Return exactly one JSON object with this shape:
-{
-  "checklist": ["item", "item"]
-}
-
-Draft: {{draft}}

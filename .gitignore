@@ -2,5 +2,3 @@
 /target/
 **/target/
 *.png
-**/node_modules/
-/agents/acpx/runs/
