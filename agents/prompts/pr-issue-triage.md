@@ -6,8 +6,8 @@ description: Prompt for triaging PRs, issues, or issue descriptions by inferring
 flowchart TD
     A[Read item] --> B[Find intent]
     B --> C{Judge solution}
-    C -->|Bad or localized| D[Comment and close PR]
-    C -->|Unclear or architectural| E[Comment for human]
+    C -->|Bad, localized, or unclear| D[Comment and close PR]
+    C -->|Architectural| E[Comment for human]
     C -->|Good enough| F{Refactor?}
     F -->|Fundamental| E
     F -->|None or superficial| G[Run AI review]
@@ -27,7 +27,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 
 3. Once you have the intention, judge the work against that intention. Do not stop at “does the code compile” or “does the diff match the ticket.” Ask whether the PR or proposed solution is addressing the underlying problem in a real and durable way, or whether it is only treating a symptom locally. Be explicit about the difference between a fundamental fix and a shortcut, band-aid, or narrowly scoped patch that avoids the real issue.
 
-4. If the item is a PR and your judgment is that the proposed solution is wrong-shaped for the problem, only treats a symptom, or is just a localized fix that does not address the underlying issue, do not send it down the human-review lane by default. Instead, treat that as a rejection outcome for the PR: write a concise comment explaining the plain-language intention, why the current implementation does not solve the right problem, and what kind of reframing would be needed, then close the PR. Use the human-attention lane for ambiguity, conflicting intent, or cases that need a human product or architecture judgment before deciding whether the work should continue at all.
+4. If the item is a PR and your judgment is that the proposed solution is wrong-shaped for the problem, only treats a symptom, is just a localized fix that does not address the underlying issue, or the PR is not even clear enough to evaluate confidently, do not send it down the human-review lane by default. Instead, treat that as a rejection outcome for the PR: write a concise comment explaining the plain-language intention as best you can recover it, why the current implementation does not solve the right problem or is too unclear to keep moving, and what kind of reframing would be needed, then close the PR. Use the human-attention lane for cases that need a human product or architecture judgment before deciding whether the work should continue at all.
 
 5. As part of that judgment, explicitly decide whether the item needs a refactor, and if so what kind:
    - no refactor needed: the current shape is acceptable for the intention
@@ -35,13 +35,13 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - fundamental refactor: the current approach is wrong-shaped for the problem and needs a deeper restructuring, reframing, or architectural change in order to solve the intention properly
 
 6. Based on that judgment, decide whether the item is safe to keep moving autonomously, should be closed, or needs human attention before landing. Close a PR if any of the following are true:
+   - the intention is unclear, conflicting, or poorly framed
    - the implementation is not actually serving the intention
    - the solution is too localized, too reactive, or too narrow for the problem it claims to solve
    - the PR is a shortcut, band-aid, or symptom fix rather than a real solution
    - the current implementation should be rejected rather than iterated on
 
 7. Route the item to a human if any of the following are true:
-   - the intention is unclear, conflicting, or poorly framed
    - the right answer may require reframing the problem, changing the product behavior, or making an architectural call rather than just fixing code
    - a fundamental refactor is needed to solve the problem properly
 
@@ -81,7 +81,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - CI/CD status and whether any failures are unrelated
    - Final recommendation: close PR, land, continue autonomously, or escalate to a human
 
-17. If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking AI review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. If the item is a PR and the conclusion is that the current implementation is a bad fix or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
+17. If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking AI review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
 
 18. Use an actual comment template when posting the result. Keep it short, plain, and scannable. Use helpful status emojis so a human can quickly tell whether this is safe to keep moving, needs intervention, or should be closed.
 
@@ -104,7 +104,7 @@ Default comment template:
 
 ### Quick read
 - Intent valid: ✅ Yes / ❌ No
-- Solves the right problem: ✅ Yes / ⚠️ Partly / ❌ No / 🛑 Localized or bad fix
+- Solves the right problem: ✅ Yes / ⚠️ Partly / ❌ No / 🛑 Localized, bad, or unclear fix
 - Close PR: 🛑 Yes / ✅ No
 - Refactor needed: ✅ None / 🔧 Superficial / 🧱 Fundamental
 - Human attention: ⚠️ Required / 🟢 Not required / 🛑 Not applicable because PR should close
@@ -133,8 +133,8 @@ If the item needs human attention, the template should make that obvious near th
 - `Refactor needed: 🧱 Fundamental` if applicable
 - `Recommendation: 🏁 escalate to a human`
 
-If the item is a PR and the solution is bad or merely localized, the template should make that obvious near the top:
-- `Solves the right problem: 🛑 Localized or bad fix`
+If the item is a PR and the solution is bad, unclear, or merely localized, the template should make that obvious near the top:
+- `Solves the right problem: 🛑 Localized, bad, or unclear fix`
 - `Close PR: 🛑 Yes`
 - `Recommendation: 🏁 close PR`
 
