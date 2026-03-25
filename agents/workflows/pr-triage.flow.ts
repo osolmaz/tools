@@ -1,79 +1,36 @@
-const { execFile } = require("node:child_process");
-const { promisify } = require("node:util");
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-const ISSUE_CLARITY_PROMPT = [
-  "Use the PR context already in this session.",
-  "Judge whether the underlying issue is clearly framed enough for safe autonomous continuation.",
-  "If there is no linked issue, decide whether the PR body still makes the underlying problem clear.",
+const INTENT_EXTRACTION_PROMPT = [
+  "You are processing one PR at a time.",
+  "Use only the PR context below.",
+  "Extract the plain-language human intent of this PR and the underlying problem it is trying to solve.",
   "Return exactly one JSON object with this shape:",
   "{",
-  '  "verdict": "clear" | "ambiguous" | "conflicting",',
+  '  "intent": "plain-language human goal",',
+  '  "problem": "short description of the underlying issue",',
   '  "confidence": 0.0,',
   '  "reason": "short explanation"',
   "}",
 ].join("\n");
 
-const SCOPE_ASSESSMENT_PROMPT = [
-  "Use the PR context and earlier reasoning already in this session.",
-  "Judge whether the scope is appropriately shaped for the codebase.",
+const REVIEW_LOOP_PROMPT = [
+  "Stay on the autonomous review lane for this single PR.",
+  "Use the PR context already in this session, plus the earlier intent, solution, and refactor judgments.",
+  "Run or inspect AI review on the current PR head.",
+  "Address valid P0 and P1 findings before continuing.",
+  "If blocking review findings still remain after this pass, route back to review_loop.",
+  "If blocking review findings are cleared, route to fix_ci_failures.",
   "Return exactly one JSON object with this shape:",
   "{",
-  '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
-  '  "refactor_needed": "none" | "superficial" | "fundamental",',
-  '  "human_judgment_needed": true | false,',
-  '  "reason": "short explanation"',
+  '  "route": "review_loop" | "fix_ci_failures",',
+  '  "review_status": "blocking_findings_remain" | "clear",',
+  '  "summary": "short explanation",',
+  '  "blocking_findings": ["brief finding"]',
   "}",
 ].join("\n");
-
-function promptSolutionFit(promptContext) {
-  return [
-    "You are doing maintainability-first PR triage.",
-    "Question: is this the right solution for the underlying issue, or is it only a localized fix that does not address the real problem?",
-    "Use only the PR context below.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "verdict": "right_solution" | "localized_fix" | "wrong_problem" | "unclear",',
-    '  "confidence": 0.0,',
-    '  "reason": "short explanation",',
-    '  "evidence": ["short bullet", "short bullet"]',
-    "}",
-    "",
-    String(promptContext ?? ""),
-  ].join("\n");
-}
-
-function promptContinueLane(reasons) {
-  return [
-    "We are continuing on the autonomous lane.",
-    "The runtime routed here because the earlier checks did not raise blockers.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "route": "continue",',
-    '  "summary": "short explanation",',
-    '  "next_actions": ["action", "action"],',
-    '  "residual_risks": ["risk", "risk"]',
-    "}",
-    "",
-    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
-  ].join("\n");
-}
-
-function promptHumanReview(reasons) {
-  return [
-    "We are routing this PR to human review.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "route": "human_review",',
-    '  "summary": "short explanation",',
-    '  "blocking_reasons": ["reason", "reason"],',
-    '  "questions_for_human": ["question", "question"]',
-    "}",
-    "",
-    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
-  ].join("\n");
-}
 
 const flow = {
   name: "pr-triage",
@@ -84,69 +41,82 @@ const flow = {
       run: async ({ input }) => loadPullRequestContext(input),
     },
 
-    solution_fit: {
+    extract_intent: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptSolutionFit(outputs.load_pr.promptContext);
+        return [INTENT_EXTRACTION_PROMPT, "", loadPrOutput(outputs).promptContext].join("\n");
       },
       parse: (text) => extractJson(text),
     },
 
-    issue_clarity: {
-      kind: "acp",
-      async prompt() {
-        return ISSUE_CLARITY_PROMPT;
-      },
-      parse: (text) => extractJson(text),
-    },
-
-    scope_assessment: {
-      kind: "acp",
-      async prompt() {
-        return SCOPE_ASSESSMENT_PROMPT;
-      },
-      parse: (text) => extractJson(text),
-    },
-
-    route: {
-      kind: "compute",
-      run: ({ outputs }) => {
-        const reasons = [];
-        if (outputs.solution_fit.verdict !== "right_solution") {
-          reasons.push(`solution_fit=${outputs.solution_fit.verdict}`);
-        }
-        if (outputs.issue_clarity.verdict !== "clear") {
-          reasons.push(`issue_clarity=${outputs.issue_clarity.verdict}`);
-        }
-        if (outputs.scope_assessment.scope !== "appropriately_local") {
-          reasons.push(`scope=${outputs.scope_assessment.scope}`);
-        }
-        if (outputs.scope_assessment.refactor_needed === "fundamental") {
-          reasons.push("refactor_needed=fundamental");
-        }
-        if (outputs.scope_assessment.human_judgment_needed) {
-          reasons.push("human_judgment_needed=true");
-        }
-
-        return {
-          next: reasons.length > 0 ? "human_review" : "continue_lane",
-          reasons,
-        };
-      },
-    },
-
-    continue_lane: {
+    judge_solution: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptContinueLane(outputs.route.reasons);
+        return promptJudgeSolution(loadPrOutput(outputs).promptContext, outputs.extract_intent);
       },
       parse: (text) => extractJson(text),
     },
 
-    human_review: {
+    judge_refactor: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptHumanReview(outputs.route.reasons);
+        return promptJudgeRefactor(outputs.extract_intent, outputs.judge_solution);
+      },
+      parse: (text) => extractJson(text),
+    },
+
+    do_superficial_refactor: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptSuperficialRefactor(outputs.extract_intent, outputs.judge_solution, outputs.judge_refactor);
+      },
+      parse: (text) => extractJson(text),
+    },
+
+    review_loop: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return [
+          REVIEW_LOOP_PROMPT,
+          "",
+          `Intent: ${JSON.stringify(outputs.extract_intent, null, 2)}`,
+          `Solution judgment: ${JSON.stringify(outputs.judge_solution, null, 2)}`,
+          `Refactor judgment: ${JSON.stringify(outputs.judge_refactor, null, 2)}`,
+          outputs.do_superficial_refactor
+            ? `Superficial refactor result: ${JSON.stringify(outputs.do_superficial_refactor, null, 2)}`
+            : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+      },
+      parse: (text) => extractJson(text),
+    },
+
+    fix_ci_failures: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptFixCiFailures(
+          outputs.extract_intent,
+          outputs.judge_solution,
+          outputs.judge_refactor,
+          outputs.review_loop,
+        );
+      },
+      parse: (text) => extractJson(text),
+    },
+
+    comment_and_close_pr: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptCloseComment(outputs);
+      },
+      parse: (text) => extractJson(text),
+    },
+
+    comment_and_escalate_to_human: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptHumanComment(outputs);
       },
       parse: (text) => extractJson(text),
     },
@@ -154,38 +124,204 @@ const flow = {
     finalize: {
       kind: "compute",
       run: ({ outputs, state }) => {
-        const branch =
-          outputs.route.next === "continue_lane" ? outputs.continue_lane : outputs.human_review;
+        const final =
+          outputs.comment_and_close_pr ?? outputs.comment_and_escalate_to_human ?? outputs.fix_ci_failures;
+
         return {
-          route: branch.route,
-          routeReasons: outputs.route.reasons,
-          final: branch,
+          final,
+          intent: outputs.extract_intent,
+          solution: outputs.judge_solution,
+          refactor: outputs.judge_refactor ?? null,
+          review: outputs.review_loop ?? null,
+          ci: outputs.fix_ci_failures ?? null,
           sessionBindings: state.sessionBindings,
         };
       },
     },
   },
   edges: [
-    { from: "load_pr", to: "solution_fit" },
-    { from: "solution_fit", to: "issue_clarity" },
-    { from: "issue_clarity", to: "scope_assessment" },
-    { from: "scope_assessment", to: "route" },
+    { from: "load_pr", to: "extract_intent" },
+    { from: "extract_intent", to: "judge_solution" },
     {
-      from: "route",
+      from: "judge_solution",
       switch: {
-        on: "$.next",
+        on: "$.route",
         cases: {
-          continue_lane: "continue_lane",
-          human_review: "human_review",
+          close_pr: "comment_and_close_pr",
+          comment_and_escalate_to_human: "comment_and_escalate_to_human",
+          judge_refactor: "judge_refactor",
         },
       },
     },
-    { from: "continue_lane", to: "finalize" },
-    { from: "human_review", to: "finalize" },
+    {
+      from: "judge_refactor",
+      switch: {
+        on: "$.route",
+        cases: {
+          review_loop: "review_loop",
+          do_superficial_refactor: "do_superficial_refactor",
+          comment_and_escalate_to_human: "comment_and_escalate_to_human",
+        },
+      },
+    },
+    { from: "do_superficial_refactor", to: "review_loop" },
+    {
+      from: "review_loop",
+      switch: {
+        on: "$.route",
+        cases: {
+          review_loop: "review_loop",
+          fix_ci_failures: "fix_ci_failures",
+        },
+      },
+    },
+    {
+      from: "fix_ci_failures",
+      switch: {
+        on: "$.route",
+        cases: {
+          fix_ci_failures: "fix_ci_failures",
+          comment_and_escalate_to_human: "comment_and_escalate_to_human",
+        },
+      },
+    },
+    { from: "comment_and_close_pr", to: "finalize" },
+    { from: "comment_and_escalate_to_human", to: "finalize" },
   ],
 };
 
-module.exports = flow;
+export default flow;
+
+function promptJudgeSolution(promptContext, intentOutput) {
+  return [
+    "You are doing maintainability-first PR triage for one PR.",
+    "Use the PR context already in this session and the extracted intent below.",
+    "Judge whether this PR is a good solution to the underlying problem.",
+    "Use these verdicts:",
+    '- "good_enough" if the solution is right-shaped and can continue.',
+    '- "localized_fix" if it only treats a symptom or is too local for the real problem.',
+    '- "bad_fix" if it is solving the wrong problem or is the wrong approach.',
+    '- "unclear" if the PR is too unclear to evaluate confidently.',
+    '- "needs_human_call" if it seems plausible but needs a design decision or human call before continuing.',
+    "Route `close_pr` for localized_fix, bad_fix, or unclear.",
+    "Route `comment_and_escalate_to_human` for needs_human_call.",
+    "Route `judge_refactor` for good_enough.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "verdict": "good_enough" | "localized_fix" | "bad_fix" | "unclear" | "needs_human_call",',
+    '  "route": "close_pr" | "comment_and_escalate_to_human" | "judge_refactor",',
+    '  "reason": "short explanation",',
+    '  "evidence": ["brief evidence item"]',
+    "}",
+    "",
+    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
+    "",
+    promptContext,
+  ].join("\n");
+}
+
+function promptJudgeRefactor(intentOutput, solutionOutput) {
+  return [
+    "You are still triaging the same PR.",
+    "Use the PR context already in this session, plus the extracted intent and solution judgment below.",
+    "Judge whether this PR needs no refactor, a superficial refactor, or a fundamental refactor.",
+    "Route `review_loop` for none.",
+    "Route `do_superficial_refactor` for superficial.",
+    "Route `comment_and_escalate_to_human` for fundamental.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "refactor_needed": "none" | "superficial" | "fundamental",',
+    '  "route": "review_loop" | "do_superficial_refactor" | "comment_and_escalate_to_human",',
+    '  "reason": "short explanation"',
+    "}",
+    "",
+    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
+    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
+  ].join("\n");
+}
+
+function promptSuperficialRefactor(intentOutput, solutionOutput, refactorOutput) {
+  return [
+    "You are still working on the same PR in the same session.",
+    "Do the superficial refactor needed before the PR moves into the review loop.",
+    "Keep the change superficial. Do not reframe the problem or turn this into a fundamental rewrite.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "review_loop",',
+    '  "summary": "short explanation",',
+    '  "files_touched": ["path/to/file"]',
+    "}",
+    "",
+    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
+    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
+    `Refactor judgment: ${JSON.stringify(refactorOutput, null, 2)}`,
+  ].join("\n");
+}
+
+function promptFixCiFailures(intentOutput, solutionOutput, refactorOutput, reviewOutput) {
+  return [
+    "Stay on the autonomous CI lane for this single PR.",
+    "Check CI/CD for the current PR head and decide whether any failures are actually related to the PR.",
+    "Fix related failures you can fix in this pass.",
+    "If related failures still remain or the PR needs another CI pass, route back to fix_ci_failures.",
+    "If CI is green or remaining failures are clearly unrelated, route to comment_and_escalate_to_human for the final human handoff.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "fix_ci_failures" | "comment_and_escalate_to_human",',
+    '  "ci_status": "related_failures_remain" | "green_or_unrelated",',
+    '  "summary": "short explanation",',
+    '  "related_failures": ["brief failure"],',
+    '  "unrelated_failures": ["brief failure"]',
+    "}",
+    "",
+    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
+    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
+    `Refactor judgment: ${JSON.stringify(refactorOutput, null, 2)}`,
+    `Review status: ${JSON.stringify(reviewOutput, null, 2)}`,
+  ].join("\n");
+}
+
+function promptCloseComment(outputs) {
+  return [
+    "Write the final close-out result for this PR.",
+    "The workflow reached the close path because the solution was bad, localized, or unclear.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "close_pr",',
+    '  "summary": "short explanation",',
+    '  "comment": "markdown comment to post before closing the PR"',
+    "}",
+    "",
+    decisionContext(outputs),
+  ].join("\n");
+}
+
+function promptHumanComment(outputs) {
+  return [
+    "Write the final human handoff result for this PR.",
+    "The workflow reached the human path either because a design decision is needed, a fundamental refactor is needed, or the PR cleared autonomous review and CI and now needs a human landing decision.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "escalate_to_human",',
+    '  "summary": "short explanation",',
+    '  "human_decision_needed": "short explanation",',
+    '  "comment": "markdown comment to post for the human handoff"',
+    "}",
+    "",
+    decisionContext(outputs),
+  ].join("\n");
+}
+
+function decisionContext(outputs) {
+  return [
+    `Intent: ${JSON.stringify(outputs.extract_intent ?? null, null, 2)}`,
+    `Solution judgment: ${JSON.stringify(outputs.judge_solution ?? null, null, 2)}`,
+    `Refactor judgment: ${JSON.stringify(outputs.judge_refactor ?? null, null, 2)}`,
+    `Superficial refactor: ${JSON.stringify(outputs.do_superficial_refactor ?? null, null, 2)}`,
+    `Review loop: ${JSON.stringify(outputs.review_loop ?? null, null, 2)}`,
+    `CI loop: ${JSON.stringify(outputs.fix_ci_failures ?? null, null, 2)}`,
+  ].join("\n");
+}
 
 async function loadPullRequestContext(input) {
   const repo = String(input?.repo ?? "").trim();
@@ -234,6 +370,10 @@ async function loadPullRequestContext(input) {
     linkedIssue,
     promptContext: formatPromptContext({ repo, pr, linkedIssue, diff: truncatedDiff }),
   };
+}
+
+function loadPrOutput(outputs) {
+  return outputs.load_pr;
 }
 
 async function ghJson(args) {
@@ -332,7 +472,7 @@ function tryParse(text) {
 function extractBalancedJson(text) {
   const starts = ["{", "["];
   for (let i = 0; i < text.length; i += 1) {
-    if (!starts.includes(text[i])) {
+    if (!starts.includes(text[i] ?? "")) {
       continue;
     }
 
