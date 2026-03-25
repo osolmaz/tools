@@ -1,9 +1,81 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+const { execFile } = require("node:child_process");
+const { promisify } = require("node:util");
 
 const execFileAsync = promisify(execFile);
 
-export default {
+const ISSUE_CLARITY_PROMPT = [
+  "Use the PR context already in this session.",
+  "Judge whether the underlying issue is clearly framed enough for safe autonomous continuation.",
+  "If there is no linked issue, decide whether the PR body still makes the underlying problem clear.",
+  "Return exactly one JSON object with this shape:",
+  "{",
+  '  "verdict": "clear" | "ambiguous" | "conflicting",',
+  '  "confidence": 0.0,',
+  '  "reason": "short explanation"',
+  "}",
+].join("\n");
+
+const SCOPE_ASSESSMENT_PROMPT = [
+  "Use the PR context and earlier reasoning already in this session.",
+  "Judge whether the scope is appropriately shaped for the codebase.",
+  "Return exactly one JSON object with this shape:",
+  "{",
+  '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
+  '  "refactor_needed": "none" | "superficial" | "fundamental",',
+  '  "human_judgment_needed": true | false,',
+  '  "reason": "short explanation"',
+  "}",
+].join("\n");
+
+function promptSolutionFit(promptContext) {
+  return [
+    "You are doing maintainability-first PR triage.",
+    "Question: is this the right solution for the underlying issue, or is it only a localized fix that does not address the real problem?",
+    "Use only the PR context below.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "verdict": "right_solution" | "localized_fix" | "wrong_problem" | "unclear",',
+    '  "confidence": 0.0,',
+    '  "reason": "short explanation",',
+    '  "evidence": ["short bullet", "short bullet"]',
+    "}",
+    "",
+    String(promptContext ?? ""),
+  ].join("\n");
+}
+
+function promptContinueLane(reasons) {
+  return [
+    "We are continuing on the autonomous lane.",
+    "The runtime routed here because the earlier checks did not raise blockers.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "continue",',
+    '  "summary": "short explanation",',
+    '  "next_actions": ["action", "action"],',
+    '  "residual_risks": ["risk", "risk"]',
+    "}",
+    "",
+    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
+  ].join("\n");
+}
+
+function promptHumanReview(reasons) {
+  return [
+    "We are routing this PR to human review.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "human_review",',
+    '  "summary": "short explanation",',
+    '  "blocking_reasons": ["reason", "reason"],',
+    '  "questions_for_human": ["question", "question"]',
+    "}",
+    "",
+    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
+  ].join("\n");
+}
+
+const flow = {
   name: "pr-triage",
   startAt: "load_pr",
   nodes: {
@@ -23,7 +95,7 @@ export default {
     issue_clarity: {
       kind: "acp",
       async prompt() {
-        return promptIssueClarity();
+        return ISSUE_CLARITY_PROMPT;
       },
       parse: (text) => extractJson(text),
     },
@@ -31,7 +103,7 @@ export default {
     scope_assessment: {
       kind: "acp",
       async prompt() {
-        return promptScopeAssessment();
+        return SCOPE_ASSESSMENT_PROMPT;
       },
       parse: (text) => extractJson(text),
     },
@@ -113,6 +185,8 @@ export default {
   ],
 };
 
+module.exports = flow;
+
 async function loadPullRequestContext(input) {
   const repo = String(input?.repo ?? "").trim();
   const prNumber = Number(input?.prNumber);
@@ -178,7 +252,12 @@ function findLinkedIssueNumber(body) {
   return match ? Number(match[1]) : null;
 }
 
-function formatPromptContext({ repo, pr, linkedIssue, diff }) {
+function formatPromptContext({
+  repo,
+  pr,
+  linkedIssue,
+  diff,
+}) {
   const files = (pr.files ?? [])
     .map((file) => `- ${file.path} (+${file.additions} / -${file.deletions})`)
     .join("\n");
@@ -209,82 +288,6 @@ function formatPromptContext({ repo, pr, linkedIssue, diff }) {
     "",
     "Diff:",
     diff || "(empty diff)",
-  ].join("\n");
-}
-
-function promptSolutionFit(promptContext) {
-  return [
-    "You are doing maintainability-first PR triage.",
-    "Question: is this the right solution for the underlying issue, or is it only a localized fix that does not address the real problem?",
-    "Use only the PR context below.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "verdict": "right_solution" | "localized_fix" | "wrong_problem" | "unclear",',
-    '  "confidence": 0.0,',
-    '  "reason": "short explanation",',
-    '  "evidence": ["short bullet", "short bullet"]',
-    "}",
-    "",
-    String(promptContext ?? ""),
-  ].join("\n");
-}
-
-function promptIssueClarity() {
-  return [
-    "Use the PR context already in this session.",
-    "Judge whether the underlying issue is clearly framed enough for safe autonomous continuation.",
-    "If there is no linked issue, decide whether the PR body still makes the underlying problem clear.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "verdict": "clear" | "ambiguous" | "conflicting",',
-    '  "confidence": 0.0,',
-    '  "reason": "short explanation"',
-    "}",
-  ].join("\n");
-}
-
-function promptScopeAssessment() {
-  return [
-    "Use the PR context and earlier reasoning already in this session.",
-    "Judge whether the scope is appropriately shaped for the codebase.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
-    '  "refactor_needed": "none" | "superficial" | "fundamental",',
-    '  "human_judgment_needed": true | false,',
-    '  "reason": "short explanation"',
-    "}",
-  ].join("\n");
-}
-
-function promptContinueLane(reasons) {
-  return [
-    "We are continuing on the autonomous lane.",
-    "The runtime routed here because the earlier checks did not raise blockers.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "route": "continue",',
-    '  "summary": "short explanation",',
-    '  "next_actions": ["action", "action"],',
-    '  "residual_risks": ["risk", "risk"]',
-    "}",
-    "",
-    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
-  ].join("\n");
-}
-
-function promptHumanReview(reasons) {
-  return [
-    "We are routing this PR to human review.",
-    "Return exactly one JSON object with this shape:",
-    "{",
-    '  "route": "human_review",',
-    '  "summary": "short explanation",',
-    '  "blocking_reasons": ["reason", "reason"],',
-    '  "questions_for_human": ["question", "question"]',
-    "}",
-    "",
-    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
   ].join("\n");
 }
 
