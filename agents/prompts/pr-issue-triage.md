@@ -16,7 +16,7 @@ flowchart TD
     H -->|No| J[Check CI]
     J --> K{Related failures?}
     K -->|Yes| I
-    K -->|No| L[Ready to land]
+    K -->|No| L[Escalate to human]
 ```
 
 This prompt may process multiple items in one run. Use it for the triage lane, not the single-PR landing lane.
