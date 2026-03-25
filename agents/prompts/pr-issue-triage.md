@@ -3,31 +3,27 @@ description: Prompt for triaging PRs, issues, or issue descriptions by inferring
 ---
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Read item] --> B[Find intent]
     B --> C{Judge solution}
 
-    C -->|Bad, localized, or unclear| D[Comment and close PR]
-    C -->|Seems OK but needs a design decision/human call| E[Escalate to human]
+    C -->|"Bad, localized,<br/>or unclear"| D[Comment and close PR]
+    C -->|"Seems OK but needs a<br/>design decision/human call"| E[Escalate to human]
     C -->|Good enough| F{Refactor?}
 
     F -->|Fundamental| E
     F -->|Superficial| R[Do superficial refactor]
-    F -->|None| G
+    F -->|None| G[Run AI review]
+    R --> G
 
-    subgraph AUTO["Autonomous lane"]
-        direction TB
-        R --> G[Run AI review]
-        G --> H{P0 or P1?}
-        H -->|Yes| I[Address review feedback]
-        I --> G
-        H -->|No| J[Check CI]
-        J --> K{CI failures?}
-        K -->|Yes| L[Fix CI failures]
-        L --> J
-    end
-
+    G --> H{P0 or P1?}
+    H -->|No| J[Check CI]
+    H -->|Yes| I[Address review feedback]
+    I --> G
+    J --> K{CI failures?}
     K -->|No| E
+    K -->|Yes| L[Fix CI failures]
+    L --> J
 ```
 
 This prompt may process multiple items in one run. Use it for the triage lane, not the single-PR landing lane.
