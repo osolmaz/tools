@@ -1,50 +1,24 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-
-const execFileAsync = promisify(execFile);
-
-const INTENT_EXTRACTION_PROMPT = [
-  "You are processing one PR at a time.",
-  "Use only the PR context below.",
-  "Extract the plain-language human intent of this PR and the underlying problem it is trying to solve.",
-  "Return exactly one JSON object with this shape:",
-  "{",
-  '  "intent": "plain-language human goal",',
-  '  "problem": "short description of the underlying issue",',
-  '  "confidence": 0.0,',
-  '  "reason": "short explanation"',
-  "}",
-].join("\n");
-
-const REVIEW_LOOP_PROMPT = [
-  "Stay on the autonomous review lane for this single PR.",
-  "Use the PR context already in this session, plus the earlier intent, solution, and refactor judgments.",
-  "Run or inspect AI review on the current PR head.",
-  "Address valid P0 and P1 findings before continuing.",
-  "If blocking review findings still remain after this pass, route back to review_loop.",
-  "If blocking review findings are cleared, route to fix_ci_failures.",
-  "Return exactly one JSON object with this shape:",
-  "{",
-  '  "route": "review_loop" | "fix_ci_failures",',
-  '  "review_status": "blocking_findings_remain" | "clear",',
-  '  "summary": "short explanation",',
-  '  "blocking_findings": ["brief finding"]',
-  "}",
-].join("\n");
-
 const flow = {
   name: "pr-triage",
   startAt: "load_pr",
   nodes: {
     load_pr: {
       kind: "compute",
-      run: async ({ input }) => loadPullRequestContext(input),
+      run: ({ input }) => loadPullRequestInput(input),
+    },
+
+    prepare_workspace: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptPrepareWorkspace(loadPrOutput(outputs));
+      },
+      parse: (text) => extractJson(text),
     },
 
     extract_intent: {
       kind: "acp",
       async prompt({ outputs }) {
-        return [INTENT_EXTRACTION_PROMPT, "", loadPrOutput(outputs).promptContext].join("\n");
+        return promptExtractIntent(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -52,7 +26,7 @@ const flow = {
     judge_solution: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptJudgeSolution(loadPrOutput(outputs).promptContext, outputs.extract_intent);
+        return promptJudgeSolution(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -60,7 +34,7 @@ const flow = {
     judge_refactor: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptJudgeRefactor(outputs.extract_intent, outputs.judge_solution);
+        return promptJudgeRefactor(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -68,7 +42,7 @@ const flow = {
     do_superficial_refactor: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptSuperficialRefactor(outputs.extract_intent, outputs.judge_solution, outputs.judge_refactor);
+        return promptDoSuperficialRefactor(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -76,18 +50,7 @@ const flow = {
     review_loop: {
       kind: "acp",
       async prompt({ outputs }) {
-        return [
-          REVIEW_LOOP_PROMPT,
-          "",
-          `Intent: ${JSON.stringify(outputs.extract_intent, null, 2)}`,
-          `Solution judgment: ${JSON.stringify(outputs.judge_solution, null, 2)}`,
-          `Refactor judgment: ${JSON.stringify(outputs.judge_refactor, null, 2)}`,
-          outputs.do_superficial_refactor
-            ? `Superficial refactor result: ${JSON.stringify(outputs.do_superficial_refactor, null, 2)}`
-            : "",
-        ]
-          .filter(Boolean)
-          .join("\n\n");
+        return promptReviewLoop(loadPrOutput(outputs), Boolean(outputs.do_superficial_refactor));
       },
       parse: (text) => extractJson(text),
     },
@@ -95,12 +58,7 @@ const flow = {
     fix_ci_failures: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptFixCiFailures(
-          outputs.extract_intent,
-          outputs.judge_solution,
-          outputs.judge_refactor,
-          outputs.review_loop,
-        );
+        return promptFixCiFailures(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -108,7 +66,7 @@ const flow = {
     comment_and_close_pr: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptCloseComment(outputs);
+        return promptCommentAndClose(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
@@ -116,31 +74,27 @@ const flow = {
     comment_and_escalate_to_human: {
       kind: "acp",
       async prompt({ outputs }) {
-        return promptHumanComment(outputs);
+        return promptCommentAndEscalate(loadPrOutput(outputs));
       },
       parse: (text) => extractJson(text),
     },
 
     finalize: {
       kind: "compute",
-      run: ({ outputs, state }) => {
-        const final =
-          outputs.comment_and_close_pr ?? outputs.comment_and_escalate_to_human ?? outputs.fix_ci_failures;
-
-        return {
-          final,
-          intent: outputs.extract_intent,
-          solution: outputs.judge_solution,
-          refactor: outputs.judge_refactor ?? null,
-          review: outputs.review_loop ?? null,
-          ci: outputs.fix_ci_failures ?? null,
-          sessionBindings: state.sessionBindings,
-        };
-      },
+      run: ({ outputs, state }) => ({
+        final: outputs.comment_and_close_pr ?? outputs.comment_and_escalate_to_human ?? null,
+        intent: outputs.extract_intent ?? null,
+        solution: outputs.judge_solution ?? null,
+        refactor: outputs.judge_refactor ?? null,
+        review: outputs.review_loop ?? null,
+        ci: outputs.fix_ci_failures ?? null,
+        sessionBindings: state.sessionBindings,
+      }),
     },
   },
   edges: [
-    { from: "load_pr", to: "extract_intent" },
+    { from: "load_pr", to: "prepare_workspace" },
+    { from: "prepare_workspace", to: "extract_intent" },
     { from: "extract_intent", to: "judge_solution" },
     {
       from: "judge_solution",
@@ -192,10 +146,46 @@ const flow = {
 
 export default flow;
 
-function promptJudgeSolution(promptContext, intentOutput) {
+function promptPrepareWorkspace(pr) {
   return [
-    "You are doing maintainability-first PR triage for one PR.",
-    "Use the PR context already in this session and the extracted intent below.",
+    "You are processing one pull request at a time.",
+    `Target PR: ${prRef(pr)}`,
+    "Act autonomously inside the repo.",
+    "Use git and gh yourself.",
+    "Make sure the current workspace is checked out to the PR head. If it is not, use gh/git to fetch and check out the PR branch in this repo before continuing.",
+    "Inspect the PR page, linked issue, changed files, and local diff yourself. Do not rely on prompt-injected diffs.",
+    "Do not explain your work. Take the preparation actions first, then return only JSON.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "prepared": true,',
+    '  "summary": "short explanation",',
+    '  "head_ref": "branch or sha"',
+    "}",
+  ].join("\n");
+}
+
+function promptExtractIntent(pr) {
+  return [
+    "You are still in the same PR session.",
+    `Target PR: ${prRef(pr)}`,
+    "Use the checked-out repo, gh, and the context you already inspected in this session.",
+    "Extract the plain-language human intent and the underlying problem.",
+    "Do not paste the full PR body, issue body, diff, or earlier JSON back to me.",
+    "Return exactly one JSON object with this shape and nothing else:",
+    "{",
+    '  "intent": "plain-language human goal",',
+    '  "problem": "short description of the underlying issue",',
+    '  "confidence": 0.0,',
+    '  "reason": "short explanation"',
+    "}",
+  ].join("\n");
+}
+
+function promptJudgeSolution(pr) {
+  return [
+    "You are still in the same PR session.",
+    `Target PR: ${prRef(pr)}`,
+    "Use your current session understanding of the PR, issue, code, and diff.",
     "Judge whether this PR is a good solution to the underlying problem.",
     "Use these verdicts:",
     '- "good_enough" if the solution is right-shaped and can continue.',
@@ -206,124 +196,136 @@ function promptJudgeSolution(promptContext, intentOutput) {
     "Route `close_pr` for localized_fix, bad_fix, or unclear.",
     "Route `comment_and_escalate_to_human` for needs_human_call.",
     "Route `judge_refactor` for good_enough.",
-    "Return exactly one JSON object with this shape:",
+    "Do not repeat earlier JSON or the full diff.",
+    "Return exactly one JSON object and nothing else:",
     "{",
     '  "verdict": "good_enough" | "localized_fix" | "bad_fix" | "unclear" | "needs_human_call",',
     '  "route": "close_pr" | "comment_and_escalate_to_human" | "judge_refactor",',
     '  "reason": "short explanation",',
     '  "evidence": ["brief evidence item"]',
     "}",
-    "",
-    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
-    "",
-    promptContext,
   ].join("\n");
 }
 
-function promptJudgeRefactor(intentOutput, solutionOutput) {
+function promptJudgeRefactor(pr) {
   return [
-    "You are still triaging the same PR.",
-    "Use the PR context already in this session, plus the extracted intent and solution judgment below.",
+    "You are still in the same PR session.",
+    `Target PR: ${prRef(pr)}`,
+    "Use your current session understanding of the PR.",
     "Judge whether this PR needs no refactor, a superficial refactor, or a fundamental refactor.",
     "Route `review_loop` for none.",
     "Route `do_superficial_refactor` for superficial.",
     "Route `comment_and_escalate_to_human` for fundamental.",
-    "Return exactly one JSON object with this shape:",
+    "Do not restate earlier outputs. Return only the new decision.",
+    "Return exactly one JSON object and nothing else:",
     "{",
     '  "refactor_needed": "none" | "superficial" | "fundamental",',
     '  "route": "review_loop" | "do_superficial_refactor" | "comment_and_escalate_to_human",',
     '  "reason": "short explanation"',
     "}",
-    "",
-    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
-    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
   ].join("\n");
 }
 
-function promptSuperficialRefactor(intentOutput, solutionOutput, refactorOutput) {
+function promptDoSuperficialRefactor(pr) {
   return [
-    "You are still working on the same PR in the same session.",
-    "Do the superficial refactor needed before the PR moves into the review loop.",
-    "Keep the change superficial. Do not reframe the problem or turn this into a fundamental rewrite.",
+    "You are still in the same PR session.",
+    `Target PR: ${prRef(pr)}`,
+    "Perform the superficial refactor directly in the checked-out repo.",
+    "Keep it minor and maintainability-focused. Do not reframe the problem or turn this into a fundamental rewrite.",
+    "If you change files, run focused checks when feasible, then commit and push the PR branch yourself.",
+    "After taking the action, return only JSON.",
     "Return exactly one JSON object with this shape:",
     "{",
     '  "route": "review_loop",',
     '  "summary": "short explanation",',
-    '  "files_touched": ["path/to/file"]',
+    '  "files_touched": ["path/to/file"],',
+    '  "committed": true | false',
     "}",
-    "",
-    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
-    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
-    `Refactor judgment: ${JSON.stringify(refactorOutput, null, 2)}`,
   ].join("\n");
 }
 
-function promptFixCiFailures(intentOutput, solutionOutput, refactorOutput, reviewOutput) {
+function promptReviewLoop(pr, hadSuperficialRefactor) {
+  return [
+    "Stay on the autonomous review lane for this single PR.",
+    `Target PR: ${prRef(pr)}`,
+    "Use your existing session understanding. Do not ask the outer runtime to process your findings.",
+    "Inspect the current PR head, existing review comments, and the touched code paths yourself.",
+    "If you find valid P0 or P1 issues, fix them directly in the repo, run focused checks when feasible, and commit/push the branch yourself.",
+    "If blocking review findings still remain after this pass, route back to `review_loop`.",
+    "If blocking review findings are cleared, route to `fix_ci_failures`.",
+    hadSuperficialRefactor
+      ? "A superficial refactor was already done earlier in this run; build on the current branch state."
+      : "No superficial refactor step ran earlier in this session.",
+    "Do not restate prior JSON or the full diff.",
+    "Return exactly one JSON object and nothing else:",
+    "{",
+    '  "route": "review_loop" | "fix_ci_failures",',
+    '  "review_status": "blocking_findings_remain" | "clear",',
+    '  "summary": "short explanation",',
+    '  "blocking_findings": ["brief finding"],',
+    '  "committed": true | false',
+    "}",
+  ].join("\n");
+}
+
+function promptFixCiFailures(pr) {
   return [
     "Stay on the autonomous CI lane for this single PR.",
-    "Check CI/CD for the current PR head and decide whether any failures are actually related to the PR.",
-    "Fix related failures you can fix in this pass.",
-    "If related failures still remain or the PR needs another CI pass, route back to fix_ci_failures.",
-    "If CI is green or remaining failures are clearly unrelated, route to comment_and_escalate_to_human for the final human handoff.",
-    "Return exactly one JSON object with this shape:",
+    `Target PR: ${prRef(pr)}`,
+    "Use gh and the checked-out repo yourself.",
+    "Inspect current CI/check status for the PR head and decide whether any failures are actually related to this change.",
+    "If related failures exist, fix them directly in the repo, run focused checks when feasible, commit/push the branch yourself, and route back to `fix_ci_failures` if another CI pass is needed.",
+    "If CI is green, action-required for approval only, or remaining failures are clearly unrelated, route to `comment_and_escalate_to_human`.",
+    "Do not restate earlier JSON or the full diff.",
+    "Return exactly one JSON object and nothing else:",
     "{",
     '  "route": "fix_ci_failures" | "comment_and_escalate_to_human",',
     '  "ci_status": "related_failures_remain" | "green_or_unrelated",',
     '  "summary": "short explanation",',
     '  "related_failures": ["brief failure"],',
-    '  "unrelated_failures": ["brief failure"]',
+    '  "unrelated_failures": ["brief failure"],',
+    '  "committed": true | false',
     "}",
-    "",
-    `Extracted intent: ${JSON.stringify(intentOutput, null, 2)}`,
-    `Solution judgment: ${JSON.stringify(solutionOutput, null, 2)}`,
-    `Refactor judgment: ${JSON.stringify(refactorOutput, null, 2)}`,
-    `Review status: ${JSON.stringify(reviewOutput, null, 2)}`,
   ].join("\n");
 }
 
-function promptCloseComment(outputs) {
+function promptCommentAndClose(pr) {
   return [
-    "Write the final close-out result for this PR.",
-    "The workflow reached the close path because the solution was bad, localized, or unclear.",
-    "Return exactly one JSON object with this shape:",
+    "You are on the close path for this PR.",
+    `Target PR: ${prRef(pr)}`,
+    "Write a concise plain-language comment explaining the intent, why the current implementation is wrong/localized/unclear, and what reframing is needed.",
+    "Post that comment directly on GitHub with `gh pr comment`.",
+    "Then close the PR with `gh pr close`.",
+    "Take the GitHub actions yourself in this run.",
+    "Return exactly one JSON object and nothing else:",
     "{",
     '  "route": "close_pr",',
     '  "summary": "short explanation",',
-    '  "comment": "markdown comment to post before closing the PR"',
+    '  "comment_posted": true | false,',
+    '  "pr_closed": true | false',
     "}",
-    "",
-    decisionContext(outputs),
   ].join("\n");
 }
 
-function promptHumanComment(outputs) {
+function promptCommentAndEscalate(pr) {
   return [
-    "Write the final human handoff result for this PR.",
-    "The workflow reached the human path either because a design decision is needed, a fundamental refactor is needed, or the PR cleared autonomous review and CI and now needs a human landing decision.",
-    "Return exactly one JSON object with this shape:",
+    "You are on the human handoff path for this PR.",
+    `Target PR: ${prRef(pr)}`,
+    "Write a concise human-handoff comment explaining the intent, current judgment, remaining review/CI state, and the exact human decision needed next.",
+    "Post that comment directly on GitHub with `gh pr comment`.",
+    "Do not close the PR on this path.",
+    "Take the GitHub action yourself in this run.",
+    "Return exactly one JSON object and nothing else:",
     "{",
     '  "route": "escalate_to_human",',
     '  "summary": "short explanation",',
     '  "human_decision_needed": "short explanation",',
-    '  "comment": "markdown comment to post for the human handoff"',
+    '  "comment_posted": true | false',
     "}",
-    "",
-    decisionContext(outputs),
   ].join("\n");
 }
 
-function decisionContext(outputs) {
-  return [
-    `Intent: ${JSON.stringify(outputs.extract_intent ?? null, null, 2)}`,
-    `Solution judgment: ${JSON.stringify(outputs.judge_solution ?? null, null, 2)}`,
-    `Refactor judgment: ${JSON.stringify(outputs.judge_refactor ?? null, null, 2)}`,
-    `Superficial refactor: ${JSON.stringify(outputs.do_superficial_refactor ?? null, null, 2)}`,
-    `Review loop: ${JSON.stringify(outputs.review_loop ?? null, null, 2)}`,
-    `CI loop: ${JSON.stringify(outputs.fix_ci_failures ?? null, null, 2)}`,
-  ].join("\n");
-}
-
-async function loadPullRequestContext(input) {
+function loadPullRequestInput(input) {
   const repo = String(input?.repo ?? "").trim();
   const prNumber = Number(input?.prNumber);
 
@@ -334,41 +336,10 @@ async function loadPullRequestContext(input) {
     throw new Error('Flow input must include a positive integer "prNumber"');
   }
 
-  const pr = await ghJson([
-    "pr",
-    "view",
-    String(prNumber),
-    "-R",
-    repo,
-    "--json",
-    "number,title,body,author,url,additions,deletions,changedFiles,files,baseRefName,headRefName",
-  ]);
-
-  const linkedIssueNumber = findLinkedIssueNumber(pr.body);
-  const linkedIssue = linkedIssueNumber
-    ? await ghJson([
-        "issue",
-        "view",
-        String(linkedIssueNumber),
-        "-R",
-        repo,
-        "--json",
-        "number,title,body,url",
-      ])
-    : null;
-
-  const diff = await ghText(["pr", "diff", String(prNumber), "-R", repo]);
-  const maxDiffChars = 30000;
-  const truncatedDiff =
-    diff.length > maxDiffChars
-      ? `${diff.slice(0, maxDiffChars)}\n\n[diff truncated at ${maxDiffChars} characters]`
-      : diff;
-
   return {
     repo,
-    pr,
-    linkedIssue,
-    promptContext: formatPromptContext({ repo, pr, linkedIssue, diff: truncatedDiff }),
+    prNumber,
+    prUrl: `https://github.com/${repo}/pull/${prNumber}`,
   };
 }
 
@@ -376,59 +347,8 @@ function loadPrOutput(outputs) {
   return outputs.load_pr;
 }
 
-async function ghJson(args) {
-  return JSON.parse(await ghText(args));
-}
-
-async function ghText(args) {
-  const result = await execFileAsync("gh", args, {
-    maxBuffer: 10 * 1024 * 1024,
-  });
-  return result.stdout.trim();
-}
-
-function findLinkedIssueNumber(body) {
-  const match = String(body ?? "").match(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b/i);
-  return match ? Number(match[1]) : null;
-}
-
-function formatPromptContext({
-  repo,
-  pr,
-  linkedIssue,
-  diff,
-}) {
-  const files = (pr.files ?? [])
-    .map((file) => `- ${file.path} (+${file.additions} / -${file.deletions})`)
-    .join("\n");
-
-  const issueSection = linkedIssue
-    ? `Linked issue #${linkedIssue.number}: ${linkedIssue.title}\n${linkedIssue.body ?? ""}`
-    : "No linked issue was found in the PR body.";
-
-  return [
-    `Repository: ${repo}`,
-    `PR #${pr.number}: ${pr.title}`,
-    `URL: ${pr.url}`,
-    `Author: ${pr.author?.login ?? "unknown"}`,
-    `Base: ${pr.baseRefName}`,
-    `Head: ${pr.headRefName}`,
-    `Changed files: ${pr.changedFiles}`,
-    `Additions: ${pr.additions}`,
-    `Deletions: ${pr.deletions}`,
-    "",
-    "PR body:",
-    pr.body || "(empty)",
-    "",
-    "Changed files:",
-    files || "(none)",
-    "",
-    "Underlying issue:",
-    issueSection,
-    "",
-    "Diff:",
-    diff || "(empty diff)",
-  ].join("\n");
+function prRef(pr) {
+  return `${pr.repo}#${pr.prNumber} (${pr.prUrl})`;
 }
 
 function extractJson(text) {
