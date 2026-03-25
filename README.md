@@ -12,6 +12,14 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [`claude-code-data/`](claude-code-data/) — library for parsing and analyzing Claude Code conversation files.
 - [`padify/`](padify/) — add padding to images (handy for terminal screenshots).
 - [`prooompter/`](prooompter/) — CLI for constructing prompts from files that fit the context window.
+- [`prompts/`](prompts/) — reusable prompts for PR triage and autonomous landing.
 - [`rmdbg/`](rmdbg/) — CLI for removing debugger statements from Python source code.
 - [`spawn/`](spawn/) — little CLI coding agent orchestrator
 - [`transcribe/`](transcribe/) — CLIs for converting voice messages into text.
+- [`workflows/`](workflows/) — orchestration docs for prompt-driven PR automation.
+
+## Process docs
+
+- [PR automation workflow](workflows/pr-automation.md)
+- [PR / issue triage prompt](prompts/pr-issue-triage.md)
+- [Land-ready PR prompt](prompts/land-ready-pr.md)
