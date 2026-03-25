@@ -10,7 +10,7 @@ It is intentionally narrow:
 - a run uses one implicit main ACP session by default
 - extra sessions are explicit and optional
 
-The included example is a maintainability-first PR triage flow for `acpx`.
+The example PR triage flow lives in the repo-level `workflows/` directory.
 
 ## Flowchart
 
@@ -28,10 +28,10 @@ flowchart TD
 
 ## Run the example
 
-From this directory:
+From the repo root:
 
 ```bash
-node src/cli.js run src/flows/pr-triage.flow.js \
+node acpxflow/src/cli.js run workflows/pr-triage.flow.js \
   --repo openclaw/acpx \
   --pr 173 \
   --acpx /Users/onur/offline/acpx/dist/cli.js \

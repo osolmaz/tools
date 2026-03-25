@@ -1,5 +1,5 @@
-import { acp, compute, defineFlow } from "../flow.js";
-import { extractJson } from "../json.js";
+import { acp, compute, defineFlow } from "../acpxflow/src/flow.js";
+import { extractJson } from "../acpxflow/src/json.js";
 
 export default defineFlow({
   name: "pr-triage",
@@ -20,12 +20,12 @@ export default defineFlow({
           "Question: is this the right solution for the underlying issue, or is it only a localized fix that does not address the real problem?",
           "Use only the PR context below.",
           "Return exactly one JSON object with this shape:",
-          '{',
+          "{",
           '  "verdict": "right_solution" | "localized_fix" | "wrong_problem" | "unclear",',
           '  "confidence": 0.0,',
           '  "reason": "short explanation",',
           '  "evidence": ["short bullet", "short bullet"]',
-          '}',
+          "}",
           "",
           outputs.load_pr.promptContext,
         ].join("\n");
@@ -40,11 +40,11 @@ export default defineFlow({
           "Judge whether the underlying issue is clearly framed enough for safe autonomous continuation.",
           "If there is no linked issue, decide whether the PR body still makes the underlying problem clear.",
           "Return exactly one JSON object with this shape:",
-          '{',
+          "{",
           '  "verdict": "clear" | "ambiguous" | "conflicting",',
           '  "confidence": 0.0,',
           '  "reason": "short explanation"',
-          '}',
+          "}",
         ].join("\n");
       },
       parse: (text) => extractJson(text),
@@ -56,12 +56,12 @@ export default defineFlow({
           "Use the PR context and earlier reasoning already in this session.",
           "Judge whether the scope is appropriately shaped for the codebase.",
           "Return exactly one JSON object with this shape:",
-          '{',
+          "{",
           '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
           '  "refactor_needed": "none" | "superficial" | "fundamental",',
           '  "human_judgment_needed": true,',
           '  "reason": "short explanation"',
-          '}',
+          "}",
         ].join("\n");
       },
       parse: (text) => extractJson(text),
@@ -99,12 +99,12 @@ export default defineFlow({
           "We are continuing on the autonomous lane.",
           "The runtime routed here because the earlier checks did not raise blockers.",
           "Return exactly one JSON object with this shape:",
-          '{',
+          "{",
           '  "route": "continue",',
           '  "summary": "short explanation",',
           '  "next_actions": ["action", "action"],',
           '  "residual_risks": ["risk", "risk"]',
-          '}',
+          "}",
           "",
           `Runtime reasons: ${JSON.stringify(outputs.route.reasons)}`,
         ].join("\n");
@@ -117,12 +117,12 @@ export default defineFlow({
         return [
           "We are routing this PR to human review.",
           "Return exactly one JSON object with this shape:",
-          '{',
+          "{",
           '  "route": "human_review",',
           '  "summary": "short explanation",',
           '  "blocking_reasons": ["reason", "reason"],',
           '  "questions_for_human": ["question", "question"]',
-          '}',
+          "}",
           "",
           `Runtime reasons: ${JSON.stringify(outputs.route.reasons)}`,
         ].join("\n");
