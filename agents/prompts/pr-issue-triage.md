@@ -1,5 +1,5 @@
 ---
-description: Prompt for triaging PRs, issues, or issue descriptions by inferring the plain-language intent, judging whether the work actually solves the underlying problem, routing ambiguous cases to a human, and only landing changes after AI review and CI are in an acceptable state
+description: Prompt for triaging PRs, issues, or issue descriptions by inferring the plain-language intent, judging whether the work actually solves the underlying problem, routing ambiguous cases to a human, and only landing changes after Codex review and CI are in an acceptable state
 ---
 
 ```mermaid
@@ -13,7 +13,7 @@ flowchart TD
 
     F -->|Fundamental| E
     F -->|Superficial| R[Do superficial refactor]
-    F -->|None| G[Run AI review]
+    F -->|None| G[Handle Codex review]
     R --> G
 
     G --> H{P0 or P1?}
@@ -54,19 +54,20 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - a fundamental refactor is needed to solve the problem properly
    - a human must decide what the correct product or architecture direction should be before any implementation can be judged
 
-8. **Do superficial refactors before continuing into review.** If the item only needs a superficial refactor, that does not require human attention by itself. Superficial refactors should be done on the autonomous lane before the item proceeds into AI review. Only fundamental refactors trigger the human-attention path.
+8. **Do superficial refactors before continuing into review.** If the item only needs a superficial refactor, that does not require human attention by itself. Superficial refactors should be done on the autonomous lane before the item proceeds into Codex review. Only fundamental refactors trigger the human-attention path.
 
 9. **Keep moving when the work is good enough to continue.** If the item does not need human attention and is not a close outcome, continue autonomously. It is acceptable to proceed with automated review, local validation, CI/CD checking, and follow-up fixes as long as the intention is clear and the item does not require a human product or architecture judgment. If the implementation looks acceptable enough to continue, keep going rather than blocking on perfectionism.
 
-10. **Do not spend review effort on work that should stop early.** Only continue into AI review if the item is safe to continue autonomously. If the item needs human attention or should be closed, stop the autonomous flow there. Do not spend time running Codex review, fixing code, or chasing CI on work that is not ready to merge anyway. Instead, write up the intention, the reason human attention is required or the reason the PR should be closed, whether a fundamental refactor is needed, and the exact decision or reframing needed from a human.
+10. **Do not spend review effort on work that should stop early.** Only continue into Codex review if the item is safe to continue autonomously. If the item needs human attention or should be closed, stop the autonomous flow there. Do not spend time running Codex review, fixing code, or chasing CI on work that is not ready to merge anyway. Instead, write up the intention, the reason human attention is required or the reason the PR should be closed, whether a fundamental refactor is needed, and the exact decision or reframing needed from a human.
 
-11. **Run AI review on every PR that stays on the autonomous lane.** For items that are safe to continue autonomously, every PR must go through AI review. Check whether the PR already has AI review comments from CodeCues or Codex. If it does, evaluate those comments carefully and address the valid ones. If it does not, check out the PR locally and run a local Codex review against the correct base branch. Review the current PR head, not a stale local diff. Treat P0 and P1 findings as blockers that must be resolved before the PR can move forward. Lower-severity findings can be handled with judgment, but they do not override the intention-first gate.
+11. **Handle Codex review in a fixed order on every PR that stays on the autonomous lane.** For items that are safe to continue autonomously, every PR must go through Codex review in this order. First, check whether the PR already has Codex review comments on GitHub for the current PR head and address the valid unresolved ones. Do not skip existing Codex feedback just because you plan to run another review. After that, check out the PR locally and run a fresh local `codex review` against the PR work isolated to the correct base commit or merge base, not against the whole repository state and not against a stale local diff. Treat P0 and P1 findings from either source as blockers that must be resolved before the PR can move forward. Lower-severity findings can be handled with judgment, but they do not override the intention-first gate.
 
-12. **Address blocking review feedback and rerun review if needed.** After AI review, make sure the review feedback is actually closed out. That means:
-   - valid AI findings are fixed or otherwise resolved with a clear reason
+12. **Address blocking review feedback and rerun local review if needed.** After Codex review, make sure the review feedback is actually closed out. That means:
+   - valid Codex findings from GitHub reviews are fixed or otherwise resolved with a clear reason
+   - a fresh local `codex review` has been run against the current branch state relative to the PR base
    - irrelevant findings are explicitly dismissed or explained, not silently ignored
    - stale comments from older commits are recognized as stale and not mistaken for current blockers
-   - if P0 or P1 findings remain, address that review feedback and run review again until the blocking findings are cleared
+   - if P0 or P1 findings remain, address that review feedback and run local review again until the blocking findings are cleared
 
 13. **Check whether CI failures really belong to this PR.** Then evaluate CI/CD for items still on the autonomous lane. If CI is green, that part is satisfied. If CI is not fully green, determine whether the failures are actually caused by the PR. If failures are unrelated, pre-existing, or clearly due to external churn outside the diff, document that plainly and do not treat them as blockers. If the failures are plausibly related to the PR, they must be fixed before landing. After fixing related CI failures, check CI again until the related failures are gone or clearly shown to be unrelated.
 
@@ -75,7 +76,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - the implementation serves that intention in a real way rather than merely covering symptoms
    - any needed refactor is either unnecessary or superficial rather than fundamental
    - there is no remaining need for human framing or architectural judgment
-   - AI review has happened and there are no unresolved P0 or P1 findings
+   - Codex review has happened, existing GitHub Codex feedback has been handled, and there are no unresolved P0 or P1 findings
    - CI/CD is green, or any remaining failures are clearly unrelated to the PR
 
 15. **Apply the same judgment to issues, but only close real PRs.** If the item is an issue or issue description rather than an existing PR, do the same intention-first analysis and decide whether it is ready for autonomous implementation or whether it needs human framing first. If the issue is already framed well enough to proceed, say so. If it is not, explain exactly what judgment call, fundamental refactor, or reframing a human still needs to provide. The explicit close action applies only to real PRs.
@@ -87,11 +88,11 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - Should this PR be closed immediately
    - Refactor needed: none, superficial, or fundamental
    - Human attention required, safe to continue autonomously, or close now
-   - AI review status and any blocking findings
+   - Codex review status and any blocking findings
    - CI/CD status and whether any failures are unrelated
    - Final recommendation: close PR, land, continue autonomously, or escalate to a human
 
-17. **Post the result back, and close PRs when the outcome says to close them.** If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking AI review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. All human-escalation outcomes should use the same basic note structure; do not invent separate note formats for different escalation branches. Instead, reuse one shared human note and make the reason explicit, such as `design decision/human call` or `ready for human landing decision`. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
+17. **Post the result back, and close PRs when the outcome says to close them.** If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking Codex review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. All human-escalation outcomes should use the same basic note structure; do not invent separate note formats for different escalation branches. Instead, reuse one shared human note and make the reason explicit, such as `design decision/human call` or `ready for human landing decision`. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
 
 18. **Use a short, scannable comment template with explicit status signals.** Use an actual comment template when posting the result. Keep it short, plain, and scannable. Use helpful status emojis so a human can quickly tell whether this is safe to keep moving, needs intervention, or should be closed. When the outcome is `escalate to human`, always use the same note format and include a field or line that clearly states why human input is needed.
 
@@ -103,7 +104,7 @@ Emoji guide:
 - `🧱` fundamental refactor
 - `🟢` safe to continue autonomously
 - `🔴` blocked from autonomous landing
-- `🧪` AI review or test status
+- `🧪` Codex review or test status
 - `🚦` CI/CD status
 - `🏁` final recommendation
 
@@ -126,7 +127,7 @@ Default comment template:
 ### Why
 <2-5 plain-language bullets explaining the judgment>
 
-### AI review
+### Codex review
 - Status: 🧪 Not run / 🧪 Already present / ✅ Clear / 🔴 Blocking findings remain
 - Notes: <short review summary>
 
