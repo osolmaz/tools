@@ -26,6 +26,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 2. For each item, first figure out the real intention behind it. Read the code, the diff, the issue text, the PR description, and any surrounding context needed to answer one question in plain language: what is this actually trying to do for a human? Write that intention like one human talking to another human. Do not hide behind technical jargon. Translate jargon into purpose. If the stated PR description sounds model-generated or overly technical, do not repeat it blindly; recover the plain-language goal underneath it.
 
 3. Once you have the intention, judge the work against that intention. Do not stop at “does the code compile” or “does the diff match the ticket.” Ask whether the PR or proposed solution is addressing the underlying problem in a real and durable way, or whether it is only treating a symptom locally. Be explicit about the difference between a fundamental fix and a shortcut, band-aid, or narrowly scoped patch that avoids the real issue.
+   - Treat an unclear PR the same as a bad or localized fix for closure purposes. If the PR is not even clear enough to evaluate confidently, it should be closed rather than routed to a human.
 
 4. If the item is a PR and your judgment is that the proposed solution is wrong-shaped for the problem, only treats a symptom, is just a localized fix that does not address the underlying issue, or the PR is not even clear enough to evaluate confidently, do not send it down the human-review lane by default. Instead, treat that as a rejection outcome for the PR: write a concise comment explaining the plain-language intention as best you can recover it, why the current implementation does not solve the right problem or is too unclear to keep moving, and what kind of reframing would be needed, then close the PR. Use the human-attention lane for cases that need a human product or architecture judgment before deciding whether the work should continue at all.
 
@@ -44,6 +45,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 7. Route the item to a human if any of the following are true:
    - the right answer may require reframing the problem, changing the product behavior, or making an architectural call rather than just fixing code
    - a fundamental refactor is needed to solve the problem properly
+   - a human must decide what the correct product or architecture direction should be before any implementation can be judged
 
 8. If the item only needs a superficial refactor, that does not require human attention by itself. Superficial refactors can be done autonomously as part of the normal implementation, review, and landing flow. Only fundamental refactors trigger the human-attention path.
 
