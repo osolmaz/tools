@@ -7,7 +7,7 @@ flowchart TD
     A[Read item] --> B[Find intent]
     B --> C{Judge solution}
     C -->|Bad, localized, or unclear| D[Comment and close PR]
-    C -->|Architectural| E[Comment for human]
+    C -->|Seems OK but needs a design decision/human call| E[Escalate to human]
     C -->|Good enough| F{Refactor?}
     F -->|Fundamental| E
     F -->|None or superficial| G[Run AI review]
