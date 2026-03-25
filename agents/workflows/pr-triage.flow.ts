@@ -450,9 +450,8 @@ function extractJson(text) {
     }
   }
 
-  const balanced = extractBalancedJson(trimmed);
-  if (balanced) {
-    const parsed = tryParse(balanced);
+  for (const candidate of extractBalancedJsonCandidates(trimmed)) {
+    const parsed = tryParse(candidate);
     if (parsed.ok) {
       return parsed.value;
     }
@@ -469,7 +468,8 @@ function tryParse(text) {
   }
 }
 
-function extractBalancedJson(text) {
+function extractBalancedJsonCandidates(text) {
+  const candidates = [];
   const starts = ["{", "["];
   for (let i = 0; i < text.length; i += 1) {
     if (!starts.includes(text[i] ?? "")) {
@@ -478,11 +478,11 @@ function extractBalancedJson(text) {
 
     const result = scanBalanced(text, i);
     if (result) {
-      return result;
+      candidates.push(result);
     }
   }
 
-  return null;
+  return candidates;
 }
 
 function scanBalanced(text, startIndex) {
