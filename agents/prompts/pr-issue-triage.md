@@ -3,23 +3,30 @@ description: Prompt for triaging PRs, issues, or issue descriptions by inferring
 ---
 
 ```mermaid
-flowchart TD
+flowchart LR
     A[Read item] --> B[Find intent]
     B --> C{Judge solution}
+
     C -->|Bad, localized, or unclear| D[Comment and close PR]
     C -->|Seems OK but needs a design decision/human call| E[Escalate to human]
     C -->|Good enough| F{Refactor?}
+
     F -->|Fundamental| E
-    F -->|None| G[Run AI review]
     F -->|Superficial| R[Do superficial refactor]
-    R --> G
-    G --> H{P0 or P1?}
-    H -->|Yes| I[Address review feedback]
-    I --> G
-    H -->|No| J[Check CI]
-    J --> K{CI failures?}
-    K -->|Yes| L[Fix CI failures]
-    L --> J
+    F -->|None| G
+
+    subgraph AUTO["Autonomous lane"]
+        direction TB
+        R --> G[Run AI review]
+        G --> H{P0 or P1?}
+        H -->|Yes| I[Address review feedback]
+        I --> G
+        H -->|No| J[Check CI]
+        J --> K{CI failures?}
+        K -->|Yes| L[Fix CI failures]
+        L --> J
+    end
+
     K -->|No| E
 ```
 
