@@ -83,9 +83,9 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - CI/CD status and whether any failures are unrelated
    - Final recommendation: close PR, land, continue autonomously, or escalate to a human
 
-17. **Post the result back, and close PRs when the outcome says to close them.** If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking AI review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
+17. **Post the result back, and close PRs when the outcome says to close them.** If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether a refactor is needed and what kind, whether the PR should be closed, any blocking AI review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor or human reframing is still needed. All human-escalation outcomes should use the same basic note structure; do not invent separate note formats for different escalation branches. Instead, reuse one shared human note and make the reason explicit, such as `design decision/human call` or `ready for human landing decision`. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
 
-18. **Use a short, scannable comment template with explicit status signals.** Use an actual comment template when posting the result. Keep it short, plain, and scannable. Use helpful status emojis so a human can quickly tell whether this is safe to keep moving, needs intervention, or should be closed.
+18. **Use a short, scannable comment template with explicit status signals.** Use an actual comment template when posting the result. Keep it short, plain, and scannable. Use helpful status emojis so a human can quickly tell whether this is safe to keep moving, needs intervention, or should be closed. When the outcome is `escalate to human`, always use the same note format and include a field or line that clearly states why human input is needed.
 
 Emoji guide:
 - `✅` valid / good / safe
@@ -132,8 +132,11 @@ Default comment template:
 
 If the item needs human attention, the template should make that obvious near the top:
 - `Human attention: ⚠️ Required`
+- `Human decision needed: <design decision/human call | ready for human landing decision | other explicit reason>`
 - `Refactor needed: 🧱 Fundamental` if applicable
 - `Recommendation: 🏁 escalate to a human`
+
+Use this same human-escalation note shape for every human branch. Only change the explicit human decision needed line and the supporting explanation.
 
 If the item is a PR and the solution is bad, unclear, or merely localized, the template should make that obvious near the top:
 - `Solves the right problem: 🛑 Localized, bad, or unclear fix`
