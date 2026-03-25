@@ -1,0 +1,13 @@
+{
+  "name": "acpxflow",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Minimal flow runtime over acpx for stepwise ACP orchestration.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

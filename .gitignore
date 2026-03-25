@@ -2,3 +2,5 @@
 /target/
 **/target/
 *.png
+**/node_modules/
+/acpxflow/runs/
