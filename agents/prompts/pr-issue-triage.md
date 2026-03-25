@@ -10,12 +10,16 @@ flowchart TD
     C -->|Seems OK but needs a design decision/human call| E[Escalate to human]
     C -->|Good enough| F{Refactor?}
     F -->|Fundamental| E
-    F -->|None or superficial| G[Run AI review]
+    F -->|None| G[Run AI review]
+    F -->|Superficial| R[Do superficial refactor]
+    R --> G
     G --> H{P0 or P1?}
-    H -->|Yes| I[Fix and review again]
+    H -->|Yes| I[Address review feedback]
+    I --> G
     H -->|No| J[Check CI]
-    J --> K{Related failures?}
-    K -->|Yes| I
+    J --> K{CI failures?}
+    K -->|Yes| L[Fix CI failures]
+    L --> J
     K -->|No| E
 ```
 
@@ -47,7 +51,7 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
    - a fundamental refactor is needed to solve the problem properly
    - a human must decide what the correct product or architecture direction should be before any implementation can be judged
 
-8. **Keep superficial cleanup on the autonomous lane.** If the item only needs a superficial refactor, that does not require human attention by itself. Superficial refactors can be done autonomously as part of the normal implementation, review, and landing flow. Only fundamental refactors trigger the human-attention path.
+8. **Do superficial refactors before continuing into review.** If the item only needs a superficial refactor, that does not require human attention by itself. Superficial refactors should be done on the autonomous lane before the item proceeds into AI review. Only fundamental refactors trigger the human-attention path.
 
 9. **Keep moving when the work is good enough to continue.** If the item does not need human attention and is not a close outcome, continue autonomously. It is acceptable to proceed with automated review, local validation, CI/CD checking, and follow-up fixes as long as the intention is clear and the item does not require a human product or architecture judgment. If the implementation looks acceptable enough to continue, keep going rather than blocking on perfectionism.
 
@@ -55,12 +59,13 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 
 11. **Run AI review on every PR that stays on the autonomous lane.** For items that are safe to continue autonomously, every PR must go through AI review. Check whether the PR already has AI review comments from CodeCues or Codex. If it does, evaluate those comments carefully and address the valid ones. If it does not, check out the PR locally and run a local Codex review against the correct base branch. Review the current PR head, not a stale local diff. Treat P0 and P1 findings as blockers that must be resolved before the PR can move forward. Lower-severity findings can be handled with judgment, but they do not override the intention-first gate.
 
-12. **Make sure review feedback is actually resolved.** After AI review, make sure the review feedback is actually closed out. That means:
+12. **Address blocking review feedback and rerun review if needed.** After AI review, make sure the review feedback is actually closed out. That means:
    - valid AI findings are fixed or otherwise resolved with a clear reason
    - irrelevant findings are explicitly dismissed or explained, not silently ignored
    - stale comments from older commits are recognized as stale and not mistaken for current blockers
+   - if P0 or P1 findings remain, address that review feedback and run review again until the blocking findings are cleared
 
-13. **Check whether CI failures really belong to this PR.** Then evaluate CI/CD for items still on the autonomous lane. If CI is green, that part is satisfied. If CI is not fully green, determine whether the failures are actually caused by the PR. If failures are unrelated, pre-existing, or clearly due to external churn outside the diff, document that plainly and do not treat them as blockers. If the failures are plausibly related to the PR, they must be fixed before landing.
+13. **Check whether CI failures really belong to this PR.** Then evaluate CI/CD for items still on the autonomous lane. If CI is green, that part is satisfied. If CI is not fully green, determine whether the failures are actually caused by the PR. If failures are unrelated, pre-existing, or clearly due to external churn outside the diff, document that plainly and do not treat them as blockers. If the failures are plausibly related to the PR, they must be fixed before landing. After fixing related CI failures, check CI again until the related failures are gone or clearly shown to be unrelated.
 
 14. **Only land PRs that clear every gate.** A PR is ready to land only if all of the following are true:
    - the plain-language intention is clear
