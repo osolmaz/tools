@@ -1,11 +1,7 @@
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const PROMPTS_DIR = fileURLToPath(new URL("../prompts/pr-triage/", import.meta.url));
 
 export default {
   name: "pr-triage",
@@ -19,9 +15,7 @@ export default {
     solution_fit: {
       kind: "acp",
       async prompt({ outputs }) {
-        return await loadPrompt("pr-triage/solution-fit.md", {
-          promptContext: outputs.load_pr.promptContext,
-        });
+        return promptSolutionFit(outputs.load_pr.promptContext);
       },
       parse: (text) => extractJson(text),
     },
@@ -29,7 +23,7 @@ export default {
     issue_clarity: {
       kind: "acp",
       async prompt() {
-        return await loadPrompt("pr-triage/issue-clarity.md");
+        return promptIssueClarity();
       },
       parse: (text) => extractJson(text),
     },
@@ -37,7 +31,7 @@ export default {
     scope_assessment: {
       kind: "acp",
       async prompt() {
-        return await loadPrompt("pr-triage/scope-assessment.md");
+        return promptScopeAssessment();
       },
       parse: (text) => extractJson(text),
     },
@@ -72,9 +66,7 @@ export default {
     continue_lane: {
       kind: "acp",
       async prompt({ outputs }) {
-        return await loadPrompt("pr-triage/continue-lane.md", {
-          reasons: JSON.stringify(outputs.route.reasons),
-        });
+        return promptContinueLane(outputs.route.reasons);
       },
       parse: (text) => extractJson(text),
     },
@@ -82,9 +74,7 @@ export default {
     human_review: {
       kind: "acp",
       async prompt({ outputs }) {
-        return await loadPrompt("pr-triage/human-review.md", {
-          reasons: JSON.stringify(outputs.route.reasons),
-        });
+        return promptHumanReview(outputs.route.reasons);
       },
       parse: (text) => extractJson(text),
     },
@@ -122,17 +112,6 @@ export default {
     { from: "human_review", to: "finalize" },
   ],
 };
-
-async function loadPrompt(relativePath, variables = {}) {
-  const promptPath = path.join(PROMPTS_DIR, relativePath.replace(/^pr-triage\//, ""));
-  let text = await readFile(promptPath, "utf8");
-
-  for (const [key, value] of Object.entries(variables)) {
-    text = text.replaceAll(`{{${key}}}`, String(value));
-  }
-
-  return text.trim();
-}
 
 async function loadPullRequestContext(input) {
   const repo = String(input?.repo ?? "").trim();
@@ -230,6 +209,82 @@ function formatPromptContext({ repo, pr, linkedIssue, diff }) {
     "",
     "Diff:",
     diff || "(empty diff)",
+  ].join("\n");
+}
+
+function promptSolutionFit(promptContext) {
+  return [
+    "You are doing maintainability-first PR triage.",
+    "Question: is this the right solution for the underlying issue, or is it only a localized fix that does not address the real problem?",
+    "Use only the PR context below.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "verdict": "right_solution" | "localized_fix" | "wrong_problem" | "unclear",',
+    '  "confidence": 0.0,',
+    '  "reason": "short explanation",',
+    '  "evidence": ["short bullet", "short bullet"]',
+    "}",
+    "",
+    String(promptContext ?? ""),
+  ].join("\n");
+}
+
+function promptIssueClarity() {
+  return [
+    "Use the PR context already in this session.",
+    "Judge whether the underlying issue is clearly framed enough for safe autonomous continuation.",
+    "If there is no linked issue, decide whether the PR body still makes the underlying problem clear.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "verdict": "clear" | "ambiguous" | "conflicting",',
+    '  "confidence": 0.0,',
+    '  "reason": "short explanation"',
+    "}",
+  ].join("\n");
+}
+
+function promptScopeAssessment() {
+  return [
+    "Use the PR context and earlier reasoning already in this session.",
+    "Judge whether the scope is appropriately shaped for the codebase.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
+    '  "refactor_needed": "none" | "superficial" | "fundamental",',
+    '  "human_judgment_needed": true | false,',
+    '  "reason": "short explanation"',
+    "}",
+  ].join("\n");
+}
+
+function promptContinueLane(reasons) {
+  return [
+    "We are continuing on the autonomous lane.",
+    "The runtime routed here because the earlier checks did not raise blockers.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "continue",',
+    '  "summary": "short explanation",',
+    '  "next_actions": ["action", "action"],',
+    '  "residual_risks": ["risk", "risk"]',
+    "}",
+    "",
+    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
+  ].join("\n");
+}
+
+function promptHumanReview(reasons) {
+  return [
+    "We are routing this PR to human review.",
+    "Return exactly one JSON object with this shape:",
+    "{",
+    '  "route": "human_review",',
+    '  "summary": "short explanation",',
+    '  "blocking_reasons": ["reason", "reason"],',
+    '  "questions_for_human": ["question", "question"]',
+    "}",
+    "",
+    `Runtime reasons: ${JSON.stringify(reasons ?? [])}`,
   ].join("\n");
 }
 
