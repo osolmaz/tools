@@ -8,7 +8,7 @@ flowchart TD
     B --> C{Judge solution}
 
     C -->|"Bad, localized,<br/>or unclear"| D[Comment and close PR]
-    C -->|"Seems OK but needs a<br/>design decision/human call"| E[Escalate to human]
+    C -->|"Seems OK but needs a<br/>design decision/human call"| E[Comment and escalate to human]
     C -->|Good enough| F{Refactor?}
 
     F -->|Fundamental| E
