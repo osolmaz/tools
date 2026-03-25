@@ -59,7 +59,7 @@ export default defineFlow({
           "{",
           '  "scope": "appropriately_local" | "too_local" | "cross_cutting_needed",',
           '  "refactor_needed": "none" | "superficial" | "fundamental",',
-          '  "human_judgment_needed": true,',
+          '  "human_judgment_needed": true | false,',
           '  "reason": "short explanation"',
           "}",
         ].join("\n");

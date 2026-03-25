@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -14,9 +15,8 @@ async function main() {
   }
 
   const options = parseFlags(rest);
-  requireFlag(options, "repo");
-  requireFlag(options, "pr");
   requireFlag(options, "acpx-cwd");
+  const input = await readInput(options);
 
   const flowModulePath = path.resolve(process.cwd(), flowFile);
   const flowModule = await import(pathToFileURL(flowModulePath).href);
@@ -41,8 +41,7 @@ async function main() {
   });
 
   const result = await runner.run(flow, {
-    repo: options.repo,
-    prNumber: Number(options.pr),
+    ...input,
   });
 
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -66,6 +65,39 @@ function parseFlags(argv) {
   return flags;
 }
 
+async function readInput(flags) {
+  if (flags["input-json"] && flags["input-file"]) {
+    throw new Error("Use only one of --input-json or --input-file");
+  }
+
+  if (flags["input-json"]) {
+    return parseJson(flags["input-json"], "--input-json");
+  }
+
+  if (flags["input-file"]) {
+    return parseJson(await readFile(path.resolve(flags["input-file"]), "utf8"), "--input-file");
+  }
+
+  if (flags.repo || flags.pr) {
+    requireFlag(flags, "repo");
+    requireFlag(flags, "pr");
+    return {
+      repo: flags.repo,
+      prNumber: Number(flags.pr),
+    };
+  }
+
+  return {};
+}
+
+function parseJson(raw, label) {
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`${label} must contain valid JSON: ${error.message}`);
+  }
+}
+
 function requireFlag(flags, key) {
   if (!flags[key]) {
     throw new Error(`Missing required flag --${key}`);
@@ -76,7 +108,7 @@ function printUsage() {
   process.stderr.write(
     [
       "Usage:",
-      "  node src/cli.js run <flow-file> --repo <owner/name> --pr <number> --acpx-cwd <repo-path> [--acpx <path>] [--agent codex] [--output-dir <dir>]",
+      "  node src/cli.js run <flow-file> --acpx-cwd <repo-path> [--input-json <json> | --input-file <path> | --repo <owner/name> --pr <number>] [--acpx <path>] [--agent codex] [--output-dir <dir>]",
     ].join("\n"),
   );
 }

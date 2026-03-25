@@ -22,7 +22,7 @@ export class FlowRunner {
   }
 
   async run(flow, input) {
-    const runId = createRunId(flow.name, input);
+    const runId = createRunId(flow.name);
     const runDir = path.join(this.outputRoot, runId);
     const state = {
       runId,
@@ -59,7 +59,7 @@ export class FlowRunner {
         if (node.session?.kind === "isolated") {
           rawText = await this.acpx.execPrompt(promptText);
         } else {
-          sessionInfo = await this.ensureSession(state, flow, input, node.session?.handle ?? "main");
+          sessionInfo = await this.ensureSession(state, flow, node.session?.handle ?? "main");
           rawText = await this.acpx.promptSession(sessionInfo.name, promptText);
         }
         output = await node.parse(rawText, context);
@@ -107,13 +107,13 @@ export class FlowRunner {
     };
   }
 
-  async ensureSession(state, flow, input, handle) {
+  async ensureSession(state, flow, handle) {
     const existing = state.sessionBindings[handle];
     if (existing) {
       return existing;
     }
 
-    const name = `${flow.name}-pr-${input.prNumber}-${handle}-${state.runId.slice(-8)}`;
+    const name = `${flow.name}-${handle}-${state.runId.slice(-8)}`;
     const session = await this.acpx.createSession(name);
     const binding = {
       handle,
@@ -172,9 +172,9 @@ function getByPath(value, jsonPath) {
     .reduce((current, key) => (current == null ? undefined : current[key]), value);
 }
 
-function createRunId(flowName, input) {
+function createRunId(flowName) {
   const stamp = new Date().toISOString().replaceAll(":", "").replaceAll(".", "");
   const slug = flowName.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
   const suffix = crypto.randomUUID().slice(0, 8);
-  return `${stamp}-${slug}-pr-${input.prNumber}-${suffix}`;
+  return `${stamp}-${slug}-${suffix}`;
 }
