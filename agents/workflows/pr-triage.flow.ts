@@ -31,6 +31,14 @@ const flow = {
       parse: (text) => extractJson(text),
     },
 
+    prove_issue_and_fix: {
+      kind: "acp",
+      async prompt({ outputs }) {
+        return promptProveIssueAndFix(loadPrOutput(outputs));
+      },
+      parse: (text) => extractJson(text),
+    },
+
     judge_refactor: {
       kind: "acp",
       async prompt({ outputs }) {
@@ -85,6 +93,7 @@ const flow = {
         final: outputs.comment_and_close_pr ?? outputs.comment_and_escalate_to_human ?? null,
         intent: outputs.extract_intent ?? null,
         solution: outputs.judge_solution ?? null,
+        proof: outputs.prove_issue_and_fix ?? null,
         refactor: outputs.judge_refactor ?? null,
         review: outputs.review_loop ?? null,
         ci: outputs.fix_ci_failures ?? null,
@@ -103,7 +112,17 @@ const flow = {
         cases: {
           close_pr: "comment_and_close_pr",
           comment_and_escalate_to_human: "comment_and_escalate_to_human",
+          prove_issue_and_fix: "prove_issue_and_fix",
+        },
+      },
+    },
+    {
+      from: "prove_issue_and_fix",
+      switch: {
+        on: "$.route",
+        cases: {
           judge_refactor: "judge_refactor",
+          comment_and_escalate_to_human: "comment_and_escalate_to_human",
         },
       },
     },
@@ -196,14 +215,42 @@ function promptJudgeSolution(pr) {
     '- "needs_human_call" if it seems plausible but needs a design decision or human call before continuing.',
     "Route `close_pr` for localized_fix, bad_fix, or unclear.",
     "Route `comment_and_escalate_to_human` for needs_human_call.",
-    "Route `judge_refactor` for good_enough.",
+    "Route `prove_issue_and_fix` for good_enough.",
     "Do not repeat earlier JSON or the full diff.",
     "Return exactly one JSON object and nothing else:",
     "{",
     '  "verdict": "good_enough" | "localized_fix" | "bad_fix" | "unclear" | "needs_human_call",',
-    '  "route": "close_pr" | "comment_and_escalate_to_human" | "judge_refactor",',
+    '  "route": "close_pr" | "comment_and_escalate_to_human" | "prove_issue_and_fix",',
     '  "reason": "short explanation",',
     '  "evidence": ["brief evidence item"]',
+    "}",
+  ].join("\n");
+}
+
+function promptProveIssueAndFix(pr) {
+  return [
+    "You are still in the same PR session.",
+    `Target PR: ${prRef(pr)}`,
+    "If this PR claims to fix a bug, regression, or other testable issue, prove that claim before continuing.",
+    "Use the checked-out repo, git, gh, and the current branch state yourself.",
+    "Refresh the PR base branch from origin before comparing against it.",
+    "Identify the smallest targeted repro or test that captures the claimed issue.",
+    "If needed, temporarily ablate the fix or the changed test setup so you can demonstrate failure on the refreshed base or ablated state.",
+    "Then restore the PR state and rerun the same repro or targeted test to prove that the fix changes the outcome.",
+    "If feasible, also run relevant integration and end-to-end tests near this behavior.",
+    "If this is not a bug-fix style PR or there is no meaningful repro, use `not_applicable` and route to `judge_refactor`.",
+    "If you cannot reproduce the issue or cannot show that the fix changes the outcome, route to `comment_and_escalate_to_human`.",
+    "Do not leave the branch in an ablated state. Restore the PR branch state before continuing.",
+    "Return exactly one JSON object and nothing else:",
+    "{",
+    '  "proof_status": "reproduced_and_fixed" | "not_applicable" | "could_not_reproduce" | "fix_not_proven",',
+    '  "route": "judge_refactor" | "comment_and_escalate_to_human",',
+    '  "summary": "short explanation",',
+    '  "repro_steps": ["brief step"],',
+    '  "targeted_tests": ["test command or identifier"],',
+    '  "integration_tests": ["test command or identifier"],',
+    '  "e2e_tests": ["test command or identifier"],',
+    '  "restored_branch_state": true | false',
     "}",
   ].join("\n");
 }
@@ -256,6 +303,7 @@ function promptReviewLoop(pr, hadSuperficialRefactor) {
     "Then fetch the PR base branch from origin, determine the correct updated base ref or merge base from the checked-out repo, and run a fresh local `codex review --base <base>` against that fresh base ref.",
     "Do not review against a stale local base branch, against the whole repository state, or against a stale local diff.",
     "If you find valid P0 or P1 issues from either the existing GitHub Codex reviews or the fresh local Codex review, fix them directly in the repo, run focused checks when feasible, and commit/push the branch yourself.",
+    "If you change code in this loop, rerun the targeted repro or proof test from the earlier proof step, plus nearby integration or end-to-end tests when feasible, before deciding whether review is clear.",
     "If blocking review findings still remain after this pass, route back to `review_loop`.",
     "If blocking review findings are cleared, route to `fix_ci_failures`.",
     hadSuperficialRefactor
@@ -284,6 +332,7 @@ function promptFixCiFailures(pr) {
     "Use REST-backed `gh api` or other stable gh commands to inspect workflow runs and checks. Do not rely on fragile PR view comment output.",
     "If a workflow run is blocked only because it needs maintainer approval to run, approve or enable that run yourself if you have permission, for example with `gh api -X POST repos/{owner}/{repo}/actions/runs/{run_id}/approve`, then route back to `fix_ci_failures` so CI can be checked again after the run starts.",
     "If related failures exist, fix them directly in the repo, run focused checks when feasible, commit/push the branch yourself, and route back to `fix_ci_failures` if another CI pass is needed.",
+    "If you change code in this loop, rerun the targeted repro or proof test from the earlier proof step, plus nearby integration or end-to-end tests when feasible, before checking CI again.",
     "If CI is green or remaining failures are clearly unrelated, route to `comment_and_escalate_to_human`.",
     "If the only remaining blocker is a workflow approval gate that you cannot clear yourself, route to `comment_and_escalate_to_human` and make that the explicit human action needed next.",
     "Do not restate earlier JSON or the full diff.",
@@ -319,6 +368,7 @@ function promptCommentAndClose(pr) {
     "### Quick read",
     "- Intent valid: <✅ Yes / ❌ No>",
     "- Solves the right problem: 🛑 Localized, bad, or unclear fix",
+    "- Proof of fix: <✅ Proven / ⚠️ Not proven / ➖ Not applicable / ⏸️ Not run>",
     "- Close PR: 🛑 Yes",
     "- Refactor needed: <✅ None / 🔧 Superficial / 🧱 Fundamental>",
     "- Human attention: 🛑 Not applicable because PR should close",
@@ -373,11 +423,12 @@ function promptCommentAndEscalate(pr) {
     "### Quick read",
     "- Intent valid: <✅ Yes / ❌ No>",
     "- Solves the right problem: <✅ Yes / ⚠️ Partly / ❌ No / 🛑 Localized, bad, or unclear fix>",
+    "- Proof of fix: <✅ Proven / ⚠️ Not proven / ➖ Not applicable / ⏸️ Not run>",
     "- Close PR: ✅ No",
     "- Refactor needed: <✅ None / 🔧 Superficial / 🧱 Fundamental>",
     "- Human attention: ⚠️ Required",
     "- Recommendation: 🏁 escalate to a human",
-    "- Human decision needed: <design decision/human call | ready for human landing decision | workflow approval needed | other explicit reason>",
+    "- Human decision needed: <design decision/human call | proof of fix not established | ready for human landing decision | workflow approval needed | other explicit reason>",
     "",
     "### Intent",
     "> <plain-language intention>",
