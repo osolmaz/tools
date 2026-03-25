@@ -60,16 +60,16 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 
 10. **Do not spend review effort on work that should stop early.** Only continue into Codex review if the item is safe to continue autonomously. If the item needs human attention or should be closed, stop the autonomous flow there. Do not spend time running Codex review, fixing code, or chasing CI on work that is not ready to merge anyway. Instead, write up the intention, the reason human attention is required or the reason the PR should be closed, whether a fundamental refactor is needed, and the exact decision or reframing needed from a human.
 
-11. **Handle Codex review in a fixed order on every PR that stays on the autonomous lane.** For items that are safe to continue autonomously, every PR must go through Codex review in this order. First, check whether the PR already has Codex review comments on GitHub for the current PR head and address the valid unresolved ones. Do not skip existing Codex feedback just because you plan to run another review. After that, check out the PR locally and run a fresh local `codex review` against the PR work isolated to the correct base commit or merge base, not against the whole repository state and not against a stale local diff. Treat P0 and P1 findings from either source as blockers that must be resolved before the PR can move forward. Lower-severity findings can be handled with judgment, but they do not override the intention-first gate.
+11. **Handle Codex review in a fixed order on every PR that stays on the autonomous lane.** For items that are safe to continue autonomously, every PR must go through Codex review in this order. First, check whether the PR already has Codex review comments on GitHub for the current PR head and address the valid unresolved ones. Do not skip existing Codex feedback just because you plan to run another review. When reading GitHub review state, do not rely on `gh pr view --comments`; use stable REST-backed `gh api` calls such as `repos/{owner}/{repo}/pulls/{pr}/reviews`, `repos/{owner}/{repo}/pulls/{pr}/comments`, and `repos/{owner}/{repo}/issues/{pr}/comments` instead. After that, check out the PR locally and run a fresh local `codex review --base <base>` against the PR work isolated to the correct base branch or merge base, not against the whole repository state and not against a stale local diff. Treat P0 and P1 findings from either source as blockers that must be resolved before the PR can move forward. Lower-severity findings can be handled with judgment, but they do not override the intention-first gate.
 
 12. **Address blocking review feedback and rerun local review if needed.** After Codex review, make sure the review feedback is actually closed out. That means:
    - valid Codex findings from GitHub reviews are fixed or otherwise resolved with a clear reason
-   - a fresh local `codex review` has been run against the current branch state relative to the PR base
+   - a fresh local `codex review --base <base>` has been run against the current branch state relative to the PR base
    - irrelevant findings are explicitly dismissed or explained, not silently ignored
    - stale comments from older commits are recognized as stale and not mistaken for current blockers
    - if P0 or P1 findings remain, address that review feedback and run local review again until the blocking findings are cleared
 
-13. **Check whether CI failures really belong to this PR.** Then evaluate CI/CD for items still on the autonomous lane. If CI is green, that part is satisfied. If CI is not fully green, determine whether the failures are actually caused by the PR. If failures are unrelated, pre-existing, or clearly due to external churn outside the diff, document that plainly and do not treat them as blockers. If the failures are plausibly related to the PR, they must be fixed before landing. After fixing related CI failures, check CI again until the related failures are gone or clearly shown to be unrelated.
+13. **Check whether CI failures really belong to this PR, and approve workflow runs when that is the blocker.** Then evaluate CI/CD for items still on the autonomous lane. If CI is green, that part is satisfied. If CI is not fully green, determine whether the failures are actually caused by the PR. If a workflow run is blocked only because it needs maintainer approval to run, approve or enable that workflow run first if you have permission, for example with the workflow-run approval endpoint `POST /repos/{owner}/{repo}/actions/runs/{run_id}/approve`, then re-check CI before escalating. If failures are unrelated, pre-existing, or clearly due to external churn outside the diff, document that plainly and do not treat them as blockers. If the failures are plausibly related to the PR, they must be fixed before landing. After fixing related CI failures or approving the blocked workflow run, check CI again until the related failures are gone or clearly shown to be unrelated. If the only remaining blocker is a workflow approval gate that you cannot clear yourself, escalate to a human and say that explicitly.
 
 14. **Only land PRs that clear every gate.** A PR is ready to land only if all of the following are true:
    - the plain-language intention is clear
@@ -132,7 +132,7 @@ Default comment template:
 - Notes: <short review summary>
 
 ### CI/CD
-- Status: 🚦 Green / 🚦 Mixed but unrelated / 🔴 Related failures remain / ⏸️ Not checked
+- Status: 🚦 Green / 🚦 Mixed but unrelated / 🔴 Related failures remain / ⏸️ Approval needed / ⏸️ Not checked
 - Notes: <short CI summary>
 
 ### Recommendation
