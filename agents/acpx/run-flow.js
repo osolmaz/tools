@@ -3,7 +3,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { AcpxClient, FlowRunner, GitHubClient } from "./index.js";
+import { AcpxClient } from "./lib/acpx.js";
+import { FlowRunner } from "./lib/flow.js";
+import { GitHubClient } from "./lib/github.js";
 
 async function main() {
   const [, , command, flowFile, ...rest] = process.argv;
@@ -32,7 +34,7 @@ async function main() {
   const github = new GitHubClient();
   const outputRoot =
     options["output-dir"] ??
-    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "runs");
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "runs");
 
   const runner = new FlowRunner({
     acpx,
@@ -108,7 +110,7 @@ function printUsage() {
   process.stderr.write(
     [
       "Usage:",
-      "  node src/cli.js run <flow-file> --acpx-cwd <repo-path> [--input-json <json> | --input-file <path> | --repo <owner/name> --pr <number>] [--acpx <path>] [--agent codex] [--output-dir <dir>]",
+      "  node agents/acpx/run-flow.js run <flow-file> --acpx-cwd <repo-path> [--input-json <json> | --input-file <path> | --repo <owner/name> --pr <number>] [--acpx <path>] [--agent codex] [--output-dir <dir>]",
     ].join("\n"),
   );
 }

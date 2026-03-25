@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { FlowRunner, compute, defineFlow } from "../src/flow.js";
+import { FlowRunner, compute, defineFlow } from "../lib/flow.js";
 
 test("switch edges branch by structured output", async () => {
   const flow = defineFlow({
@@ -35,10 +35,10 @@ test("switch edges branch by structured output", async () => {
   const runner = new FlowRunner({
     acpx: null,
     github: null,
-    outputRoot: "/tmp/acpxflow-test",
+    outputRoot: "/tmp/acpx-agents-test",
   });
 
-  const result = await runner.run(flow, { prNumber: 1 });
+  const result = await runner.run(flow, {});
   assert.equal(result.state.outputs.right.ok, true);
   assert.equal(result.state.outputs.left, undefined);
 });
