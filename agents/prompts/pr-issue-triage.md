@@ -119,6 +119,26 @@ This prompt may process multiple items in one run. Use it for the triage lane, n
 
 21. **Post the result back, and close PRs when the outcome says to close them.** If the item is a real PR or issue, post the final result back onto that item as a comment. The comment should be written for a human reviewer or author, in plain language, and should include the intention, the judgment about whether the work really solves the right problem, whether the work was actually validated on the correct bug or feature path, whether a refactor is needed and what kind, whether the PR should be closed, any blocking Codex review or CI concerns, and the final recommendation. If the item needed human attention, the comment should clearly say that the autonomous review-and-land path was intentionally stopped early and that a fundamental refactor, failed validation step, or human reframing is still needed. All human-escalation outcomes should use the same basic note structure; do not invent separate note formats for different escalation branches. Instead, reuse one shared human note and make the reason explicit, such as `design decision/human call`, `validation not established`, or `ready for human landing decision`. If the item is a PR and the conclusion is that the current implementation is unclear, a bad fix, or merely a localized fix, close the PR after posting the comment. If the input item is only a raw issue description with no real item to comment on, skip the posting step and state that there was no concrete item to comment on.
 
+### Timeout assumptions in the executable flow
+
+These are the current operational timeout assumptions in the single-file executable workflow, and the markdown should stay in sync with the TypeScript file:
+
+- `prepare_workspace`: 20 minutes
+- `reproduce_bug_and_test_fix`: 30 minutes
+- `test_feature_directly`: 25 minutes
+- `do_superficial_refactor`: 25 minutes
+- `collect_review_state`: 60 minutes
+- nested local `codex review` inside `collect_review_state`: 30 minutes
+- `review_loop`: 30 minutes
+- `collect_ci_state`: 15 minutes
+- `fix_ci_failures`: 30 minutes
+- `post_close_pr`: 15 minutes
+- `post_escalation_comment`: 10 minutes
+- `ensureProjectDependencies` (`pnpm install --frozen-lockfile` when needed): 20 minutes
+- each targeted validation command in the bug/feature validation steps: 20 minutes
+
+ACP steps without an explicit timeout in the workflow currently rely on the `acpx` flow runtime default. At the moment that default is 15 minutes, so if a step such as `extract_intent`, `judge_solution`, `bug_or_feature`, `judge_refactor`, `comment_and_close_pr`, or `comment_and_escalate_to_human` should have a different budget, that must be stated explicitly in the workflow file.
+
 22. **Use a short, scannable comment template with explicit status signals.** Use an actual comment template when posting the result. Keep it short, plain, and scannable. Use helpful status emojis so a human can quickly tell whether this is safe to keep moving, needs intervention, or should be closed. When the outcome is `escalate to human`, always use the same note format and include a field or line that clearly states why human input is needed. This template is mandatory for posted comments. Do not invent a different layout.
 
 Emoji guide:

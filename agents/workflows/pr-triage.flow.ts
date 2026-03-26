@@ -93,7 +93,7 @@ const flow = {
 
     collect_review_state: {
       kind: "action",
-      timeoutMs: 20 * 60_000,
+      timeoutMs: 60 * 60_000,
       statusDetail: "Collect GitHub review state and run local Codex review",
       run: async ({ outputs }) => await collectReviewState(prepared(outputs)),
     },
@@ -139,7 +139,7 @@ const flow = {
 
     post_close_pr: {
       kind: "action",
-      timeoutMs: 10 * 60_000,
+      timeoutMs: 15 * 60_000,
       statusDetail: "Post close comment and close the PR",
       run: async ({ outputs }) =>
         await postClosePr(prepared(outputs), outputs.comment_and_close_pr),
@@ -516,7 +516,7 @@ async function collectReviewState(pr) {
   const localReviewRun = await runCommand("codex", localReviewCommand, {
     cwd: pr.workdir,
     allowFailure: true,
-    timeoutMs: 3 * 60_000,
+    timeoutMs: 30 * 60_000,
   });
   const localReviewParsed = tryExtractJson(localReviewRun.stdout);
 
