@@ -1,3 +1,7 @@
+---
+description: Prompt for implementing a given plan end-to-end, testing it, running Codex review, checking CI/CD, and reporting the PR without auto-merging
+---
+
 1. Implement the given plan end-to-end. If context compaction happens, make sure to re-read the plan to stay on track. Finish to completion. If there is a PR open for the implementation plan, do it in the same PR. If there is no PR already, open PR.
 
 2. Once you finish implementing, make sure to test it. This will depend on the nature of the problem. If needed, run local smoke tests, spin up dev servers, make requests and such. Try to test as much as possible, without merging. State explicitly what could not be tested locally and what still needs staging or production verification.
