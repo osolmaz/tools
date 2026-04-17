@@ -5,7 +5,7 @@ description: Use when the user asks to implement a plan end-to-end, test it, run
 
 Do the following in the given order
 
-1. Implement the given plan end-to-end. If context compaction happens, make sure to re-read the plan to stay on track. Finish to completion. If there is a PR open for the implementation plan, do it in the same PR. If there is no PR already, open PR.
+1. Implement the given plan end-to-end. If there is no plan markdown document for the task which the skill is triggered for, create a `.md` file in `~/scratch-repo` for that plan and then proceed with implementation. If context compaction happens, make sure to re-read the plan to stay on track. Finish to completion. If there is a PR open for the implementation plan, do it in the same PR. If there is no PR already, open PR.
 
 2. Once you finish implementing, make sure to test it. This will depend on the nature of the problem. If needed, run local smoke tests, spin up dev servers, make requests and such. Try to test as much as possible, without merging. State explicitly what could not be tested locally and what still needs staging or production verification.
 
