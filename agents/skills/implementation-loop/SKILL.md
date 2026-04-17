@@ -1,5 +1,5 @@
 ---
-name: implementation-review-loop
+name: implementation-loop
 description: Use when the user asks to implement a plan end-to-end, test it, run codex review against the base branch in a loop until no P0/P1 issues remain, and make sure CI/CD is green before finishing.
 ---
 
