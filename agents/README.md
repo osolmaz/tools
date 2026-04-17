@@ -4,10 +4,17 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
 
 ## Layout
 
+- `skills/`
+  Repo-local skills that package the prompts and workflow docs into reusable execution guides.
 - `prompts/`
   Single-agent prompt files.
 - `workflows/`
   Higher-level routing docs that explain how the prompts fit together.
+
+## Skills
+
+- `skills/implementation-loop/`
+  Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
 ## Prompts
 
