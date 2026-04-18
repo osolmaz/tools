@@ -6,8 +6,10 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
 
 - `skills/`
   Repo-local skills that package the prompts and workflow docs into reusable execution guides.
+- `AGENTS.md`
+  Repo-local agent instructions that should also be mirrored into Codex home.
 - `sync-skills.py`
-  Synchronizes repo-local skills into Codex's skills directory as real copied files, with no symlinks.
+  Synchronizes repo-local skills into Codex's skills directory as real copied files, with no symlinks, and mirrors `agents/AGENTS.md` into Codex home.
 - `prompts/`
   Single-agent prompt files.
 - `workflows/`
@@ -15,13 +17,16 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
 
 ## Syncing
 
-Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX_HOME/skills` or `~/.codex/skills`.
+Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX_HOME/skills` or `~/.codex/skills`, and to mirror `agents/AGENTS.md` into `$CODEX_HOME/AGENTS.md` or `~/.codex/AGENTS.md`.
 
 - Use `--dry-run` to preview changes.
 - Use `--no-prune` to keep previously synced repo-managed skills that are not in the current selection.
 - Pass one or more skill ids or source directory names to sync only a subset.
 
 ## Skills
+
+- `skills/conventional-commit/`
+  Use this when you need to draft, rewrite, or validate a commit message or PR title using Conventional Commits, plus a concise repo-aware PR body when the task is a pull request.
 
 - `skills/implementation-loop/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
