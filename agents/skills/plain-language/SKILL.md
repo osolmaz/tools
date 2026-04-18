@@ -17,6 +17,8 @@ Write like a strong engineer speaking plainly:
 
 If the user says `plainer`, `shorter`, `full sentences`, or `plain language`, remove another layer of abstraction.
 
+The fenced code blocks below are only used inside this skill to contain example text cleanly. They are not part of the desired output. Do not include the backticks in the actual answer unless the user explicitly asks for a code block.
+
 Bad:
 
 ```text
