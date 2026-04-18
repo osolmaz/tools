@@ -32,7 +32,8 @@ The current bottleneck is scheduler-level preemption caused by shared dirty-stat
 Plain:
 
 ```text
-The main problem is that the system keeps choosing to scan the repo again instead of continuing to fill the missing PRs.
+The main problem is that the system keeps choosing to scan the repo again.
+It should keep filling the missing PRs instead.
 ```
 
 Bad:
@@ -44,7 +45,8 @@ The remaining failures are caused by control-plane contention across a shared da
 Plain:
 
 ```text
-The real problem is that the repo scan, webhook jobs, and queue system are all sharing the same small database connection pool, so they slow each other down and start timing out.
+The real problem is that the repo scan, webhook jobs, and queue system all share the same small database pool.
+That makes them slow each other down and start timing out.
 ```
 
 Bad:
@@ -56,7 +58,8 @@ The most impactful immediate lever is increasing backfill budget.
 Plain:
 
 ```text
-The best immediate change is to let backfill run longer. Right now it stops after about 5 minutes, so I would raise that to 15 minutes.
+The best immediate change is to let backfill run longer.
+Right now it stops after about 5 minutes, so I would raise that to 15 minutes.
 ```
 
 Bad:
@@ -68,7 +71,10 @@ The observed throughput degradation appears to be a function of cyclical coordin
 Plain:
 
 ```text
-It is slow because it still spends too much time rescanning the repo instead of backfilling PRs. The quickest fix is to let backfill run longer each time. After that, the bigger fix is to make full repo scans happen less often.
+It is slow because it still spends too much time rescanning the repo instead of backfilling PRs.
+The quickest fix is to let backfill run longer each time.
+
+After that, the bigger fix is to make full repo scans happen less often.
 ```
 
 Bad:
@@ -130,7 +136,11 @@ So if you want to make it faster, the real order is:
 Plain:
 
 ```text
-It is doing about 4 PRs per minute. The main problem is that it still spends too much time rescanning the repo. The best immediate change is to let backfill run longer. After that, the bigger fix is to stop doing full repo scans so often.
+It is doing about 4 PRs per minute.
+The main problem is that it still spends too much time rescanning the repo.
+
+The best immediate change is to let backfill run longer.
+After that, the bigger fix is to stop doing full repo scans so often.
 ```
 
 Bad:
@@ -142,7 +152,8 @@ The architectural direction here is to decouple canonical object identity from m
 Plain:
 
 ```text
-The clean fix is to treat the permanent ID as the real identity, and treat the name as something that can change.
+The clean fix is to treat the permanent ID as the real identity.
+The name is something that can change.
 ```
 
 Bad:
@@ -154,7 +165,8 @@ The remaining production issue is not a fundamental systems-design failure, but 
 Plain:
 
 ```text
-The main design is fine. The problem is that the database is treating the repo name as permanent when it is not.
+The main design is fine.
+The problem is that the database is treating the repo name as permanent when it is not.
 ```
 
 Bad:
@@ -166,5 +178,6 @@ The backend remains operational, but residual synchronization drag is still obse
 Plain:
 
 ```text
-The system is working now, but a few smaller things are still slowing it down.
+The system is working now.
+A few smaller things are still slowing it down.
 ```
