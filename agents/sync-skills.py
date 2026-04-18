@@ -31,6 +31,10 @@ def default_dest_root() -> Path:
     return Path.home() / ".codex" / "skills"
 
 
+def default_agents_source() -> Path:
+    return Path(__file__).resolve().parent / "AGENTS.md"
+
+
 def parse_skill_id(skill_dir: Path) -> str:
     skill_md = skill_dir / "SKILL.md"
     if not skill_md.exists():
@@ -119,6 +123,25 @@ def remove_path(path: Path, *, dry_run: bool) -> None:
         path.unlink()
 
 
+def sync_file(source_path: Path, dest_path: Path, *, dry_run: bool, label: str) -> None:
+    print(f"{'Would sync' if dry_run else 'Syncing'} {label} -> {dest_path}")
+    if dry_run:
+        return
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        prefix=f".{dest_path.name}.tmp-",
+        dir=dest_path.parent,
+        delete=False,
+    ) as temp_file:
+        temp_path = Path(temp_file.name)
+    try:
+        shutil.copy2(source_path, temp_path)
+        temp_path.replace(dest_path)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink()
+
+
 def sync_skill(skill: Skill, dest_root: Path, *, dry_run: bool) -> None:
     dest_path = dest_root / skill.skill_id
     print(f"{'Would sync' if dry_run else 'Syncing'} {skill.skill_id} -> {dest_path}")
@@ -154,7 +177,7 @@ def parse_args() -> argparse.Namespace:
         "--dest",
         default=default_dest_root(),
         type=Path,
-        help="Destination Codex skills root. Defaults to $CODEX_HOME/skills or ~/.codex/skills.",
+        help="Destination Codex skills root. Also syncs agents/AGENTS.md to the parent Codex home dir. Defaults to $CODEX_HOME/skills or ~/.codex/skills.",
     )
     prune = parser.add_mutually_exclusive_group()
     prune.add_argument(
@@ -178,7 +201,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     source_root = args.source_root.expanduser().resolve()
+    agents_source = default_agents_source().expanduser().resolve()
     dest_root = args.dest.expanduser().resolve()
+    codex_root = dest_root.parent
+    agents_dest = codex_root / "AGENTS.md"
     state_path = dest_root / STATE_FILE_NAME
 
     skills = discover_skills(source_root)
@@ -199,7 +225,9 @@ def main() -> int:
     stale_ids = sorted(old_managed - selected_ids) if prune else []
 
     print(f"Source root: {source_root}")
+    print(f"AGENTS source: {agents_source}")
     print(f"Destination root: {dest_root}")
+    print(f"AGENTS destination: {agents_dest}")
     if selected:
         print("Selected skills: " + ", ".join(skill.skill_id for skill in selected))
     else:
@@ -208,6 +236,11 @@ def main() -> int:
 
     if not args.dry_run:
         dest_root.mkdir(parents=True, exist_ok=True)
+
+    if not agents_source.exists():
+        raise FileNotFoundError(f"missing AGENTS.md at {agents_source}")
+
+    sync_file(agents_source, agents_dest, dry_run=args.dry_run, label="AGENTS.md")
 
     for stale_id in stale_ids:
         stale_path = dest_root / stale_id
