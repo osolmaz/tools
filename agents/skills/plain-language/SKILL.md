@@ -70,55 +70,55 @@ Bad:
 ```text
 Yes. Scrutinized answer:
 
-  Right now the real rate is about 4.0 PRs/min.
+Right now the real rate is about 4.0 PRs/min.
 
-  From the clean recent window:
+From the clean recent window:
 
-  - 18:26:40Z -> 4278
-  - 18:29:09Z -> 4288
+- 18:26:40Z -> 4278
+- 18:29:09Z -> 4288
 
-  That is:
+That is:
 
-  - +10 PRs in 149s
-  - 4.03 PRs/min
+- +10 PRs in 149s
+- 4.03 PRs/min
 
-  What the scheduler is doing:
+What the scheduler is doing:
 
-  - inventory scan: about 2m27s
-  - backfill pass: about 5m23s
+- inventory scan: about 2m27s
+- backfill pass: about 5m23s
 
-  So about 31% of active work time is going to scanning, not backfilling.
+So about 31% of active work time is going to scanning, not backfilling.
 
-  The important scrutiny point is this:
+The important scrutiny point is this:
 
-  - the backfill pass is clearly hitting the time cap
-  - not the PR-count cap
+- the backfill pass is clearly hitting the time cap
+- not the PR-count cap
 
-  Why:
+Why:
 
-  - code uses BACKFILL_MAX_RUNTIME and BACKFILL_MAX_PRS_PER_PASS
-  - live passes are lasting about 5 minutes
-  - we are nowhere near 100 PRs per pass
+- code uses BACKFILL_MAX_RUNTIME and BACKFILL_MAX_PRS_PER_PASS
+- live passes are lasting about 5 minutes
+- we are nowhere near 100 PRs per pass
 
-  So if you want to make it faster, the real order is:
+So if you want to make it faster, the real order is:
 
-  1. Raise the backfill runtime cap
+1. Raise the backfill runtime cap
 
-  - Set BACKFILL_MAX_RUNTIME=15m
-  - Set BACKFILL_MAX_PRS_PER_PASS=300 so the PR cap does not become the new limiter
-  - Expected result: roughly 5.0 PRs/min instead of 4.0
+- Set BACKFILL_MAX_RUNTIME=15m
+- Set BACKFILL_MAX_PRS_PER_PASS=300 so the PR cap does not become the new limiter
+- Expected result: roughly 5.0 PRs/min instead of 4.0
 
-  2. Stop full inventory scans from being the normal response to open/close/reopen
+2. Stop full inventory scans from being the normal response to open/close/reopen
 
-  - On a busy repo, dirty events likely trigger scans more than the 10-minute age rule does
-  - So just changing OPEN_PR_INVENTORY_MAX_AGE alone probably will not help much
-  - The real fix is: update the open-PR inventory incrementally from webhooks, and reserve full scans for repair/age-out
-  - Expected result: get closer to about 5.8-6.0 PRs/min with the current single-worker design
+- On a busy repo, dirty events likely trigger scans more than the 10-minute age rule does
+- So just changing OPEN_PR_INVENTORY_MAX_AGE alone probably will not help much
+- The real fix is: update the open-PR inventory incrementally from webhooks, and reserve full scans for repair/age-out
+- Expected result: get closer to about 5.8-6.0 PRs/min with the current single-worker design
 
-  3. Move search indexing further off the sync path
+3. Move search indexing further off the sync path
 
-  - This is a secondary drag, not the main limiter right now
-  - Good cleanup, but not the first speed lever
+- This is a secondary drag, not the main limiter right now
+- Good cleanup, but not the first speed lever
 ```
 
 Plain:
