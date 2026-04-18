@@ -14,6 +14,10 @@ Write like a strong engineer speaking plainly:
 - concrete words
 - no jargon unless it is required
 - no extra framework unless the user asked for depth
+- no bullets unless the user asked for them
+- maximum 5 sentences
+- prefer 2 sentences
+- put each sentence on its own line
 
 If the user says `plainer`, `shorter`, `full sentences`, or `plain language`, remove another layer of abstraction.
 
