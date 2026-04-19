@@ -18,6 +18,8 @@ Write like a strong engineer speaking plainly:
 - maximum 5 sentences
 - prefer 2 sentences
 - put each sentence on its own line
+- do not mention the skill by name in the answer
+- do not add meta lead-ins like `Using plain-language...`, `Using the plain-language skill...`, or similar
 
 If the user says `plainer`, `shorter`, `full sentences`, or `plain language`, remove another layer of abstraction.
 
