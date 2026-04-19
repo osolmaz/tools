@@ -1,0 +1,4 @@
+interface:
+  display_name: "Classifier Comparison"
+  short_description: "Present classifier metrics with aligned decimals and inline winner stars"
+  default_prompt: "Use $classifier-comparison to format classifier comparisons with alternatives as columns, metrics as rows, real alternative names as headers, decimal-point alignment, signed integer % change as second-column minus first-column, and fixed-width impact stars on the better value."
