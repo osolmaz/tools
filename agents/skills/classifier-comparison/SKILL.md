@@ -78,6 +78,23 @@ Model size MB 3.4 3.1 ** -9%
 Scam recall .78 \* .76 -2%
 Latency p95 ms 58 ** 61 +5%
 
+## Example Output
+
+```text
+fastText-ftz vs transformer-int8 (Change = transformer - fastText)
+
+Metric                              fastText-ftz         transformer-int8      Change
+Scam precision (higher)             .91                  .94*                  +2%
+Scam recall (higher)                .56                  .61**                 +6%
+Scam F1 (higher)                    .69                  .74**                 +5%
+Scam false alarm rate (lower)       .016                 .012                  0%
+Topic recall (higher)               .74                  .81**                 +7%
+Topic false alarm rate (lower)      .043**               .11                   +7%
+Topic F1 (higher)                   .83**                .78                   -5%
+Macro F1 (higher)                   .78                  .80*                  +2%
+Exact match (higher)                .76                  .82**                 +6%
+```
+
 ## Style Controls
 
 - Keep output terminal-friendly plain text; avoid HTML tags entirely.
