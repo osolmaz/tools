@@ -11,7 +11,7 @@ TLDR: False alarms moved from <before_fpr>% to <after_fpr>% (<delta_fpr> pts), s
 ## Tweet (Mainstream, <=280 chars)
 
 ```text
-Janitr update: scam detection now catches <after_recall>% of scams (was <before_recall>%) with <after_fpr>% false alarms (was <before_fpr>%). Precision is <after_precision>% (<before_precision>% before). Model size: <size_kb> KB. <short_tradeoff_sentence>
+Update: scam detection now catches <after_recall>% of scams (was <before_recall>%) with <after_fpr>% false alarms (was <before_fpr>%). Precision is <after_precision>% (<before_precision>% before). Model size: <size_kb> KB. <short_tradeoff_sentence>
 ```
 
 ## Release Notes (3-6 Bullets)
@@ -27,9 +27,9 @@ Janitr update: scam detection now catches <after_recall>% of scams (was <before_
 
 ## Plain-Language Glossary
 
-- `precision`: When Janitr flags something, how often it is right.
-- `recall`: How many real cases Janitr catches.
-- `false positive rate`: How often Janitr raises a false alarm.
+- `precision`: When the classifier flags something, how often it is right.
+- `recall`: How many real cases the classifier catches.
+- `false positive rate`: How often the classifier raises a false alarm.
 
 ## Safety Checklist
 
