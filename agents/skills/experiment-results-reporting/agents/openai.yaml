@@ -1,0 +1,4 @@
+interface:
+  display_name: "Experiment Results Reporting"
+  short_description: "Turn experiment numbers into plain-language public updates with deltas"
+  default_prompt: "Use $experiment-results-reporting to summarize experiment results for public audiences with before/after metrics, false alarm rates, and tradeoffs in simple language."
