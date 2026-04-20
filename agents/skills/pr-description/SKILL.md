@@ -38,6 +38,8 @@ In every section, start with plain full sentences first.
 Do that before any bullets, commands, or technical detail.
 Do not create separate sections called `Plain Language`.
 
+---
+
 ## Summary
 
 - Plain first.
@@ -69,6 +71,8 @@ Do not create separate sections called `Plain Language`.
 - Optional.
 - Use only for real remaining work.
 - Do not invent future work just to fill space.
+
+---
 
 ## Rules
 
