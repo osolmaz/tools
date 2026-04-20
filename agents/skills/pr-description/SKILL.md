@@ -18,9 +18,12 @@ That means the summary should:
 - lead with the real user-facing or developer-facing problem
 - say what changed in simple words
 - say why this fix matters
+- include the relevant context needed to understand the PR
+- include the main steps taken to implement the change
 - use short full sentences
 - avoid jargon unless it is required
 - stand on its own without the rest of the PR
+- state that context and those implementation steps plainly
 
 Write the top summary in the same style as the `plain-language` skill:
 
