@@ -32,7 +32,11 @@ Write the top summary in the same style as the `plain-language` skill:
 - usually 2 to 4 sentences
 - put each sentence on its own line
 
-After the summary, use these sections by default unless the user asks for a different shape:
+After the summary, use these sections by default unless the user asks for a different shape.
+
+In every section, start with plain full sentences first.
+Do that before any bullets, commands, or technical detail.
+Do not create separate sections called `Plain Language`.
 
 ## Summary
 
@@ -42,36 +46,23 @@ After the summary, use these sections by default unless the user asks for a diff
 
 ## What Changed
 
-- Technical section.
+- Start with 1 to 3 plain sentences.
+- Then add the technical section.
 - Explain the real code or behavior changes.
 - Group related changes together instead of listing every file.
 
-## Plain Language
-
-- Required after `What Changed`.
-- Restate the same thing in simpler words.
-- Someone who does not know the codebase should still understand the change.
-
 ## Testing
 
+- Start with 1 to 3 plain sentences.
 - Say exactly what was tested.
 - Include commands when they matter.
 - Say what was not tested.
 
-## Plain Language
-
-- Required after `Testing` if the testing section is technical.
-- Explain what the tests prove in simpler words.
-
 ## Risks
 
+- Start with 1 to 3 plain sentences.
 - Call out real risks, limitations, or edge cases.
 - If risk is low, say why.
-
-## Plain Language
-
-- Required after `Risks` if the risk discussion is technical.
-- Explain the practical takeaway in simpler words.
 
 ## Follow-ups
 
@@ -81,7 +72,7 @@ After the summary, use these sections by default unless the user asks for a diff
 
 ## Rules
 
-- Every technical jargon section should have a matching plain-language section.
+- Every section should begin in plain language before technical detail starts.
 - Do not make the reader decode acronyms or repo-specific shorthand without help.
 - Do not write changelog fluff.
 - Do not turn the summary into a bullet dump.
@@ -100,34 +91,28 @@ It also adds tests for the bad cases we actually saw.
 
 ## What Changed
 
+The bug was in how the app read Discord channel data.
+This change makes both command paths use the same safe helper.
+
 - Added a shared helper for safe channel metadata access.
 - Switched the picker and slash-command paths to use that helper.
 - Added regression tests for partial channel objects.
 
-## Plain Language
-
-The app was reading Discord channel fields in a way that could crash.
-Now both command paths use the same safe code, and the broken cases are covered by tests.
-
 ## Testing
+
+I tested the two paths that were breaking, and I also made sure the project still builds.
 
 - `pnpm exec vitest run extensions/discord/src/monitor/native-command.commands-allowfrom.test.ts`
 - `pnpm exec vitest run extensions/discord/src/monitor/native-command.model-picker.test.ts`
 - `pnpm build`
 
-## Plain Language
-
-I tested the two paths that were breaking, and I also made sure the project still builds.
-
 ## Risks
-
-- This only covers the command and picker paths.
-- Other Discord surfaces may still have direct partial-channel reads.
-
-## Plain Language
 
 The known bug should be fixed here.
 There may still be similar bugs elsewhere in the Discord code.
+
+- This only covers the command and picker paths.
+- Other Discord surfaces may still have direct partial-channel reads.
 ```
 
 ## Bad Pattern
