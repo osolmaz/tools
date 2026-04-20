@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Description"
+  short_description: "Write PR descriptions with a plain summary and paired plain-language sections"
+  default_prompt: "Use $pr-description to write or improve a pull request description. The top summary should answer 'bro, what the hell is this about?' in plain full sentences, and each technical section should have a matching plain-language section."
