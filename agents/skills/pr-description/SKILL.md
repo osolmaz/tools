@@ -17,7 +17,7 @@ That means the summary should:
 
 - lead with the real user-facing or developer-facing problem
 - say what changed in simple words
-- say why this fix matters
+- say why the PR matters
 - include the relevant context needed to understand the PR
 - include the main steps taken to implement the change
 - use short full sentences
@@ -80,6 +80,8 @@ Do not create separate sections called `Plain Language`.
 ## Rules
 
 - Every section should begin in plain language before technical detail starts.
+- Use neutral wording by default, so the skill fits fixes, features, and broader changes.
+- Prefer words like `change`, `behavior`, `flow`, `support`, `capability`, or `cleanup` unless the PR is clearly a fix.
 - Do not make the reader decode acronyms or repo-specific shorthand without help.
 - Do not write changelog fluff.
 - Do not turn the summary into a bullet dump.
