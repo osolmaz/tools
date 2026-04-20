@@ -5,6 +5,8 @@ description: Use when opening a pull request, or when asked to write or improve 
 
 # PR Description
 
+Use this skill when writing a PR description.
+
 When this skill is invoked, write a PR description that helps both reviewers and future readers.
 
 The top summary must answer this question:
