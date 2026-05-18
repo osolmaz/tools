@@ -1,4 +1,4 @@
 interface:
   display_name: "Write README"
-  short_description: "Keep README files focused on install and usage"
-  default_prompt: "Use $write-readme to keep README content focused on user install and usage, without release workflow or OIDC details."
+  short_description: "Keep README files focused on users"
+  default_prompt: "Use $write-readme to keep README content focused on users and move maintainer process details out of the README."

@@ -32,7 +32,7 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
 - `skills/write-readme/`
-  Use this when creating, rewriting, or reviewing README files so they stay focused on user install and usage, not release workflow details.
+  Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 
 ## Prompts
 

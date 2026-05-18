@@ -1,32 +1,24 @@
 ---
 name: write-readme
-description: Use when creating, rewriting, or reviewing README files. Keeps README content focused on users: what to install, how to use it, and what not to include from maintainer release process.
+description: Use when creating, rewriting, or reviewing README files. Keeps READMEs focused on users and moves maintainer process details to maintainer docs.
 ---
 
 # Write README
 
 Use this skill when writing or reviewing README content.
 
-The README is for users. Put install and usage information there.
+The README is for users.
 
-Do not put maintainer release details in the README unless the repo is specifically about releases.
+Use it for what someone needs to understand, install, and use the project.
 
-For package or CLI READMEs, show the package users should install and the command they should run:
+Keep maintainer process details out unless the project is itself a maintainer tool.
 
-```text
-npm install -g slophammer-ts
-slophammer-ts check .
-slophammer-ts rules
-slophammer-ts dry .
-```
+Examples of maintainer process details:
 
-Keep release-process details out of user README files:
+- release mechanics
+- publishing setup
+- CI internals
+- credentials or trust setup
+- historical notes about how the current release was made
 
-- OIDC setup
-- npm trusted publishing
-- provenance
-- release workflow names
-- tag instructions
-- "first release" history
-
-Put those in maintainer docs if they need to exist.
+Put those in maintainer docs when they need to exist.
