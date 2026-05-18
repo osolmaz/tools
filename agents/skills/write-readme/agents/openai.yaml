@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write README"
+  short_description: "Write user-focused README files without maintainer noise"
+  default_prompt: "Use $write-readme to create, rewrite, or review README content so it focuses on install, usage, package names, and user-facing guidance while moving release-process details elsewhere."
