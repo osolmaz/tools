@@ -114,6 +114,23 @@ function gpl() {
   git pull
 }
 
+function gpd() {
+  local default_branch
+  default_branch="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)"
+  default_branch="${default_branch#origin/}"
+
+  if [[ -z "$default_branch" ]]; then
+    default_branch="$(git remote show origin 2>/dev/null | awk -F': ' '/HEAD branch/ {print $2; exit}')"
+  fi
+
+  if [[ -z "$default_branch" ]]; then
+    echo "Could not determine default branch for origin" >&2
+    return 1
+  fi
+
+  git checkout "$default_branch" && git pull
+}
+
 function gps() {
   git push
 }
@@ -170,4 +187,3 @@ zstyle ':completion:*' special-dirs true
 # source /etc/profile.d/fzf.zsh
 
 set noclobber
-
