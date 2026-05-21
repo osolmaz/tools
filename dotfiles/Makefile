@@ -1,7 +1,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -32,18 +32,10 @@ install-urxvt-perls:
 install-terminator:
 	cp -f .config/terminator/config ~/.config/terminator/config
 
+install-aerospace:
+	cp -f .aerospace.toml ~/.aerospace.toml
+
 copy:
-<<<<<<< HEAD
-	cp -f ~/.vimrc vimrc
-	mkdir -p i3
-	cp -f ~/.i3/config i3/config
-	cp -f ~/.i3/i3status.conf i3/i3status.conf
-	cp -f ~/.Xresources Xresources
-	cp -f ~/.bashrc bashrc
-	cp -f ~/.zshrc zshrc
-	cp -f ~/.conkyrc conkyrc
-	cp -f ~/.xinitrc xinitrc
-=======
 	cp -f ~/.vimrc .vimrc
 	mkdir -p .i3
 	mkdir -p .config
@@ -53,6 +45,6 @@ copy:
 	cp -f ~/.bashrc .bashrc
 	cp -f ~/.zshrc .zshrc
 	cp -f ~/.xinitrc .xinitrc
+	cp -f ~/.aerospace.toml .aerospace.toml
 	mkdir -p .config/terminator/
 	cp -f ~/.config/terminator/config .config/terminator/config
->>>>>>> 455465d (Minor)
