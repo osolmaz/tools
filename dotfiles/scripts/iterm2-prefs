@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Copy/apply a sanitized iTerm2 preferences plist for dotfiles."""
+
+from __future__ import annotations
+
+import argparse
+import plistlib
+from pathlib import Path
+from typing import Any
+
+
+DOTFILES_DIR = Path(__file__).resolve().parents[1]
+REPO_PREFS = DOTFILES_DIR / "Library" / "Preferences" / "com.googlecode.iterm2.plist"
+SYSTEM_PREFS = Path.home() / "Library" / "Preferences" / "com.googlecode.iterm2.plist"
+HOME_TOKEN = "__HOME__"
+
+# Keep settings that describe terminal behavior, profiles, colors, fonts, key
+# bindings, hotkeys, and pointer actions. Drop runtime/cache/update/window state.
+KEEP_TOP_LEVEL_KEYS = {
+    "AppleAntiAliasingThreshold",
+    "ApplePressAndHoldEnabled",
+    "AppleScrollAnimationEnabled",
+    "AppleSmoothFixedFontsSizeThreshold",
+    "AppleWindowTabbingMode",
+    "Custom Color Presets",
+    "Default Bookmark Guid",
+    "EnableAPIServer",
+    "GlobalKeyMap",
+    "HapticFeedbackForEsc",
+    "HotkeyMigratedFromSingleToMulti",
+    "New Bookmarks",
+    "PasteTabToStringTabStopSize",
+    "PointerActions",
+    "PreventEscapeSequenceFromClearingHistory",
+    "Print In Black And White",
+    "ShowFullScreenTabBar",
+    "SoundForEsc",
+    "VisualIndicatorForEsc",
+}
+
+
+def transform_strings(value: Any, old: str, new: str) -> Any:
+    if isinstance(value, str):
+        return value.replace(old, new)
+    if isinstance(value, list):
+        return [transform_strings(item, old, new) for item in value]
+    if isinstance(value, dict):
+        return {
+            transform_strings(key, old, new): transform_strings(item, old, new)
+            for key, item in value.items()
+        }
+    return value
+
+
+def load_plist(path: Path) -> dict[str, Any]:
+    with path.open("rb") as plist_file:
+        data = plistlib.load(plist_file)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} is not a plist dictionary")
+    return data
+
+
+def write_plist(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as plist_file:
+        plistlib.dump(data, plist_file, fmt=plistlib.FMT_XML, sort_keys=True)
+
+
+def sanitized(data: dict[str, Any]) -> dict[str, Any]:
+    kept = {key: data[key] for key in sorted(KEEP_TOP_LEVEL_KEYS) if key in data}
+    return transform_strings(kept, str(Path.home()), HOME_TOKEN)
+
+
+def copy_from_system() -> None:
+    if not SYSTEM_PREFS.exists():
+        raise FileNotFoundError(f"iTerm2 preferences not found: {SYSTEM_PREFS}")
+    write_plist(REPO_PREFS, sanitized(load_plist(SYSTEM_PREFS)))
+    print(f"wrote {REPO_PREFS}")
+
+
+def apply_to_system() -> None:
+    if not REPO_PREFS.exists():
+        raise FileNotFoundError(f"repo iTerm2 preferences not found: {REPO_PREFS}")
+    expanded = transform_strings(load_plist(REPO_PREFS), HOME_TOKEN, str(Path.home()))
+    write_plist(SYSTEM_PREFS, expanded)
+    print(f"wrote {SYSTEM_PREFS}")
+    print("restart iTerm2 and run: killall cfprefsd")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=["copy", "install"])
+    args = parser.parse_args()
+
+    if args.command == "copy":
+        copy_from_system()
+    else:
+        apply_to_system()
+
+
+if __name__ == "__main__":
+    main()

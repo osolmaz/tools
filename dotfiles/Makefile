@@ -1,7 +1,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -35,6 +35,9 @@ install-terminator:
 install-aerospace:
 	cp -f .aerospace.toml ~/.aerospace.toml
 
+install-iterm2:
+	./scripts/iterm2-prefs install
+
 copy:
 	cp -f ~/.vimrc .vimrc
 	mkdir -p .i3
@@ -46,5 +49,6 @@ copy:
 	cp -f ~/.zshrc .zshrc
 	cp -f ~/.xinitrc .xinitrc
 	cp -f ~/.aerospace.toml .aerospace.toml
+	./scripts/iterm2-prefs copy
 	mkdir -p .config/terminator/
 	cp -f ~/.config/terminator/config .config/terminator/config
