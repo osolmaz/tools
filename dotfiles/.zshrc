@@ -29,7 +29,7 @@ ZSH_THEME="afowler"
 CASE_SENSITIVE="true"
 
 # Comment this out to disable bi-weekly auto-update checks
-# DISABLE_AUTO_UPDATE="true"
+DISABLE_AUTO_UPDATE="true"
 
 # Uncomment to change how many often would you like to wait before auto-updates occur? (in days)
 # export UPDATE_ZSH_DAYS=13
@@ -179,6 +179,41 @@ function paradise(){
 
 function md2pdf {
   pandoc "$1" -o "$(basename "$1" .md).pdf"
+}
+
+gcswitch() {
+  local target="$1"
+  if [[ -z "$target" ]]; then
+    echo "Usage: gcswitch <config-name>" >&2
+    return 1
+  fi
+
+  local BASE="$HOME/.config/gcloud"
+  local STASH="$BASE/profiles"
+  mkdir -p "$STASH"
+
+  # remember the config we’re leaving
+  local current
+  current="$(gcloud config configurations list \
+               --filter=is_active:true \
+               --format='value(name)' 2>/dev/null)"
+
+  # save its ADC, if any
+  if [[ -n "$current" && -f "$BASE/application_default_credentials.json" ]]; then
+    cp -f "$BASE/application_default_credentials.json" "$STASH/$current.json"
+  fi
+
+  # activate the new gcloud config
+  gcloud config configurations activate "$target" || return $?
+
+  # restore that config’s ADC (or clear if none saved yet)
+  if [[ -f "$STASH/$target.json" ]]; then
+    cp -f "$STASH/$target.json" "$BASE/application_default_credentials.json"
+  else
+    rm -f "$BASE/application_default_credentials.json"
+  fi
+
+  echo "Switched to '$target' (ADC synced)"
 }
 
 
