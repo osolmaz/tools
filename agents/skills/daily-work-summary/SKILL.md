@@ -76,6 +76,14 @@ Exclude unless the user asks:
 
 ## Output Format
 
+Start with a title in this shape:
+
+```md
+# NAME Daily Summary - YYYY-MM-DD
+```
+
+Use the person's real name, username, team name, or short scope label for `NAME`, based on the user's request. Use an ISO date for the report date. If the report spans multiple days, use an ISO date range such as `2026-05-20..2026-05-22`.
+
 Use concise sections by default:
 
 - `Shipped`
@@ -96,6 +104,28 @@ When multiple PRs/issues are the same work item, keep one bullet and put multipl
 
 ```md
 - Provider-auth startup fix so gateway prewarm waits until after startup. https://github.com/org/repo/pull/456 https://github.com/org/repo/pull/457
+```
+
+Example:
+
+```md
+# Onur Daily Summary - 2026-05-22
+
+Scope: `openclaw/*`, `osolmaz`/`dutifulbob` as one person, last 24h.
+
+**Shipped**
+- Generic embedding-provider contract so plugins can provide embeddings through a shared API. https://github.com/openclaw/openclaw/pull/84947
+- Provider-auth startup fix so gateway prewarm waits until after early startup work. https://github.com/openclaw/openclaw/issues/63229 https://github.com/openclaw/openclaw/pull/85272 https://github.com/openclaw/openclaw/pull/85369
+- ACPX status fix so dead/stale helper PIDs stop showing as active, closing the stale-session report. https://github.com/openclaw/acpx/pull/338 https://github.com/openclaw/openclaw/issues/48580 https://github.com/openclaw/acpx/issues/185
+- ClawHub publisher-title clipping fix. https://github.com/openclaw/clawhub/pull/2371
+
+**In Progress**
+- OpenAI-compatible embeddings through the existing OpenAI plugin, including memory and gateway support. https://github.com/openclaw/openclaw/pull/85269
+- Local embedding safety for Apple Silicon: worker isolation, safer fallback behavior, and removal of the proposed `memorySearch.local.gpu` config surface. https://github.com/openclaw/openclaw/issues/44202 https://github.com/openclaw/openclaw/pull/85348
+- Passing resolved model/provider runtime through auth, streaming, compaction, and embedded agent runs. https://github.com/openclaw/openclaw/issues/80487 https://github.com/openclaw/openclaw/pull/85373
+
+**Planning**
+- ClawSweeper prompt request so config-value additions require maintainer review. https://github.com/openclaw/clawsweeper/issues/171
 ```
 
 ## Style Rules
