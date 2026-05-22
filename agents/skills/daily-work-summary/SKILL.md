@@ -60,6 +60,13 @@ Exclude unless the user asks:
 - Check closed/merged states, not only open work.
 - If a bot-authored PR appears, inspect labels/title/timeline enough to decide whether it is a real continuation of the person's work or just automation noise.
 
+5. Cluster repeated work into one item.
+
+- If several PRs/issues are the same work item, report them as one bullet.
+- Cluster closed/replaced PRs with the replacement PR that landed or remains open.
+- Cluster bot follow-up PRs with the human-authored PR they replaced when the relationship is clear.
+- Append all source links at the end of the same bullet, in the order that best explains the story.
+
 ## Output Format
 
 Use concise sections by default:
@@ -75,6 +82,12 @@ Each bullet must be plain language and append the link at the end:
 
 ```md
 - Generic embedding-provider contract so plugins can provide embeddings through a shared API. https://github.com/org/repo/pull/123
+```
+
+When multiple PRs/issues are the same work item, keep one bullet and put multiple links at the end:
+
+```md
+- Provider-auth startup fix so gateway prewarm waits until after startup. https://github.com/org/repo/pull/456 https://github.com/org/repo/pull/457
 ```
 
 ## Style Rules
