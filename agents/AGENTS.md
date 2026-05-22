@@ -10,6 +10,7 @@
 - Before opening an issue or pull request, check `CONTRIBUTING.md`, `README.md`, or similar repository guidance for AI-generated contribution rules.
 - If the repository does not accept fully AI-generated issues or pull requests, include a brief apology in the top note.
 - When creating a pull request, you MUST use the `pr-description` skill for the PR description.
+- When opening a pull request that is related to an issue, cite the related issue in the pull request body.
 
 ## Tools repo agent context
 
