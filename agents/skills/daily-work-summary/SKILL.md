@@ -51,6 +51,7 @@ Include:
 
 Exclude unless the user asks:
 
+- Raw commit links as report items or trailing sources.
 - Comments as standalone activity.
 - Comments that only ask for review, explain status, add proof, or discuss implementation.
 - Old third-party PRs/issues that only changed because of label churn, bot comments, or review routing.
@@ -64,6 +65,7 @@ Exclude unless the user asks:
 - Check closed/merged states, not only open work.
 - If a bot-authored PR appears, inspect labels/title/timeline enough to decide whether it is a real continuation of the person's work or just automation noise.
 - Check merge-command activity separately from authored work. Filter out PRs authored by the target identity when the user asks for work from others that the target merged.
+- Use commits only as internal evidence to understand branch-only activity. In the final report, link the related PR, issue, branch compare page, or omit the item if there is no good non-commit source.
 
 5. Cluster repeated work into one item.
 
