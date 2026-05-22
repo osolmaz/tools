@@ -28,6 +28,9 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX
 - `skills/conventional-commit/`
   Use this when you need to draft, rewrite, or validate a commit message or PR title using Conventional Commits, plus a concise repo-aware PR body when the task is a pull request.
 
+- `skills/daily-work-summary/`
+  Use this when summarizing one person's recent GitHub work across org repos in plain, source-linked bullets.
+
 - `skills/implementation-loop/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
