@@ -19,3 +19,13 @@
 - `agents/sync-skills.py` mirrors repo-local skills into `$CODEX_HOME/skills` or `~/.codex/skills` as copied files.
 - To update local Codex agent instructions or repo-local skills, pull the latest version of this repo, then run `agents/sync-skills.py`.
 - If a skill is referred to but is not installed in the active Codex skill list, check `agents/skills/` before treating it as missing; it may already exist in this repo and simply need to be synced.
+
+## Repo maintenance conventions
+
+- Unless the user specifies a different location, clone external repositories into `~/repos`.
+- Use the repository name as the default checkout directory under `~/repos`, for example `~/repos/autoresearch` for `karpathy/autoresearch`.
+- Clone repositories from the `openclaw` GitHub organization into `~/oc` instead, for example `~/oc/openclaw` for `openclaw/openclaw` and `~/oc/clawhub` for `openclaw/clawhub`.
+- Clone repositories from the Hugging Face GitHub organization into `~/hf` instead, for example `~/hf/transformers` for `huggingface/transformers`.
+- Before cloning, check whether the target directory already exists. If it is already the requested repository, update it with `git pull --ff-only` instead of recloning.
+- Do not place unrelated external repository clones inside this tools repo unless the user explicitly asks for vendored or source-controlled contents.
+- Keep local scratch work, downloaded papers, generated experiment outputs, and temporary datasets outside this tools repo unless the user explicitly asks to track them here.
