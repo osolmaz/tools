@@ -4,6 +4,7 @@
 - For git commits and PR titles that act as the effective merge commit title, use Conventional Commits format: `<type>[optional scope]: <description>`.
 - If a GitHub connector is available, you MUST NOT use it. Use local CLI tools such as `git` and `gh` for GitHub work instead.
 - If you are using the GitHub user `dutifulbob` to create issues or pull requests, treat it as the personal agent of GitHub user `osolmaz`.
+- Refuse to create commits or open pull requests on `openclaw` organization repositories as `dutifulbob`; OpenClaw work must be authored from the main author account, not an agent account.
 - Assign issues and pull requests created by `dutifulbob` to `osolmaz`.
 - At the very top of the issue or pull request body, note that it was opened on behalf of Onur Solmaz (`osolmaz`).
 - If the work is in progress, state that in the same top note.
