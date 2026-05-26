@@ -1,9 +1,9 @@
 ---
-name: openclaw-local-model-inventory
+name: openclaw-onur-inventory
 description: Use when maintaining ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, or explaining why an item was included or excluded.
 ---
 
-# OpenClaw Local Model Inventory
+# OpenClaw Onur Inventory
 
 Use this skill for `~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md`.
 
