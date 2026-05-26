@@ -1,6 +1,6 @@
 ---
 name: openclaw-onur-inventory
-description: Use when maintaining ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, or explaining why an item was included or excluded.
+description: Use when maintaining ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md, including periodic roughly every-2-hour refreshes, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, or explaining why an item was included or excluded.
 ---
 
 # OpenClaw Onur Inventory
@@ -8,6 +8,12 @@ description: Use when maintaining ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md
 Use this skill for `~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md`.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
+
+## Periodic Cadence
+
+Run this inventory maintenance periodically, normally about every 2 hours when the user asks for ongoing upkeep.
+
+Each run must refresh live state, scrutinize candidates, update/curate the scratch file if anything changed, sort it, and commit/push the scratch repo changes.
 
 ## Include Or Exclude
 
@@ -31,8 +37,24 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 4. You must review every candidate one by one. Keep direct/material matches and drop incidental body/comment/label matches.
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
 6. Keep open issues and open PRs in separate tables.
-7. Run `python3 scripts/sort_openclaw_local_model_threads.py` before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number.
+7. Run the sorter before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number.
 8. Recount rows and compare the retained issue/PR number sets before committing.
+
+## Sorter
+
+The sorter is bundled with this skill at `scripts/sort_openclaw_local_model_threads.py`.
+
+From the tools repo source, run:
+
+```bash
+python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_local_model_threads.py ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md
+```
+
+If the scratch repo has its own checked-in copy, this is also acceptable:
+
+```bash
+cd ~/scratch && python3 scripts/sort_openclaw_local_model_threads.py
+```
 
 ## Output Expectations
 
