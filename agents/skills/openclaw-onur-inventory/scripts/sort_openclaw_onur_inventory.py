@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sort OpenClaw local-model thread tables by GitHub number descending."""
+"""Sort OpenClaw Onur inventory tables by GitHub number descending."""
 
 from __future__ import annotations
 
@@ -93,7 +93,7 @@ def sort_document(path: Path) -> tuple[int, int, int, bool]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Sort OpenClaw local-model issue/PR tables newest-first.",
+        description="Sort OpenClaw Onur inventory issue/PR tables newest-first.",
     )
     parser.add_argument(
         "path",

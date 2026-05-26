@@ -54,18 +54,18 @@ Only advance these numbers after the run has considered all issues or PRs up to 
 
 ## Sorter
 
-The sorter is bundled with this skill at `scripts/sort_openclaw_local_model_threads.py`.
+The sorter is bundled with this skill at `scripts/sort_openclaw_onur_inventory.py`.
 
 From the tools repo source, run:
 
 ```bash
-python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_local_model_threads.py ~/scratch/OPENCLAW_ONUR_INVENTORY.md
+python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_onur_inventory.py ~/scratch/OPENCLAW_ONUR_INVENTORY.md
 ```
 
 If the scratch repo has its own checked-in copy, this is also acceptable:
 
 ```bash
-cd ~/scratch && python3 scripts/sort_openclaw_local_model_threads.py
+cd ~/scratch && python3 scripts/sort_openclaw_onur_inventory.py
 ```
 
 ## Output Expectations
