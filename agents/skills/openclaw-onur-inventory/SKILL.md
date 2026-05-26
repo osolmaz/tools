@@ -1,11 +1,11 @@
 ---
 name: openclaw-onur-inventory
-description: Use when maintaining ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md, including periodic roughly every-2-hour refreshes, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, or explaining why an item was included or excluded.
+description: Use when maintaining ~/scratch/OPENCLAW_ONUR_INVENTORY.md, including periodic roughly every-2-hour refreshes, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, updating the reviewed-through issue/PR watermark, or explaining why an item was included or excluded.
 ---
 
 # OpenClaw Onur Inventory
 
-Use this skill for `~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md`.
+Use this skill for `~/scratch/OPENCLAW_ONUR_INVENTORY.md`.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
 
@@ -36,9 +36,21 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 3. Build a broad candidate pool from local/open-weight/provider terms.
 4. You must review every candidate one by one. Keep direct/material matches and drop incidental body/comment/label matches.
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
-6. Keep open issues and open PRs in separate tables.
-7. Run the sorter before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number.
-8. Recount rows and compare the retained issue/PR number sets before committing.
+6. Update the `Review watermark` near the top of the file with the highest live GitHub issue number and highest live GitHub PR number that were covered by the review.
+7. Keep open issues and open PRs in separate tables.
+8. Run the sorter before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number.
+9. Recount rows and compare the retained issue/PR number sets before committing.
+
+## Review Watermark
+
+The inventory must include a `Review watermark` section near the top of `~/scratch/OPENCLAW_ONUR_INVENTORY.md`.
+
+Record:
+
+- `Last reviewed through issue: #<number>`
+- `Last reviewed through PR: #<number>`
+
+Only advance these numbers after the run has considered all issues or PRs up to those numbers. If a run only reviews a subset, leave the corresponding watermark unchanged and say what range remains unchecked.
 
 ## Sorter
 
@@ -47,7 +59,7 @@ The sorter is bundled with this skill at `scripts/sort_openclaw_local_model_thre
 From the tools repo source, run:
 
 ```bash
-python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_local_model_threads.py ~/scratch/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md
+python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_local_model_threads.py ~/scratch/OPENCLAW_ONUR_INVENTORY.md
 ```
 
 If the scratch repo has its own checked-in copy, this is also acceptable:
@@ -61,4 +73,4 @@ cd ~/scratch && python3 scripts/sort_openclaw_local_model_threads.py
 - Say whether counts are issues, PRs, or combined threads.
 - When challenged on one item, you must check the live issue/PR body before defending it.
 - If an item was included only because a provider/model name appeared incidentally, you must remove it.
-- Keep the final GitHub link handy: `https://github.com/dutifuldev/scratch/blob/main/OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md`.
+- Keep the final GitHub link handy: `https://github.com/dutifuldev/scratch/blob/main/OPENCLAW_ONUR_INVENTORY.md`.

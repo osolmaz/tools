@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 
-DEFAULT_PATH = Path("OPENCLAW_LOCAL_MODEL_OPEN_THREADS.md")
+DEFAULT_PATH = Path("OPENCLAW_ONUR_INVENTORY.md")
 THREAD_ROW_RE = re.compile(r"^\| \[#(?P<number>\d+)\]\(")
 SECTION_RE = re.compile(
     r"^## (?P<title>OPEN ISSUES|OPEN PRS|RECENTLY CLOSED OR REMOVED FROM OPEN INVENTORY)(?: \((?P<count>\d+)\))?$",
