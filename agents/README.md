@@ -25,6 +25,10 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX
 
 ## Skills
 
+- `skills/agent-blurb/`
+  Use this when writing or reviewing copy-paste README blurbs that tell a
+  coding agent how to install, configure, verify, or adopt a project workflow.
+
 - `skills/conventional-commit/`
   Use this when you need to draft, rewrite, or validate a commit message or PR title using Conventional Commits, plus a concise repo-aware PR body when the task is a pull request.
 
