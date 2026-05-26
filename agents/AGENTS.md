@@ -28,6 +28,7 @@
 - Use the repository name as the default checkout directory under `~/repos`, for example `~/repos/autoresearch` for `karpathy/autoresearch`.
 - Clone repositories from the `openclaw` GitHub organization into `~/oc` instead, for example `~/oc/openclaw` for `openclaw/openclaw` and `~/oc/clawhub` for `openclaw/clawhub`.
 - Clone repositories from the Hugging Face GitHub organization into `~/hf` instead, for example `~/hf/transformers` for `huggingface/transformers`.
+- Create Git worktrees in a `<repo_name>-worktrees` directory next to the main checkout, for example `~/oc/openclaw-worktrees/86504` for `~/oc/openclaw`. Do not create worktrees inside the main checkout or as scattered sibling directories unless the user asks for a different layout.
 - Before cloning, check whether the target directory already exists. If it is already the requested repository, update it with `git pull --ff-only` instead of recloning.
 - Do not place unrelated external repository clones inside this tools repo unless the user explicitly asks for vendored or source-controlled contents.
 - Keep local scratch work, downloaded papers, generated experiment outputs, and temporary datasets outside this tools repo unless the user explicitly asks to track them here.
