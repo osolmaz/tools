@@ -28,6 +28,15 @@ Use this skill to answer questions like:
 - Use `--owner <org>` or repo qualifiers when the user gives an org/repo boundary.
 - Fetch details with `gh pr view` or `gh issue view` when state, merge status, author, title, timestamps, labels, or URLs are unclear.
 
+Create a local collection artifact before writing the summary:
+
+- Create a temporary folder under `/tmp`, for example `/tmp/daily-work-summary-YYYY-MM-DD-USER`.
+- Save the raw search outputs, enriched PR/issue details, and final candidate classification there. Use JSON, JSONL, Markdown, or another easy-to-inspect text format.
+- The artifact must include enough evidence to audit inclusion decisions: repository, number, title, URL, state, author, created/updated/closed/merged timestamps, mergedBy, labels, closing issue references, relevant comments/reviews by the target identity, relevant automation metadata, and why the item is included, grouped, or excluded.
+- Use this artifact as the reference for the final summary. Do not write the final summary directly from ad hoc terminal output.
+- Before writing the final summary, verify the artifact folder exists and contains the enriched candidate/classification file. If the artifact is missing, stop and create it; do not produce a summary from memory or terminal scrollback.
+- Do not include the `/tmp` artifact path in the final summary unless the user asks for audit details.
+
 Useful starting commands:
 
 ```bash
@@ -35,6 +44,7 @@ gh search prs --owner ORG --author USER --updated ">=YYYY-MM-DDTHH:MM:SSZ" --jso
 gh search prs --owner ORG --involves USER --updated ">=YYYY-MM-DDTHH:MM:SSZ" --json repository,number,title,state,isDraft,author,createdAt,updatedAt,closedAt,url
 gh search issues --owner ORG --author USER --updated ">=YYYY-MM-DDTHH:MM:SSZ" --json repository,number,title,state,author,createdAt,updatedAt,closedAt,url
 gh search prs automerge --owner ORG --commenter USER --match comments --updated ">=YYYY-MM-DDTHH:MM:SSZ" --json repository,number,title,state,author,updatedAt,url
+gh pr view PR --repo ORG/REPO --json number,title,state,author,createdAt,updatedAt,closedAt,mergedAt,mergedBy,url,body,closingIssuesReferences,comments,reviews,labels
 ```
 
 3. Decide what counts as reportable work.
@@ -57,9 +67,22 @@ Exclude unless the user asks:
 - Old third-party PRs/issues that only changed because of label churn, bot comments, or review routing.
 - Draft-only bookkeeping that does not reflect a concrete work item.
 - Per-user attribution when the user says multiple identities are one person.
+- PRs that merely mention the target identity in bot review prose, "likely related people" sections, changelog credit, commit attribution, or broad search text.
+
+Effective ownership rules:
+
+- Treat broad search results as candidates, not facts. Before including a PR, verify it with `gh pr view --json comments,body,author,mergedBy,mergedAt,closingIssuesReferences`.
+- Include a third-party PR only when the target identity directly commented a merge/approval command, directly reviewed or approved it, directly merged it, or a replacement PR body explicitly says automerge was requested by that identity.
+- If the user asks for "PRs I merged", include PRs the user routed into automerge only after verifying the actual automerge command or replacement metadata. Do not infer ownership from org-wide merged PR lists.
+- For automation replacement flows, group the source PR, replacement PR, and linked issue as one work item. Use the replacement PR as the effective landed PR, but keep the source PR link for provenance.
+- Distinguish activity counts when asked: comment instances are actual command/comment occurrences by the target identity; PR records are source/replacement/open PRs; work items are grouped user-visible tasks.
 
 4. Verify suspicious gaps.
 
+- Deep-dig before writing. Build a candidate set from all relevant activity channels: authored PRs/issues, involved PRs/issues, commenter PRs, reviewed PRs, merge-command searches, replacement/automerge metadata, and closed/merged PRs when the user asks for shipped work.
+- Do not stop after the first plausible list. Cross-check counts across authored, commented, involved, reviewed, merge-command, and replacement/automerge searches.
+- For each candidate in the `/tmp` artifact, classify it as `include`, `grouped-with`, or `exclude`, with the reason based on verified PR/issue details.
+- If the user asks about merged/automerge work, count both command-comment instances and effective landed PRs, then group source/replacement PRs before producing the final summary.
 - If the result feels too small, broaden from `--author` to `--involves`.
 - Check both PRs and issues.
 - Check closed/merged states, not only open work.
@@ -76,13 +99,16 @@ Exclude unless the user asks:
 
 ## Output Format
 
+Return only the summary. Do not add a preamble, correction note, explanation, apology, or wrapper sentence such as `Here is...`, `Corrected...`, or `I found...`.
+Do not include a `Scope:` line or timestamp-window line unless the user explicitly asks for audit details. Scope and collection window are internal collection context, not report content.
+
 Start with a title in this shape:
 
 ```md
 # NAME Daily Summary - YYYY-MM-DD
 ```
 
-Use the person's real name, username, team name, or short scope label for `NAME`, based on the user's request. Use an ISO date for the report date. If the report spans multiple days, use an ISO date range such as `2026-05-20..2026-05-22`.
+Use the person's real name, username, team name, or short scope label for `NAME`, based on the user's request. Use a single ISO date for the report date. For rolling windows such as last 24h, use the end date in the user's local timezone. Use a date range such as `2026-05-20..2026-05-22` only when the user explicitly asks for a multi-day summary.
 
 Use concise sections by default:
 
@@ -93,6 +119,12 @@ Use concise sections by default:
 - `Planning`
 
 Omit empty sections.
+
+Section rules:
+
+- Put every landed work item under `Shipped`, regardless of whether the target identity authored it, directly merged it, or routed it through automerge/replacement automation.
+- Use `Merged / Approved Others` only for meaningful target-identity approval or merge-routing activity that did not produce a landed work item in the report window, or when the user explicitly asks to separate approvals from shipped work.
+- Do not split a landed source/replacement work item between `Shipped` and `Merged / Approved Others`; keep the grouped item under `Shipped`.
 
 Each bullet must be plain language and append the link at the end:
 
@@ -110,8 +142,6 @@ Example:
 
 ```md
 # Onur Daily Summary - 2026-05-22
-
-Scope: `openclaw/*`, `osolmaz`/`dutifulbob` as one person, last 24h.
 
 **Shipped**
 - Generic embedding-provider contract so plugins can provide embeddings through a shared API. https://github.com/openclaw/openclaw/pull/84947
@@ -132,6 +162,8 @@ Scope: `openclaw/*`, `osolmaz`/`dutifulbob` as one person, last 24h.
 
 - Do not say `worked on`, `built a draft`, `started working on`, or other filler that adds no information.
 - Prefer nouns and concrete outcomes: `OpenAI-compatible embeddings...`, `Provider-auth startup fix...`, `ClawSweeper prompt request...`
+- Summarize the current outcome or intended behavior, not the process history. Do not mention authored/routed/reviewed/re-reviewed, queued commands, multiple review passes, intermediate rejected approaches, pauses, or "linked issue remains open" unless the user explicitly asks for workflow history.
+- For in-progress items, state the current technical direction or user-visible goal in one concise phrase. Avoid status narration like `revised the approach away from...`, `queued multiple re-reviews`, or `left it ready for maintainer judgment`.
 - Keep bullets short enough to scan.
 - Do not quote comments or PR bodies unless the user explicitly asks.
 - Do not tag which alias did each item when the aliases are one person.
