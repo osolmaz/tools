@@ -6,8 +6,8 @@ description: Write README prompts that tell coding agents how to adopt a tool.
 # Agent Blurb
 
 Use this skill to write a short README blurb that a human can copy into a
-coding agent. The blurb should tell the agent exactly what to do with a tool,
-project standard, or workflow.
+coding agent. Default to the shortest prompt that still tells the agent what
+to use, where to start, what to ask, and how to verify.
 
 ## Principles
 
@@ -15,8 +15,9 @@ project standard, or workflow.
 - Address two audiences:
   - Human lead-in text says when to copy the block and what it will do.
   - The fenced block addresses the coding agent directly.
-- Keep the copy concise enough to paste comfortably into a chat or agent
-  prompt.
+- Prefer 4-8 lines inside the fenced block. Go longer only when setup has
+  multiple real steps.
+- Keep the surrounding human lead-in to one short sentence when possible.
 - Wrap prose and prompt text to 80 characters or less when practical.
 - Put the prompt in a fenced `text` code block so GitHub renders a clean
   copyable block.
@@ -24,15 +25,15 @@ project standard, or workflow.
 - Point to the source of truth before asking the agent to change files. Use an
   `AGENT_ENTRYPOINT.md`, install doc, README section, or stable raw URL when
   the repo has one.
-- Include exact commands when they are stable. Otherwise, tell the agent which
-  doc to read and follow.
+- Include exact commands only when they are essential. Otherwise, point to the
+  source of truth.
 - Ask the user only for facts the agent cannot infer, such as target repo, OS,
   account choice, secret location, or approval for destructive actions.
 - Tell the agent how to verify the result and what to report back.
 - Make the instructions idempotent: inspect existing setup first, then update
   it instead of duplicating config.
-- Include safety boundaries for secrets, external writes, and destructive
-  actions when the task can touch them.
+- Include safety boundaries only when the task can touch secrets, external
+  writes, or destructive actions.
 - Avoid branding the section as "Agent Blurb". Name it as an action the reader
   can take.
 
@@ -55,12 +56,11 @@ section.
 ## Workflow
 
 1. Inspect the README and install docs to find the natural setup section.
-2. Decide whether the project needs a short source-of-truth pointer or a fuller
-   action prompt.
+2. Start with a short source-of-truth pointer. Expand only if the agent would
+   otherwise miss important setup steps.
 3. Add a short human lead-in followed by one fenced `text` block.
 4. Keep the block short, direct, and wrapped to 80 characters.
-5. Check that the prompt asks the human only for missing information and gives
-   the agent a verification step.
+5. Cut any line that repeats the README or does not change agent behavior.
 
 ## Template
 
@@ -71,40 +71,39 @@ Copy this block and paste it into your coding agent when you want it to
 <outcome>.
 
 ```text
-Use <tool> to <outcome> for this project.
+Use <Tool> to <outcome> for this project.
 
-Attention agent: start with this source of truth before changing files:
+Attention agent: start here before changing files:
 <url-or-path>
 
-Please do the following:
-1. Inspect <context> and detect what is already installed or configured.
-2. Ask me only for missing choices: <choices>.
-3. Install or configure <tool> using the documented commands.
-4. Verify the result with <checks>.
-5. Report what changed and anything I still need to do.
-
-Safety:
-- Ask before destructive changes or external writes.
-- Never ask me to paste secrets into chat; use placeholders or local files.
-- Do not duplicate existing config; update it in place when possible.
+Inspect the existing setup, update it in place, verify with <checks>, and
+ask me only for missing choices: <choices>.
 ```
 ````
 
-Prefer a shorter prompt when the project already has a strong agent entrypoint:
+Add safety lines only when they are relevant:
+
+````md
+```text
+Ask before destructive changes or external writes. Never ask me to paste
+secrets into chat; use placeholders or local files.
+```
+````
+
+Prefer an even shorter prompt when the project already has a strong agent
+entrypoint:
 
 ````md
 ## Quick setup: tell your agent about <Tool>
 
-Copy this block and paste it into your coding agent when you want it to use
-<Tool> in this repository.
+Copy this block into your coding agent to use <Tool> in this repository.
 
 ```text
 Use <Tool> to <outcome> for this project.
 
-Attention agent: start with this file before changing code:
+Attention agent: start here before changing code:
 <raw-url-or-repo-path>
 
-Follow it exactly. Detect the target repo's context, apply the matching
-instructions, and say clearly if the requested setup is not supported.
+Follow it exactly. Report if the requested setup is unsupported.
 ```
 ````
