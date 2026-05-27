@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -322,43 +323,59 @@ fn write_markdown(
     extraction: &Extraction,
     include_encrypted: bool,
 ) -> Result<()> {
-    writeln!(out, "# Codex Session Extract")?;
+    let rendered = deduped_messages(messages);
+    let user_count = rendered
+        .iter()
+        .filter(|message| message.role.as_deref() == Some("user"))
+        .count();
+    let assistant_count = rendered
+        .iter()
+        .filter(|message| message.role.as_deref() == Some("assistant"))
+        .count();
+
+    writeln!(out, "<!-- codex-session-extract:start -->")?;
+    writeln!(out, "## Codex Session Extract")?;
     writeln!(out)?;
-    writeln!(out, "Input: `{}`", path.display())?;
+    writeln!(out, "<details>")?;
+    writeln!(out, "<summary>Recoverable plaintext transcript</summary>")?;
     writeln!(out)?;
-    writeln!(out, "Recoverable plaintext messages: {}", messages.len())?;
+    writeln!(out, "````text")?;
+    writeln!(out, "source: {}", path.display())?;
     writeln!(
         out,
-        "Recoverable plaintext messages including setup: {}",
-        extraction.messages.len()
+        "view: raw recoverable plaintext rows, deduped for reading"
     )?;
     writeln!(
         out,
-        "Opaque encrypted_content blobs: {}",
+        "omitted: setup messages unless --include-setup, raw tool outputs, opaque encrypted_content"
+    )?;
+    writeln!(
+        out,
+        "stats: messages={} deduped={} user={} assistant={} encrypted_blobs={}",
+        messages.len(),
+        rendered.len(),
+        user_count,
+        assistant_count,
         extraction.encrypted.len()
     )?;
     writeln!(out)?;
 
-    for message in messages {
-        let timestamp = message.timestamp.as_deref().unwrap_or("unknown timestamp");
+    for message in rendered {
         let role = message.role.as_deref().unwrap_or("unknown role");
-        let index = message
-            .index
-            .map(|index| format!("[{index}]"))
-            .unwrap_or_default();
-        writeln!(
-            out,
-            "## line {} {}{} {} {}",
-            message.line, message.source, index, role, timestamp
-        )?;
-        writeln!(out)?;
+        writeln!(out, "[{role}]")?;
         writeln!(out, "{}", message.text)?;
         writeln!(out)?;
     }
+    writeln!(out, "````")?;
+    writeln!(out)?;
+    writeln!(out, "</details>")?;
 
     if include_encrypted {
-        writeln!(out, "# Encrypted Content")?;
         writeln!(out)?;
+        writeln!(out, "<details>")?;
+        writeln!(out, "<summary>Encrypted content locations</summary>")?;
+        writeln!(out)?;
+        writeln!(out, "````text")?;
         for encrypted in &extraction.encrypted {
             let timestamp = encrypted
                 .timestamp
@@ -379,8 +396,34 @@ fn write_markdown(
                 timestamp
             )?;
         }
+        writeln!(out, "````")?;
+        writeln!(out)?;
+        writeln!(out, "</details>")?;
     }
+    writeln!(out, "<!-- codex-session-extract:end -->")?;
     Ok(())
+}
+
+fn deduped_messages<'a>(messages: &[&'a ExtractedMessage]) -> Vec<&'a ExtractedMessage> {
+    let mut seen = HashSet::new();
+    let mut rendered = Vec::new();
+    for message in messages {
+        let key = dedupe_key(message);
+        if seen.insert(key) {
+            rendered.push(*message);
+        }
+    }
+    rendered
+}
+
+fn dedupe_key(message: &ExtractedMessage) -> String {
+    let role = message.role.as_deref().unwrap_or("");
+    let text = message
+        .text
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    format!("{role}\n{text}")
 }
 
 #[cfg(test)]
@@ -461,5 +504,31 @@ mod tests {
         assert_eq!(filtered.len(), 1);
         assert!(filtered[0].text.starts_with("pull latest main"));
         assert_eq!(filtered_messages(&extraction, true).len(), 3);
+    }
+
+    #[test]
+    fn markdown_dedupes_storage_duplicates() {
+        let first = ExtractedMessage {
+            line: 1,
+            timestamp: None,
+            source: "response_item".to_string(),
+            index: None,
+            role: Some("user".to_string()),
+            text: "hello\n".to_string(),
+        };
+        let duplicate = ExtractedMessage {
+            line: 2,
+            timestamp: None,
+            source: "event_msg.user_message".to_string(),
+            index: None,
+            role: Some("user".to_string()),
+            text: "hello".to_string(),
+        };
+        let messages = vec![&first, &duplicate];
+
+        let deduped = deduped_messages(&messages);
+
+        assert_eq!(deduped.len(), 1);
+        assert_eq!(deduped[0].line, 1);
     }
 }

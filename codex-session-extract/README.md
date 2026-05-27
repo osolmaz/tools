@@ -11,6 +11,9 @@ Markdown transcript:
 cargo run --bin codex-session-extract -- /path/to/rollout.jsonl
 ```
 
+Markdown mode dedupes duplicate storage rows and prints role blocks similar to
+the agent transcript helper. Use JSONL mode for the raw recoverable records.
+
 Exact machine-readable records:
 
 ```bash
