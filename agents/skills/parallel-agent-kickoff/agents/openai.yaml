@@ -1,4 +1,4 @@
 interface:
   display_name: "Parallel Agent Kickoff"
-  short_description: "Cluster issues and start triage sessions"
-  default_prompt: "Use $parallel-agent-kickoff to cluster related issues or PRs and kick off decision-focused agent sessions."
+  short_description: "Cluster issues and kick off agents"
+  default_prompt: "Use $parallel-agent-kickoff to cluster issues/PRs that look similar and create one Socratic triage session per group."

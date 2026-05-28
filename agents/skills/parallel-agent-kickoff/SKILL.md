@@ -1,17 +1,17 @@
 ---
 name: parallel-agent-kickoff
-description: Use when clustering related issues or PRs and starting parallel agent sessions for triage, reproduction, review, or fix-shape analysis. Triggers include requests to kick off, start, spawn, launch, or create sessions for groups of GitHub issues/PRs; compare local fixes against long-term production-ready fixes; run Socratic/plain-language follow-up prompts; or turn issue/PR clusters into decision-focused agent prompts without mutating GitHub.
+description: Use when clustering issues/PRs that look similar and creating a single agent session for each group. Triggers include requests to kick off, start, spawn, launch, or create parallel sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; auto-triage in the same session without editing or writing on the PR; or leave mostly maintainer decision making for local fix vs good global solution, proof, duplicate, close, land, or rework calls.
 ---
 
 # Parallel Agent Kickoff
 
-Use this skill to create one decision-focused agent session per related issue/PR cluster.
+Use this skill to cluster issues/PRs that look similar, then create a single agent session for each group.
 
-Start sessions that leave the human with maintainer decisions: duplicate or separate, local patch or global fix, enough proof or more repro, land or rework, close or keep open.
+When the session is kicked off, drive it with sequential prompts for Socratic questioning: crystallization, plainerization, and simplification. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
 
 ## Default Rules
 
-- Cluster first. Prefer one session per shared root cause or strongly suspected shared bug.
+- Cluster first. Put issues/PRs that look similar into a single session when they may share the same bug.
 - Create individual sessions only when items are related but need separate code/proof decisions.
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
 - Use the requested working directory exactly. If the user says the sessions must start in a repo, include that directory in every kickoff prompt.
@@ -32,25 +32,25 @@ Start sessions that leave the human with maintainer decisions: duplicate or sepa
    - Keep adjacent-only items separate, even if they share keywords or a subsystem.
    - Use the mechanism as the cluster name.
 
-3. For each cluster, write the root-cause hypothesis in plain language.
+3. Crystallize the root-cause hypothesis for each cluster.
    - State what breaks for the user.
    - State what the system is doing internally.
    - State which evidence supports the hypothesis.
    - State which part is still uncertain.
 
-4. Immediately judge local fix vs global fix.
-   - Say whether the known PR/fix is a local/narrow fix, a production-ready global fix, or only a repro/proof artifact.
+4. Immediately judge local fix vs good global solution.
+   - Say whether the known PR/fix is a local/narrow fix, a good global solution, or a repro/proof artifact.
    - If local, say its coverage and remaining gaps.
    - If global, say what contract or ownership boundary makes it global.
    - If proof-only, say what implementation decision it enables.
 
-5. Start one session per cluster.
+5. Kick off one session per cluster.
    - Use the kickoff prompt template below.
    - If multiple sessions can be started in parallel, start them in parallel.
    - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
    - Keep the session read-only unless the user explicitly asks for mutations.
 
-6. Drive follow-up prompts sequentially.
+6. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
    - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Stop early only when the session already answers the decision packet clearly.
@@ -68,14 +68,14 @@ Items:
 - #12345 (issue) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
 - #12346 (PR) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
 
-Initial root-cause hypothesis:
+Initial root-cause hypothesis / crystallization:
 <plain-language mechanism; include uncertainty>
 
-Initial local-vs-global judgment:
-<say whether the current fix/PR is local, global, or proof-only, and why>
+Initial local-fix-vs-good-global-solution judgment:
+<say whether the current fix/PR is local, a good global solution, or proof-only, and why>
 
 Task:
-Inspect the current code, issue/PR state, linked work, and available proof. Determine whether these items share one bug or should stay separate. Explain the root cause in plain language, then judge whether the available solution is a long-term production-ready fix or a local/narrow fix. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
+Inspect the current code, issue/PR state, linked work, and available proof. Determine whether these items share one bug or should stay separate. Explain the root cause in plain language, then judge whether the available solution is a local fix or a good global solution. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 ```
@@ -84,28 +84,51 @@ Keep GitHub and files unchanged unless explicitly asked. If you find a proposed 
 
 Use these as follow-up prompts inside the same session. Send the next one only after reading the previous response.
 
-### 1. Plain Restatement
+### 1. Crystallization
 
 ```text
-Plainer. State the bug in one paragraph. What is actually going wrong for the user?
+Crystallize the bug.
+
+Answer:
+- what is broken
+- who sees it
+- what triggers it
+- what component causes it
+- why it happens
+- what a correct fix would change
 ```
 
-### 2. Mechanism Check
+### 2. Plainerization
 
 ```text
-Explain the mechanism without vague words. If you use terms like async, streaming, timeout, memory, fallback, lifecycle, gateway, cache, or delivery, define exactly what happens in this code path.
+Plainer. Rewrite the explanation as if the previous answer did not make sense to the maintainer.
+
+Use short sentences. If you use terms like async, streaming, timeout, memory, fallback, lifecycle, gateway, cache, delivery, boundary, contract, or production-ready, define the concrete mechanism.
 ```
 
-### 3. Local Fix Vs Global Fix
+### 3. Local Fix Vs Good Global Solution
 
 ```text
-Now separate local fix from global fix. What does the current PR/fix actually fix? What would the long-term production-ready fix be? Is the current solution a slice of that, a workaround, or the right final shape?
+Is this a local fix or a good global solution?
+
+Answer plainly:
+- what exact failure it fixes
+- what remains uncovered
+- whether it is provider/channel/model-specific
+- where the real fix should live: core, plugin/channel/provider code, docs, tests, or config
+- whether the global version would break existing behavior
 ```
 
-### 4. Concept Boundary Check
+### 4. Simplification
 
 ```text
-Which nearby concepts are easy to confuse with this bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
+Simplify the decision.
+
+In one sentence each:
+- the decision left for the maintainer
+- the recommended action
+- the main reason
+- the biggest proof gap
 ```
 
 ### 5. Relationship Map
@@ -114,30 +137,59 @@ Which nearby concepts are easy to confuse with this bug? Separate synthetic repr
 Map the related issues/PRs. Which are duplicates, which share the same root cause, which are adjacent only, and which are unrelated? If a single PR could fix multiple items, say exactly which ones and why.
 ```
 
-### 6. Proof Ladder
+### 6. Concept Boundary Check
 
 ```text
-Classify the proof we have: source-only, unit test, synthetic repro, live local repro, reported-environment repro, or production proof. What proof is enough for the maintainer decision here, and what proof would be overkill?
+Which nearby concepts are easy to confuse with this bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
 ```
 
-### 7. Boundary And Breakage
+### 7. Proof Test
 
 ```text
-If we implement the global fix, what could break? Name affected contracts, plugin boundaries, config settings, SDK surfaces, tests, or existing consumers. Say whether this needs a staged migration or can be a direct fix.
+Classify the evidence:
+- source inspection
+- unit test
+- synthetic repro
+- local live repro
+- remote/live environment repro
+- CI proof
+- blocked/unproven
+
+What proof is enough for a maintainer decision here? What proof would be ideal but unnecessary?
 ```
 
-### 8. Decision Packet
+### 8. Boundary And Breakage
 
 ```text
-Give the maintainer decision packet:
+If we implement the global solution, what could break? Name affected contracts, plugin boundaries, config settings, SDK surfaces, tests, or existing consumers. Say whether this needs a staged migration or can be a direct fix.
+```
+
+### 9. Auto-Triage, No Mutation
+
+```text
+Give a maintainer triage recommendation without mutating GitHub.
+
+Choose one:
+- close as resolved
+- keep open
+- land existing PR
+- request changes
+- open broader issue
+- open repro PR
+- implement in same PR
+- split work after diff review
+- needs human product/architecture decision
+
+Then give the decision packet:
 - plain bug summary
 - root cause
-- local-vs-global fix judgment
+- local fix vs good global solution judgment
 - grouped issues/PRs
 - proof we have
 - proof missing
 - enough proof vs overkill
 - recommended next action
+- decision left for the maintainer
 - draft GitHub comment only if useful
 ```
 
@@ -158,6 +210,6 @@ When reporting back to the user, keep it decision-focused:
 - clusters created
 - sessions started or prompts prepared
 - one-line reason for each grouping
-- local-vs-global initial judgment for each cluster
+- local fix vs good global solution judgment for each cluster
 - proof status for each cluster
 - any visible sessions that failed to launch
