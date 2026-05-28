@@ -15,8 +15,8 @@ This skill is addressed to the top-level orchestrator agent.
 
 The orchestrator must launch standalone child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
 
-- For Codex, create real Codex sessions. Use visible/session UI-capable sessions when available.
-- Do not use `codex exec` or one-shot command equivalents for the child work. Those produce reports, not sessions the human can inspect and take over.
+- For Codex, create real Codex sessions.
+- Do not use `codex exec` or one-shot command equivalents for child work. Those produce reports, not sessions the human can inspect and take over.
 - If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
 - Keep one child session per cluster unless the user asks for one session per item.
 - Track every child session until it reaches a clear end state.
@@ -32,7 +32,7 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
-- When the user asks for visible sessions, use visible/session UI-capable launch options if available. Otherwise, say so and provide the prompts ready to paste.
+- Use real Codex sessions for Codex work. If no standalone session mechanism is available, say so and provide the prompts ready to paste.
 
 ## Workflow
 
@@ -46,30 +46,25 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
    - Keep adjacent-only items separate, even if they share keywords or a subsystem.
    - Use the mechanism as the cluster name.
 
-3. Crystallize the root-cause hypothesis for each cluster.
-   - State what breaks for the user.
-   - State what the system is doing internally.
-   - State which evidence supports the hypothesis.
-   - State which part is still uncertain.
-
-4. Immediately judge local fix vs good global solution.
-   - Say whether the known PR/fix is a local/narrow fix, a good global solution, or a repro/proof artifact.
-   - If local, say its coverage and remaining gaps.
-   - If global, say what contract or ownership boundary makes it global.
-   - If proof-only, say what implementation decision it enables.
-
-5. Kick off one standalone session per cluster.
+3. Kick off one standalone session per cluster.
+   - Kickoff happens here, after clustering.
    - Use the kickoff prompt template below.
    - If multiple standalone sessions can be started in parallel, start them in parallel.
    - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
    - Keep the session read-only unless the user explicitly asks for mutations.
 
-6. Drive Socratic follow-up prompts sequentially in that same session.
+4. Drive the child sessions through the triage arc.
+   - Crystallize the root cause.
+   - Immediately judge local fix vs good global solution after root-cause finding.
+   - Plainerize and simplify when the answer is abstract or hard to follow.
+   - Map related refs, classify proof, check boundaries, and end with a decision packet.
+
+5. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
    - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Stop early only when the session already answers the decision packet clearly.
 
-7. Drive every child session to human takeover.
+6. Drive every child session to human takeover.
    - Poll or inspect every child session until it answers the decision packet.
    - Send the next Socratic prompt when a child session stalls at a generic review, skips proof classification, or fails to say local fix vs good global solution.
    - Mark a session takeover-ready only when the human can decide the next action without asking the child to explain the basics again.
@@ -84,18 +79,15 @@ Working directory: <absolute repo path>. Start from that directory and stay in t
 
 Cluster: <short mechanism name>
 
+Why these refs are grouped:
+<brief, abstract rationale for why these issues/PRs look similar>
+
 Items:
 - #12345 (issue) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
 - #12346 (PR) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
 
-Initial root-cause hypothesis / crystallization:
-<plain-language mechanism; include uncertainty>
-
-Initial local-fix-vs-good-global-solution judgment:
-<say whether the current fix/PR is local, a good global solution, or proof-only, and why>
-
 Task:
-Inspect the current code, issue/PR state, linked work, and available proof. Determine whether these items share one bug or should stay separate. Explain the root cause in plain language, then judge whether the available solution is a local fix or a good global solution. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
+Inspect the current code, issue/PR state, linked work, and available proof. First decide whether these items really belong in one session or should split. Then crystallize the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 
@@ -237,4 +229,4 @@ When reporting back to the user, keep it decision-focused:
 - local fix vs good global solution judgment for each cluster
 - proof status for each cluster
 - decision left for the human
-- any visible sessions that failed to launch
+- any standalone sessions that failed to launch
