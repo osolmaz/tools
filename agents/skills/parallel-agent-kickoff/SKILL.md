@@ -53,7 +53,8 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
 - Create individual sessions only when items are related but need separate code/proof decisions.
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
 - Run child sessions in git worktrees. Use one dedicated worktree per cluster unless the user asks for a different shape.
-- Use the requested repo as the source checkout for those worktrees. The working directory in each kickoff prompt must be the cluster's worktree root, not the shared main checkout.
+- Resolve the source checkout before creating worktrees. Use the current working directory when it is the repo the user means; otherwise find the main checkout for the referenced repo. Then create child worktrees from that source checkout.
+- The working directory in each kickoff prompt must be the cluster's worktree root, not the shared main checkout.
 - "No mutation" means no GitHub writes and no tracked file changes unless asked. It does not mean read-only or workspace-sandboxed execution. Do not use a restrictive sandbox when it prevents worktree creation, Codex session state, dependency install, temp files, or test artifacts inside the worktree.
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
@@ -76,7 +77,8 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
 
 3. Kick off one standalone session per cluster.
    - Kickoff happens here, after clustering.
-   - Create or choose a dedicated git worktree for the cluster before launching the session.
+   - Resolve the source checkout first: use the orchestrator's current repo when it matches the target repo, or find the main checkout for the repo named by the refs/user request.
+   - Create or choose a dedicated git worktree for the cluster from that source checkout before launching the session.
    - Start the child session from that worktree root.
    - Use the kickoff prompt template below.
    - If multiple real standalone sessions can be started in parallel, start them in parallel.
@@ -115,7 +117,7 @@ Use this structure for each session. Fill in concrete item numbers and evidence.
 ```text
 Working directory: <absolute worktree path>. Start from that worktree and stay in that repository.
 
-Worktree source repo: <absolute source checkout path>.
+Worktree source repo: <absolute source checkout path, usually the orchestrator cwd when it is the target repo>.
 
 Cluster: <short mechanism name>
 
