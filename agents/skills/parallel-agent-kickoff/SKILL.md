@@ -124,7 +124,7 @@ First decide whether these items really belong in one session or should split. T
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 
-Do not use $parallel-agent-kickoff from inside this child session. Do not create subagents or more child sessions. Do the triage work in this session.
+Do not invoke orchestration skills from inside this child session. Do not create subagents or more child sessions. Do the triage work in this session.
 
 End state:
 Continue in this standalone session until you produce the full maintainer decision packet. The top-level orchestrator will keep prompting you if the answer is too abstract, missing proof classification, or missing the local fix vs good global solution judgment.
