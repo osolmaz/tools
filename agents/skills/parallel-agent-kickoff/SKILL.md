@@ -1,13 +1,13 @@
 ---
 name: parallel-agent-kickoff
-description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a real interactive/resumable agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with plainerization or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
+description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a real interactive/resumable agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with plainerization; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
 ---
 
 # Parallel Agent Kickoff
 
 Use this skill to cluster issues/PRs that look similar, then create a single agent session for each group.
 
-When the session is kicked off, drive it with sequential prompts for Socratic questioning, plainerization, and simplification. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
+When the session is kicked off, drive it with sequential prompts for Socratic questioning and plainerization. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
 
 ## Orchestrator Contract
 
@@ -92,7 +92,6 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
    - Identify the root cause in plain language.
    - Immediately judge local fix vs good global solution after root-cause finding.
    - Send `Write it plainer and shorter.` again whenever the child writes overly technical word diarrhea.
-   - Simplify when the answer is abstract or hard to follow.
    - Map related refs, classify proof, and end with a decision packet.
 
 5. Drive Socratic follow-up prompts sequentially in that same session.
@@ -180,25 +179,13 @@ What is the most elegant and long term production ready solution?
 Is that the holy grail?
 ```
 
-### 5. Simplification
-
-```text
-Simplify the decision.
-
-In one sentence each:
-- the decision left for the maintainer
-- the recommended action
-- the main reason
-- the biggest proof gap
-```
-
-### 6. Relationship Map
+### 5. Relationship Map
 
 ```text
 Map the related issues/PRs. Which are duplicates, which share the same root cause, which are adjacent only, and which are unrelated? If a single PR could fix multiple items, say exactly which ones and why.
 ```
 
-### 7. Proof Test
+### 6. Proof Test
 
 ```text
 Classify the evidence:
@@ -211,6 +198,12 @@ Classify the evidence:
 - blocked/unproven
 
 What proof is enough for a maintainer decision here? What proof would be ideal but unnecessary?
+```
+
+### 7. Next Step
+
+```text
+Ok, what should we do next?
 ```
 
 ## Common Failure Guards
