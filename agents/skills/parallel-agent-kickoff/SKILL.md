@@ -1,9 +1,9 @@
 ---
-name: parallel-session-kickoff
+name: parallel-agent-kickoff
 description: Use when clustering related issues or PRs and starting parallel agent sessions for triage, reproduction, review, or fix-shape analysis. Triggers include requests to kick off, start, spawn, launch, or create sessions for groups of GitHub issues/PRs; compare local fixes against long-term production-ready fixes; run Socratic/plain-language follow-up prompts; or turn issue/PR clusters into decision-focused agent prompts without mutating GitHub.
 ---
 
-# Parallel Session Kickoff
+# Parallel Agent Kickoff
 
 Use this skill to create one decision-focused agent session per related issue/PR cluster.
 
