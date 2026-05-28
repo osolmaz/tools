@@ -16,7 +16,9 @@ This skill is addressed to the top-level orchestrator agent.
 The orchestrator must launch real interactive/resumable child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
 
 - For Codex, create real interactive Codex sessions that the human can resume with `codex resume <session-id>`.
-- A valid Codex launch path is an interactive terminal session, for example `codex --no-alt-screen -C <worktree> --sandbox workspace-write -a never $'<prompt>'`, started in a PTY and then driven with stdin.
+- A valid Codex launch path is an interactive terminal session, started in a PTY and then driven with stdin.
+- When the user has asked for autonomous kickoff and the parent environment allows it, launch Codex in full-access/yolo mode: `codex --no-alt-screen -C <worktree> --dangerously-bypass-approvals-and-sandbox $'<prompt>'`.
+- If that flag is unavailable, use the closest explicit full-access form: `codex --no-alt-screen -C <worktree> --sandbox danger-full-access -a never $'<prompt>'`.
 - Do not use subagents, `spawn_agent`, hidden worker sessions, `codex exec`, or one-shot command equivalents for child work. Those produce reports, not sessions the human can inspect and take over.
 - Do not require Codex Desktop visibility. A terminal `codex` session is acceptable when it is an interactive, resumable session recorded by Codex.
 - If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
@@ -43,6 +45,7 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
 - Start that orchestrator session from the requested repo or worktree.
 - Let that orchestrator session cluster the refs and launch its own child sessions.
 - Do not replace that with `spawn_agent`, `codex exec`, or a paste-only prompt.
+- Use full-access/yolo mode for this orchestrator session when the parent environment allows it, so it can create worktrees, launch child sessions, and write Codex session state without artificial workspace sandbox failures.
 
 ## Default Rules
 
@@ -51,7 +54,7 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
 - Run child sessions in git worktrees. Use one dedicated worktree per cluster unless the user asks for a different shape.
 - Use the requested repo as the source checkout for those worktrees. The working directory in each kickoff prompt must be the cluster's worktree root, not the shared main checkout.
-- "No mutation" means no GitHub writes and no tracked file changes unless asked. Do not force a read-only sandbox if it prevents safe proof setup such as dependency install, temp files, or test artifacts inside the worktree.
+- "No mutation" means no GitHub writes and no tracked file changes unless asked. It does not mean read-only or workspace-sandboxed execution. Do not use a restrictive sandbox when it prevents worktree creation, Codex session state, dependency install, temp files, or test artifacts inside the worktree.
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
