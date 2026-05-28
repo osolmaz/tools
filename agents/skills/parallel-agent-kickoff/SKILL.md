@@ -1,6 +1,6 @@
 ---
 name: parallel-agent-kickoff
-description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a standalone agent session for each group. Triggers include requests to kick off, start, spawn, launch, or create parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive read-only auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
+description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a visible, standalone agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
 ---
 
 # Parallel Agent Kickoff
@@ -13,15 +13,26 @@ When the session is kicked off, drive it with sequential prompts for Socratic qu
 
 This skill is addressed to the top-level orchestrator agent.
 
-The orchestrator must launch standalone child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
+The orchestrator must launch visible, standalone child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
 
-- For Codex, create real Codex sessions.
-- Do not use `codex exec` or one-shot command equivalents for child work. Those produce reports, not sessions the human can inspect and take over.
+- For Codex, create real Codex sessions that the human can see in the Codex session UI and resume directly.
+- Do not use subagents, `spawn_agent`, hidden worker sessions, `codex exec`, or one-shot command equivalents for child work. Those produce reports, not sessions the human can inspect and take over.
+- Do not use terminal `codex` sessions unless they are visible as normal Codex sessions to the human. If visibility is uncertain, treat the launch mechanism as unavailable.
 - If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
 - Keep one child session per cluster unless the user asks for one session per item.
 - Track every child session until it reaches a clear end state.
 - Feed the sequential prompts into each child session as needed. The child should not stop after its first review answer when the answer is still abstract, proof-light, or missing the decision packet.
-- Report session identifiers, cluster membership, current state, and the remaining human decision for every child session.
+- Report session identifiers, visible session title when available, cluster membership, current state, and the remaining human decision for every child session. Do not guess the title.
+
+## Session Mechanism Guard
+
+Before launching child work, decide whether the available mechanism creates a visible standalone session.
+
+- Accept: a real Codex Desktop session, or another agent family's equivalent visible/takeover-capable session.
+- Reject: subagents, `spawn_agent`, background workers, hidden CLI-only sessions, `codex exec`, report-only runs, or anything that cannot be found and resumed by the human.
+- If no acceptable mechanism is available, do not fake it. Create or identify the worktree, prepare the exact kickoff prompt, and tell the user the session could not be launched visibly.
+- After launch, verify the session is discoverable by id or stored title before saying it exists. If no stored title is available, say that instead of inventing one.
+- Do not pass `$parallel-agent-kickoff`, the skill body, or any instruction to "use this skill" into a child session. The child session should receive only the concrete triage task.
 
 ## Default Rules
 
@@ -30,10 +41,11 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
 - Run child sessions in git worktrees. Use one dedicated worktree per cluster unless the user asks for a different shape.
 - Use the requested repo as the source checkout for those worktrees. The working directory in each kickoff prompt must be the cluster's worktree root, not the shared main checkout.
+- "No mutation" means no GitHub writes and no tracked file changes unless asked. Do not force a read-only sandbox if it prevents safe proof setup such as dependency install, temp files, or test artifacts inside the worktree.
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
-- Use real Codex sessions for Codex work. If no standalone session mechanism is available, say so and provide the prompts ready to paste.
+- Use real, visible Codex sessions for Codex work. If no visible standalone session mechanism is available, say so and provide the prompts ready to paste.
 
 ## Workflow
 
@@ -52,16 +64,17 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
    - Create or choose a dedicated git worktree for the cluster before launching the session.
    - Start the child session from that worktree root.
    - Use the kickoff prompt template below.
-   - If multiple standalone sessions can be started in parallel, start them in parallel.
-   - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
-   - Keep the session read-only unless the user explicitly asks for mutations.
+   - If multiple visible standalone sessions can be started in parallel, start them in parallel.
+   - If the visible session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
+   - Keep the session no-mutation unless the user explicitly asks for writes.
    - The kickoff prompt must ask the child session to attempt a concrete repro or proof path when feasible.
+   - Verify each launched session is discoverable before reporting it as started.
 
 4. Drive the child sessions through the triage arc.
    - Crystallize the root cause.
    - Immediately judge local fix vs good global solution after root-cause finding.
    - Plainerize and simplify when the answer is abstract or hard to follow.
-   - Map related refs, classify proof, check boundaries, and end with a decision packet.
+   - Map related refs, classify proof, and end with a decision packet.
 
 5. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
@@ -100,6 +113,8 @@ Inspect the current code, issue/PR state, linked work, and available proof. Atte
 First decide whether these items really belong in one session or should split. Then crystallize the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof you ran, what happened, what proof was already available, what proof is still missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
+
+Do not use $parallel-agent-kickoff from inside this child session. Do not create subagents or more child sessions. Do the triage work in this session.
 
 End state:
 Continue in this standalone session until you produce the full maintainer decision packet. The top-level orchestrator will keep prompting you if the answer is too abstract, missing proof classification, or missing the local fix vs good global solution judgment.
