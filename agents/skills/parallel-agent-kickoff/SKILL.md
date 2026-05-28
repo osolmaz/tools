@@ -189,12 +189,6 @@ Classify the evidence:
 What proof is enough for a maintainer decision here? What proof would be ideal but unnecessary?
 ```
 
-### 10. Boundary And Breakage
-
-```text
-If we implement the global solution, what could break? Name affected contracts, plugin boundaries, config settings, SDK surfaces, tests, or existing consumers. Say whether this needs a staged migration or can be a direct fix.
-```
-
 ## Common Failure Guards
 
 - If the agent says "async" or "streaming", force it to explain the blocking mechanics.
