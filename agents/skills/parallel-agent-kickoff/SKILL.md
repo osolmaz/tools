@@ -52,6 +52,7 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
    - If multiple standalone sessions can be started in parallel, start them in parallel.
    - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
    - Keep the session read-only unless the user explicitly asks for mutations.
+   - The kickoff prompt must ask the child session to attempt a concrete repro or proof path when feasible.
 
 4. Drive the child sessions through the triage arc.
    - Crystallize the root cause.
@@ -85,11 +86,13 @@ Why these refs are grouped:
 <brief, abstract rationale for why these issues/PRs look similar>
 
 Items:
-- #12345 (issue) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
-- #12346 (PR) - <title>. Summary: <one sentence>. Live repro result: <exact proof status>.
+- #12345 (issue) - <title>. Summary: <one sentence>. Prior repro/proof context: <exact proof status>.
+- #12346 (PR) - <title>. Summary: <one sentence>. Prior repro/proof context: <exact proof status>.
 
 Task:
-Inspect the current code, issue/PR state, linked work, and available proof. First decide whether these items really belong in one session or should split. Then crystallize the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
+Inspect the current code, issue/PR state, linked work, and available proof. Attempt an appropriate repro or proof path yourself when feasible. Use the cheapest honest path first: source/test proof, focused unit or integration test, synthetic repro, local live repro, or remote/live environment proof when the issue actually needs it. If repro is unsafe, unavailable, too expensive, or requires credentials/hardware you do not have, say that clearly and use the strongest available proof instead.
+
+First decide whether these items really belong in one session or should split. Then crystallize the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof you ran, what happened, what proof was already available, what proof is still missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 
