@@ -1,6 +1,6 @@
 ---
 name: parallel-agent-kickoff
-description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a visible, standalone agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
+description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a real interactive/resumable agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
 ---
 
 # Parallel Agent Kickoff
@@ -13,26 +13,36 @@ When the session is kicked off, drive it with sequential prompts for Socratic qu
 
 This skill is addressed to the top-level orchestrator agent.
 
-The orchestrator must launch visible, standalone child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
+The orchestrator must launch real interactive/resumable child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
 
-- For Codex, create real Codex sessions that the human can see in the Codex session UI and resume directly.
+- For Codex, create real interactive Codex sessions that the human can resume with `codex resume <session-id>`.
+- A valid Codex launch path is an interactive terminal session, for example `codex --no-alt-screen -C <worktree> --sandbox workspace-write -a never $'<prompt>'`, started in a PTY and then driven with stdin.
 - Do not use subagents, `spawn_agent`, hidden worker sessions, `codex exec`, or one-shot command equivalents for child work. Those produce reports, not sessions the human can inspect and take over.
-- Do not use terminal `codex` sessions unless they are visible as normal Codex sessions to the human. If visibility is uncertain, treat the launch mechanism as unavailable.
+- Do not require Codex Desktop visibility. A terminal `codex` session is acceptable when it is an interactive, resumable session recorded by Codex.
 - If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
 - Keep one child session per cluster unless the user asks for one session per item.
 - Track every child session until it reaches a clear end state.
 - Feed the sequential prompts into each child session as needed. The child should not stop after its first review answer when the answer is still abstract, proof-light, or missing the decision packet.
-- Report session identifiers, visible session title when available, cluster membership, current state, and the remaining human decision for every child session. Do not guess the title.
+- Report session identifiers, resume command when available, stored title when available, cluster membership, current state, and the remaining human decision for every child session. Do not guess the title.
 
 ## Session Mechanism Guard
 
-Before launching child work, decide whether the available mechanism creates a visible standalone session.
+Before launching child work, decide whether the available mechanism creates a real interactive/resumable standalone session.
 
-- Accept: a real Codex Desktop session, or another agent family's equivalent visible/takeover-capable session.
-- Reject: subagents, `spawn_agent`, background workers, hidden CLI-only sessions, `codex exec`, report-only runs, or anything that cannot be found and resumed by the human.
-- If no acceptable mechanism is available, do not fake it. Create or identify the worktree, prepare the exact kickoff prompt, and tell the user the session could not be launched visibly.
-- After launch, verify the session is discoverable by id or stored title before saying it exists. If no stored title is available, say that instead of inventing one.
+- Accept: an interactive `codex` terminal session, a Codex app session, or another agent family's equivalent resumable/takeover-capable session.
+- Reject: subagents, `spawn_agent`, background workers, `codex exec`, report-only runs, or anything that cannot be resumed or inspected by the human.
+- If no acceptable mechanism is available, do not fake it. Create or identify the worktree, prepare the exact kickoff prompt, and tell the user the session could not be launched as a real resumable session.
+- After launch, verify the session id through Codex output, `~/.codex/history.jsonl`, `~/.codex/sessions`, or `codex resume`. If no stored title is available, say that instead of inventing one.
 - Do not pass `$parallel-agent-kickoff`, the skill body, or any instruction to "use this skill" into a child session. The child session should receive only the concrete triage task.
+
+## Orchestrator Session Launch
+
+Sometimes the user wants this skill itself to run inside a separate Codex session. In that case:
+
+- Launch a real interactive Codex session with the user's `$parallel-agent-kickoff ...` skill invocation as the prompt.
+- Start that orchestrator session from the requested repo or worktree.
+- Let that orchestrator session cluster the refs and launch its own child sessions.
+- Do not replace that with `spawn_agent`, `codex exec`, or a paste-only prompt.
 
 ## Default Rules
 
@@ -45,7 +55,7 @@ Before launching child work, decide whether the available mechanism creates a vi
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
-- Use real, visible Codex sessions for Codex work. If no visible standalone session mechanism is available, say so and provide the prompts ready to paste.
+- Use real interactive/resumable Codex sessions for Codex work. If no standalone session mechanism is available, say so and provide the prompts ready to paste.
 
 ## Workflow
 
@@ -64,8 +74,8 @@ Before launching child work, decide whether the available mechanism creates a vi
    - Create or choose a dedicated git worktree for the cluster before launching the session.
    - Start the child session from that worktree root.
    - Use the kickoff prompt template below.
-   - If multiple visible standalone sessions can be started in parallel, start them in parallel.
-   - If the visible session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
+   - If multiple real standalone sessions can be started in parallel, start them in parallel.
+   - If no real standalone session mechanism is available, create the prompts and tell the user which sessions failed to launch.
    - Keep the session no-mutation unless the user explicitly asks for writes.
    - The kickoff prompt must ask the child session to attempt a concrete repro or proof path when feasible.
    - Verify each launched session is discoverable before reporting it as started.
