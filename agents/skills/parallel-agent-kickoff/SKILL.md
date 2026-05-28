@@ -168,13 +168,7 @@ In one sentence each:
 Map the related issues/PRs. Which are duplicates, which share the same root cause, which are adjacent only, and which are unrelated? If a single PR could fix multiple items, say exactly which ones and why.
 ```
 
-### 8. Concept Boundary Check
-
-```text
-Which nearby concepts are easy to confuse with this bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
-```
-
-### 9. Proof Test
+### 8. Proof Test
 
 ```text
 Classify the evidence:
