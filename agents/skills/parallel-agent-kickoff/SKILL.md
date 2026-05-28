@@ -116,7 +116,7 @@ Answer:
 ### 2. Plainerization
 
 ```text
-Plainer. Rewrite the explanation as if the previous answer did not make sense to the maintainer.
+Write it plainer and shorter.
 
 Use short sentences. If you use terms like async, streaming, timeout, memory, fallback, lifecycle, gateway, cache, delivery, boundary, contract, or production-ready, define the concrete mechanism.
 ```
