@@ -7,18 +7,18 @@ description: Use when clustering related issues or PRs and starting parallel age
 
 Use this skill to create one decision-focused agent session per related issue/PR cluster.
 
-The goal is not to get a long generic review. The goal is to start sessions that leave the human with mostly maintainer decisions: duplicate or separate, local patch or global fix, enough proof or more repro, land or rework, close or keep open.
+Start sessions that leave the human with maintainer decisions: duplicate or separate, local patch or global fix, enough proof or more repro, land or rework, close or keep open.
 
 ## Default Rules
 
-- Cluster first. Prefer one session per shared root cause or strongly suspected shared bug, not one session per issue number.
+- Cluster first. Prefer one session per shared root cause or strongly suspected shared bug.
 - Create individual sessions only when items are related but need separate code/proof decisions.
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
 - Use the requested working directory exactly. If the user says the sessions must start in a repo, include that directory in every kickoff prompt.
 - Include the known summary and live repro result in the first prompt.
-- Do not let "plain language" become nicer wording only. Treat it as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
+- Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
-- When the user asks for visible sessions, use visible/session UI-capable launch options if available. If not available, say so and provide the prompts ready to paste.
+- When the user asks for visible sessions, use visible/session UI-capable launch options if available. Otherwise, say so and provide the prompts ready to paste.
 
 ## Workflow
 
@@ -30,7 +30,7 @@ The goal is not to get a long generic review. The goal is to start sessions that
 2. Cluster by likely root cause.
    - Group together items that share the same causal mechanism.
    - Keep adjacent-only items separate, even if they share keywords or a subsystem.
-   - Name the cluster by the mechanism, not by the newest issue.
+   - Use the mechanism as the cluster name.
 
 3. For each cluster, write the root-cause hypothesis in plain language.
    - State what breaks for the user.
@@ -40,17 +40,18 @@ The goal is not to get a long generic review. The goal is to start sessions that
 
 4. Immediately judge local fix vs global fix.
    - Say whether the known PR/fix is a local/narrow fix, a production-ready global fix, or only a repro/proof artifact.
-   - If local, say what it covers and what it does not cover.
+   - If local, say its coverage and remaining gaps.
    - If global, say what contract or ownership boundary makes it global.
-   - If only proof, say what implementation decision it enables.
+   - If proof-only, say what implementation decision it enables.
 
 5. Start one session per cluster.
    - Use the kickoff prompt template below.
    - If multiple sessions can be started in parallel, start them in parallel.
-   - If a session tool is not available, create the prompts and tell the user what could not be launched.
+   - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
+   - Keep the session read-only unless the user explicitly asks for mutations.
 
 6. Drive follow-up prompts sequentially.
-   - Do not rely on the kickoff prompt alone.
+   - Treat the kickoff prompt as starting context.
    - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Stop early only when the session already answers the decision packet clearly.
 
@@ -59,7 +60,7 @@ The goal is not to get a long generic review. The goal is to start sessions that
 Use this structure for each session. Fill in concrete item numbers and evidence.
 
 ```text
-Working directory: <absolute repo path>. Start from that directory and do not use another repository as the working directory.
+Working directory: <absolute repo path>. Start from that directory and stay in that repository.
 
 Cluster: <short mechanism name>
 
@@ -76,7 +77,7 @@ Initial local-vs-global judgment:
 Task:
 Inspect the current code, issue/PR state, linked work, and available proof. Determine whether these items share one bug or should stay separate. Explain the root cause in plain language, then judge whether the available solution is a long-term production-ready fix or a local/narrow fix. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
 
-Do not mutate GitHub, edit files, or create a PR unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
+Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 ```
 
 ## Sequential Follow-Ups
@@ -104,7 +105,7 @@ Now separate local fix from global fix. What does the current PR/fix actually fi
 ### 4. Concept Boundary Check
 
 ```text
-What nearby concept sounds related but is not the same bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
+Which nearby concepts are easy to confuse with this bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
 ```
 
 ### 5. Relationship Map
@@ -142,7 +143,7 @@ Give the maintainer decision packet:
 
 ## Common Failure Guards
 
-- If the agent says "async" or "streaming", force it to explain why that still can or cannot block.
+- If the agent says "async" or "streaming", force it to explain the blocking mechanics.
 - If the agent says "timeout", force it to separate idle/stall detection, hard wall-clock timeout, provider heartbeat, and operator-configured budget.
 - If the agent says "memory leak", force it to separate retained process memory from expected durable history/artifact growth.
 - If the agent says "live repro", force it to name the real process, real provider/channel, environment, and observed before/after behavior.
@@ -159,4 +160,4 @@ When reporting back to the user, keep it decision-focused:
 - one-line reason for each grouping
 - local-vs-global initial judgment for each cluster
 - proof status for each cluster
-- any sessions that could not be launched visibly
+- any visible sessions that failed to launch
