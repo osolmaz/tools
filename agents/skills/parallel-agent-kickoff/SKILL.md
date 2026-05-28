@@ -121,8 +121,6 @@ Answer:
 
 ```text
 Write it plainer and shorter.
-
-Use short sentences. If you use terms like async, streaming, timeout, memory, fallback, lifecycle, gateway, cache, delivery, boundary, contract, or production-ready, define the concrete mechanism.
 ```
 
 ### 3. Local Fix Vs Good Global Solution
