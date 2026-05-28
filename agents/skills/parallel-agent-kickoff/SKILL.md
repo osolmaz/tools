@@ -195,35 +195,6 @@ What proof is enough for a maintainer decision here? What proof would be ideal b
 If we implement the global solution, what could break? Name affected contracts, plugin boundaries, config settings, SDK surfaces, tests, or existing consumers. Say whether this needs a staged migration or can be a direct fix.
 ```
 
-### 11. Auto-Triage, No Mutation
-
-```text
-Give a maintainer triage recommendation without mutating GitHub.
-
-Choose one:
-- close as resolved
-- keep open
-- land existing PR
-- request changes
-- open broader issue
-- open repro PR
-- implement in same PR
-- split work after diff review
-- needs human product/architecture decision
-
-Then give the decision packet:
-- plain bug summary
-- root cause
-- local fix vs good global solution judgment
-- grouped issues/PRs
-- proof we have
-- proof missing
-- enough proof vs overkill
-- recommended next action
-- decision left for the maintainer
-- draft GitHub comment only if useful
-```
-
 ## Common Failure Guards
 
 - If the agent says "async" or "streaming", force it to explain the blocking mechanics.
