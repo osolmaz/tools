@@ -1,13 +1,13 @@
 ---
 name: parallel-agent-kickoff
-description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a real interactive/resumable agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
+description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a real interactive/resumable agent session for each group. Triggers include requests to kick off, start, create, launch, or run parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with plainerization or simplification; drive no-mutation auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
 ---
 
 # Parallel Agent Kickoff
 
 Use this skill to cluster issues/PRs that look similar, then create a single agent session for each group.
 
-When the session is kicked off, drive it with sequential prompts for Socratic questioning: crystallization, plainerization, and simplification. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
+When the session is kicked off, drive it with sequential prompts for Socratic questioning, plainerization, and simplification. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
 
 ## Orchestrator Contract
 
@@ -57,6 +57,8 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
 - "No mutation" means no GitHub writes and no tracked file changes unless asked. It does not mean read-only or workspace-sandboxed execution. Do not use a restrictive sandbox when it prevents worktree creation, Codex session state, dependency install, temp files, or test artifacts inside the worktree.
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
+- After the child's first reply, always send `Write it plainer and shorter.` as the next prompt before continuing the triage arc.
+- Send `Write it plainer and shorter.` again any time the child writes dense, overly technical, hard-to-follow prose instead of a maintainer-usable answer.
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
 - Use real interactive/resumable Codex sessions for Codex work. If no standalone session mechanism is available, say so and provide the prompts ready to paste.
 
@@ -84,16 +86,20 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
    - Verify each launched session is discoverable before reporting it as started.
 
 4. Drive the child sessions through the triage arc.
-   - Crystallize the root cause.
+   - After the child's first reply, send `Write it plainer and shorter.`.
+   - Identify the root cause in plain language.
    - Immediately judge local fix vs good global solution after root-cause finding.
-   - Plainerize and simplify when the answer is abstract or hard to follow.
+   - Send `Write it plainer and shorter.` again whenever the child writes overly technical word diarrhea.
+   - Simplify when the answer is abstract or hard to follow.
    - Map related refs, classify proof, and end with a decision packet.
 
 5. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
    - Send one follow-up prompt at a time.
    - Wait for the child session's answer before sending the next prompt.
-   - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
+   - After the first agent response, always send `Write it plainer and shorter.`.
+   - After that, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
+   - Repeat `Write it plainer and shorter.` whenever a later answer becomes overly technical or hard to follow.
    - Stop early only when the session already answers the decision packet clearly.
 
 6. Drive every child session to human takeover.
@@ -123,7 +129,7 @@ Items:
 Task:
 Inspect the current code, issue/PR state, linked work, and available proof. Attempt an appropriate repro or proof path yourself when feasible. Use the cheapest honest path first: source/test proof, focused unit or integration test, synthetic repro, local live repro, or remote/live environment proof when the issue actually needs it. If repro is unsafe, unavailable, too expensive, or requires credentials/hardware you do not have, say that clearly and use the strongest available proof instead.
 
-First decide whether these items really belong in one session or should split. Then crystallize the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof you ran, what happened, what proof was already available, what proof is still missing, what would be overkill, and what maintainer decision remains.
+First decide whether these items really belong in one session or should split. Then identify the root cause in plain language. After that, judge whether the available/current solution is a local fix or a good global solution. Identify what proof you ran, what happened, what proof was already available, what proof is still missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
 
@@ -139,27 +145,15 @@ Use these as follow-up prompts inside the same child session.
 
 Each fenced block is one prompt turn. Send one block, read the child session's answer, then decide whether to send the next block. Do not batch multiple follow-up blocks into one message.
 
-### 1. Crystallization
-
-```text
-Crystallize the bug.
-
-Answer:
-- what is broken
-- who sees it
-- what triggers it
-- what component causes it
-- why it happens
-- what a correct fix would change
-```
-
-### 2. Plainerization
+### 1. Plainerization
 
 ```text
 Write it plainer and shorter.
 ```
 
-### 3. Local Fix Vs Good Global Solution
+Send this immediately after the child's first reply. Send it again whenever a later answer becomes overly technical, too long, or hard to use for a maintainer decision.
+
+### 2. Local Fix Vs Good Global Solution
 
 ```text
 Is this a local fix or a good global solution?
@@ -172,19 +166,19 @@ Answer plainly:
 - whether the global version would break existing behavior
 ```
 
-### 4. Production Ready Solution
+### 3. Production Ready Solution
 
 ```text
 What is the most elegant and long term production ready solution?
 ```
 
-### 5. Holy Grail Check
+### 4. Holy Grail Check
 
 ```text
 Is that the holy grail?
 ```
 
-### 6. Simplification
+### 5. Simplification
 
 ```text
 Simplify the decision.
@@ -196,13 +190,13 @@ In one sentence each:
 - the biggest proof gap
 ```
 
-### 7. Relationship Map
+### 6. Relationship Map
 
 ```text
 Map the related issues/PRs. Which are duplicates, which share the same root cause, which are adjacent only, and which are unrelated? If a single PR could fix multiple items, say exactly which ones and why.
 ```
 
-### 8. Proof Test
+### 7. Proof Test
 
 ```text
 Classify the evidence:
