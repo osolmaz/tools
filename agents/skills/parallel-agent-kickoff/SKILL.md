@@ -126,6 +126,8 @@ Use short sentences. If you use terms like async, streaming, timeout, memory, fa
 ```text
 Is this a local fix or a good global solution?
 
+What is the most elegant and long term production ready solution?
+
 Answer plainly:
 - what exact failure it fixes
 - what remains uncovered
