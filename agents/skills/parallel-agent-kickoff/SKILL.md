@@ -1,6 +1,6 @@
 ---
 name: parallel-agent-kickoff
-description: Use when clustering issues/PRs that look similar and creating a single agent session for each group. Triggers include requests to kick off, start, spawn, launch, or create parallel sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; auto-triage in the same session without editing or writing on the PR; or leave mostly maintainer decision making for local fix vs good global solution, proof, duplicate, close, land, or rework calls.
+description: Use as a top-level orchestrator when clustering issues/PRs that look similar and creating a standalone agent session for each group. Triggers include requests to kick off, start, spawn, launch, or create parallel Codex/Claude/Pi sessions; run sequential Socratic prompts with crystallization, plainerization, or simplification; drive read-only auto-triage in each child session without editing or writing on the PR; or keep prompting child sessions until they are ready for human takeover with mostly maintainer decision making left.
 ---
 
 # Parallel Agent Kickoff
@@ -8,6 +8,20 @@ description: Use when clustering issues/PRs that look similar and creating a sin
 Use this skill to cluster issues/PRs that look similar, then create a single agent session for each group.
 
 When the session is kicked off, drive it with sequential prompts for Socratic questioning: crystallization, plainerization, and simplification. Then auto-triage in that same session without editing or writing on GitHub. The handoff should leave mostly decision making: duplicate or separate, local fix or good global solution, enough proof or more repro, land or rework, close or keep open.
+
+## Orchestrator Contract
+
+This skill is addressed to the top-level orchestrator agent.
+
+The orchestrator must launch standalone child sessions and drive them to a takeover-ready end state. Kickoff alone is incomplete.
+
+- For Codex, create real Codex sessions. Use visible/session UI-capable sessions when available.
+- Do not use `codex exec` or one-shot command equivalents for the child work. Those produce reports, not sessions the human can inspect and take over.
+- If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
+- Keep one child session per cluster unless the user asks for one session per item.
+- Track every child session until it reaches a clear end state.
+- Feed the sequential prompts into each child session as needed. The child should not stop after its first review answer when the answer is still abstract, proof-light, or missing the decision packet.
+- Report session identifiers, cluster membership, current state, and the remaining human decision for every child session.
 
 ## Default Rules
 
@@ -44,9 +58,9 @@ When the session is kicked off, drive it with sequential prompts for Socratic qu
    - If global, say what contract or ownership boundary makes it global.
    - If proof-only, say what implementation decision it enables.
 
-5. Kick off one session per cluster.
+5. Kick off one standalone session per cluster.
    - Use the kickoff prompt template below.
-   - If multiple sessions can be started in parallel, start them in parallel.
+   - If multiple standalone sessions can be started in parallel, start them in parallel.
    - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
    - Keep the session read-only unless the user explicitly asks for mutations.
 
@@ -54,6 +68,12 @@ When the session is kicked off, drive it with sequential prompts for Socratic qu
    - Treat the kickoff prompt as starting context.
    - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Stop early only when the session already answers the decision packet clearly.
+
+7. Drive every child session to human takeover.
+   - Poll or inspect every child session until it answers the decision packet.
+   - Send the next Socratic prompt when a child session stalls at a generic review, skips proof classification, or fails to say local fix vs good global solution.
+   - Mark a session takeover-ready only when the human can decide the next action without asking the child to explain the basics again.
+   - Continue until all child sessions are takeover-ready, blocked for a concrete reason, or explicitly paused by the user.
 
 ## Kickoff Prompt Template
 
@@ -78,6 +98,9 @@ Task:
 Inspect the current code, issue/PR state, linked work, and available proof. Determine whether these items share one bug or should stay separate. Explain the root cause in plain language, then judge whether the available solution is a local fix or a good global solution. Identify what proof is already available, what proof is missing, what would be overkill, and what maintainer decision remains.
 
 Keep GitHub and files unchanged unless explicitly asked. If you find a proposed comment or close/land recommendation, write it as draft text only.
+
+End state:
+Continue in this standalone session until you produce the full maintainer decision packet. The top-level orchestrator will keep prompting you if the answer is too abstract, missing proof classification, or missing the local fix vs good global solution judgment.
 ```
 
 ## Sequential Follow-Ups
@@ -208,8 +231,10 @@ Then give the decision packet:
 When reporting back to the user, keep it decision-focused:
 
 - clusters created
-- sessions started or prompts prepared
+- standalone sessions started or prompts prepared
+- session identifiers and current state for each child session
 - one-line reason for each grouping
 - local fix vs good global solution judgment for each cluster
 - proof status for each cluster
+- decision left for the human
 - any visible sessions that failed to launch
