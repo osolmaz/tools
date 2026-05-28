@@ -1,4 +1,4 @@
 interface:
   display_name: "Parallel Agent Kickoff"
   short_description: "Launch grouped agent triage sessions"
-  default_prompt: "Use $parallel-agent-kickoff to cluster issues/PRs that look similar, launch standalone child sessions, and drive each one to human takeover."
+  default_prompt: "Use $parallel-agent-kickoff to cluster issues/PRs that look similar, create a worktree for each cluster, launch standalone child sessions from those worktrees, and drive each one to human takeover."

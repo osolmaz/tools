@@ -28,7 +28,8 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 - Cluster first. Put issues/PRs that look similar into a single session when they may share the same bug.
 - Create individual sessions only when items are related but need separate code/proof decisions.
 - Keep GitHub mutation out of these sessions unless the user explicitly asks for comments, labels, assignment, closing, or PR creation.
-- Use the requested working directory exactly. If the user says the sessions must start in a repo, include that directory in every kickoff prompt.
+- Run child sessions in git worktrees. Use one dedicated worktree per cluster unless the user asks for a different shape.
+- Use the requested repo as the source checkout for those worktrees. The working directory in each kickoff prompt must be the cluster's worktree root, not the shared main checkout.
 - Include the known summary and live repro result in the first prompt.
 - Treat "plain language" as a comprehension check: what does the agent mean, exactly, and does the explanation make sense?
 - Distinguish source inspection, unit proof, synthetic repro, live local repro, reported-environment repro, and production proof.
@@ -48,6 +49,8 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 
 3. Kick off one standalone session per cluster.
    - Kickoff happens here, after clustering.
+   - Create or choose a dedicated git worktree for the cluster before launching the session.
+   - Start the child session from that worktree root.
    - Use the kickoff prompt template below.
    - If multiple standalone sessions can be started in parallel, start them in parallel.
    - If the session tool is unavailable, create the prompts and tell the user which sessions failed to launch.
@@ -78,7 +81,9 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 Use this structure for each session. Fill in concrete item numbers and evidence.
 
 ```text
-Working directory: <absolute repo path>. Start from that directory and stay in that repository.
+Working directory: <absolute worktree path>. Start from that worktree and stay in that repository.
+
+Worktree source repo: <absolute source checkout path>.
 
 Cluster: <short mechanism name>
 
