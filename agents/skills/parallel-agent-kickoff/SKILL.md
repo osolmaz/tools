@@ -61,6 +61,8 @@ The orchestrator must launch standalone child sessions and drive them to a takeo
 
 5. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
+   - Send one follow-up prompt at a time.
+   - Wait for the child session's answer before sending the next prompt.
    - After the first agent response, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Stop early only when the session already answers the decision packet clearly.
 
@@ -97,7 +99,9 @@ Continue in this standalone session until you produce the full maintainer decisi
 
 ## Sequential Follow-Ups
 
-Use these as follow-up prompts inside the same session. Send the next one only after reading the previous response.
+Use these as follow-up prompts inside the same child session.
+
+Each fenced block is one prompt turn. Send one block, read the child session's answer, then decide whether to send the next block. Do not batch multiple follow-up blocks into one message.
 
 ### 1. Crystallization
 
@@ -126,10 +130,6 @@ Use short sentences. If you use terms like async, streaming, timeout, memory, fa
 ```text
 Is this a local fix or a good global solution?
 
-What is the most elegant and long term production ready solution?
-
-Is that the holy grail?
-
 Answer plainly:
 - what exact failure it fixes
 - what remains uncovered
@@ -138,7 +138,19 @@ Answer plainly:
 - whether the global version would break existing behavior
 ```
 
-### 4. Simplification
+### 4. Production Ready Solution
+
+```text
+What is the most elegant and long term production ready solution?
+```
+
+### 5. Holy Grail Check
+
+```text
+Is that the holy grail?
+```
+
+### 6. Simplification
 
 ```text
 Simplify the decision.
@@ -150,19 +162,19 @@ In one sentence each:
 - the biggest proof gap
 ```
 
-### 5. Relationship Map
+### 7. Relationship Map
 
 ```text
 Map the related issues/PRs. Which are duplicates, which share the same root cause, which are adjacent only, and which are unrelated? If a single PR could fix multiple items, say exactly which ones and why.
 ```
 
-### 6. Concept Boundary Check
+### 8. Concept Boundary Check
 
 ```text
 Which nearby concepts are easy to confuse with this bug? Separate synthetic repro vs live repro, idle/stall timeout vs hard timeout, slow model vs event-loop block, channel workaround vs core contract, and adjacent PR vs actual fix path where relevant.
 ```
 
-### 7. Proof Test
+### 9. Proof Test
 
 ```text
 Classify the evidence:
@@ -177,13 +189,13 @@ Classify the evidence:
 What proof is enough for a maintainer decision here? What proof would be ideal but unnecessary?
 ```
 
-### 8. Boundary And Breakage
+### 10. Boundary And Breakage
 
 ```text
 If we implement the global solution, what could break? Name affected contracts, plugin boundaries, config settings, SDK surfaces, tests, or existing consumers. Say whether this needs a staged migration or can be a direct fix.
 ```
 
-### 9. Auto-Triage, No Mutation
+### 11. Auto-Triage, No Mutation
 
 ```text
 Give a maintainer triage recommendation without mutating GitHub.
