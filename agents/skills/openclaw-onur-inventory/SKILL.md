@@ -38,7 +38,7 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
 6. Update the `Review watermark` near the top of the file with the highest live GitHub issue number and highest live GitHub PR number that were covered by the review.
 7. Keep open issues and open PRs in separate tables.
-8. Run the sorter before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number.
+8. Run the sorter before committing so issue, PR, and closed/removed tables stay newest-first by GitHub number and open-thread activity scores are refreshed.
 9. Recount rows and compare the retained issue/PR number sets before committing.
 
 ## Review Watermark
@@ -62,11 +62,31 @@ From the tools repo source, run:
 python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_onur_inventory.py ~/scratch/OPENCLAW_ONUR_INVENTORY.md
 ```
 
+By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
+
 If the scratch repo has its own checked-in copy, this is also acceptable:
 
 ```bash
 cd ~/scratch && python3 scripts/sort_openclaw_onur_inventory.py
 ```
+
+## Activity Score
+
+The `Activity` column is a weighted, human-only count of current visible GitHub activity. Keep the raw counts visible in the cell alongside the score.
+
+Weights:
+
+- Issue or PR conversation comment: `4`
+- PR review comment: `4`
+- PR review body with non-empty text: `5`
+- Reaction on the issue/PR body, conversation comments, or PR review comments: `1`
+
+Classification and filtering:
+
+- Count non-human activity separately by excluding it from the `Activity` score. An actor is non-human when GitHub reports the actor type as `Bot` or the login ends with `[bot]`.
+- When GraphQL exposes minimized comment metadata, exclude comments where `isMinimized=true` and `minimizedReason=SPAM`.
+- The current `Activity` cell format is `score (raw counts)`, for example `45 (c11 r1)` on an issue or `82 (c7 rc9 rv3 r2)` on a PR.
+- Raw count labels: `c` conversation comments, `rc` PR review comments, `rv` PR review bodies, and `r` all counted reactions.
 
 ## Output Expectations
 
