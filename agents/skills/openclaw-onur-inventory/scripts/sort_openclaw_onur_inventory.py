@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,8 @@ COMMENT_WEIGHT = 4
 REVIEW_COMMENT_WEIGHT = 4
 REVIEW_BODY_WEIGHT = 5
 REACTION_WEIGHT = 1
+REPEAT_COMMENT_WEIGHT = 1
+DEFAULT_IGNORED_ACCOUNTS = frozenset({"osolmaz", "dutifulbob"})
 
 THREAD_ROW_RE = re.compile(r"^\| \[#(?P<number>\d+)\]\((?P<url>[^)]+)\)")
 SECTION_RE = re.compile(
@@ -44,12 +47,12 @@ class ThreadRef:
 
 @dataclass
 class Activity:
-    issue_comments: int = 0
+    issue_comment_score: int = 0
     issue_body_reactions: int = 0
     issue_comment_reactions: int = 0
-    pr_review_comments: int = 0
+    pr_review_comment_score: int = 0
     pr_review_comment_reactions: int = 0
-    pr_review_bodies: int = 0
+    pr_review_body_score: int = 0
 
     @property
     def reactions(self) -> int:
@@ -62,12 +65,12 @@ class Activity:
     @property
     def score(self) -> int:
         return (
-            self.issue_comments * COMMENT_WEIGHT
+            self.issue_comment_score
             + self.issue_body_reactions * REACTION_WEIGHT
             + self.issue_comment_reactions * REACTION_WEIGHT
-            + self.pr_review_comments * REVIEW_COMMENT_WEIGHT
+            + self.pr_review_comment_score
             + self.pr_review_comment_reactions * REACTION_WEIGHT
-            + self.pr_review_bodies * REVIEW_BODY_WEIGHT
+            + self.pr_review_body_score
         )
 
     def format_cell(self) -> str:
@@ -75,8 +78,14 @@ class Activity:
 
 
 class GithubActivityClient:
-    def __init__(self, *, exclude_spam: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        exclude_spam: bool = True,
+        ignored_accounts: set[str] | None = None,
+    ) -> None:
         self.exclude_spam = exclude_spam
+        self.ignored_accounts = normalize_accounts(ignored_accounts or set())
         self.cache: dict[ThreadRef, Activity] = {}
 
     def activity_for(self, thread: ThreadRef) -> Activity:
@@ -97,21 +106,24 @@ class GithubActivityClient:
         )
 
         activity = Activity(
-            issue_comments=len(issue_comments),
+            issue_comment_score=comment_score(issue_comments, COMMENT_WEIGHT),
             issue_body_reactions=issue_body_reactions,
             issue_comment_reactions=issue_comment_reactions,
         )
         if thread.kind == "pr":
             review_comments = self._pr_review_comments(thread)
             reviews = self._pr_reviews(thread)
-            activity.pr_review_comments = len(review_comments)
+            activity.pr_review_comment_score = comment_score(
+                review_comments,
+                REVIEW_COMMENT_WEIGHT,
+            )
             activity.pr_review_comment_reactions = sum(
                 self._reactions(
                     f"repos/{thread.full_repo}/pulls/comments/{comment['id']}/reactions?per_page=100",
                 )
                 for comment in review_comments
             )
-            activity.pr_review_bodies = len(reviews)
+            activity.pr_review_body_score = comment_score(reviews, REVIEW_BODY_WEIGHT)
         return activity
 
     def _issue_comments(self, thread: ThreadRef) -> list[dict[str, Any]]:
@@ -126,7 +138,7 @@ class GithubActivityClient:
         kept = []
         for comment in comments:
             user = comment.get("user") or {}
-            if is_bot(user.get("login"), user.get("type")):
+            if self._is_ignored_actor(user):
                 continue
             if self.exclude_spam and comment.get("id") in minimized:
                 continue
@@ -138,7 +150,7 @@ class GithubActivityClient:
         count = 0
         for reaction in flatten_pages(reactions):
             user = reaction.get("user") or {}
-            if not is_bot(user.get("login"), user.get("type")):
+            if not self._is_ignored_actor(user):
                 count += 1
         return count
 
@@ -152,7 +164,7 @@ class GithubActivityClient:
         kept = []
         for comment in flatten_pages(comments):
             user = comment.get("user") or {}
-            if not is_bot(user.get("login"), user.get("type")):
+            if not self._is_ignored_actor(user):
                 kept.append(comment)
         return kept
 
@@ -167,7 +179,7 @@ class GithubActivityClient:
         for review in flatten_pages(reviews):
             user = review.get("user") or {}
             body = (review.get("body") or "").strip()
-            if body and not is_bot(user.get("login"), user.get("type")):
+            if body and not self._is_ignored_actor(user):
                 kept.append(review)
         return kept
 
@@ -247,6 +259,13 @@ class GithubActivityClient:
             return []
         return json.loads(proc.stdout)
 
+    def _is_ignored_actor(self, user: dict[str, Any]) -> bool:
+        return is_ignored_actor(
+            user.get("login"),
+            user.get("type"),
+            self.ignored_accounts,
+        )
+
 
 def flatten_pages(value: Any) -> list[dict[str, Any]]:
     if not isinstance(value, list):
@@ -259,8 +278,34 @@ def flatten_pages(value: Any) -> list[dict[str, Any]]:
     return [item for item in value if isinstance(item, dict)]
 
 
-def is_bot(login: str | None, user_type: str | None) -> bool:
-    return user_type == "Bot" or bool(login and login.endswith("[bot]"))
+def normalize_accounts(accounts: set[str]) -> set[str]:
+    return {account.lower() for account in accounts if account}
+
+
+def is_ignored_actor(
+    login: str | None,
+    user_type: str | None,
+    ignored_accounts: set[str],
+) -> bool:
+    normalized_login = login.lower() if login else ""
+    return (
+        user_type == "Bot"
+        or bool(login and login.endswith("[bot]"))
+        or normalized_login in ignored_accounts
+    )
+
+
+def comment_score(items: list[dict[str, Any]], first_weight: int) -> int:
+    counts: Counter[str] = Counter()
+    for item in items:
+        user = item.get("user") or {}
+        login = user.get("login")
+        if login:
+            counts[login.lower()] += 1
+    return sum(
+        first_weight + max(0, count - 1) * REPEAT_COMMENT_WEIGHT
+        for count in counts.values()
+    )
 
 
 def thread_number(row: str) -> int:
@@ -417,6 +462,7 @@ def sort_document(
     update_activity: bool = True,
     default_repo: str = DEFAULT_REPO,
     exclude_spam: bool = True,
+    ignored_accounts: set[str] | None = None,
 ) -> tuple[int, int, int, bool, list[str]]:
     original = path.read_text()
     lines = original.splitlines()
@@ -427,7 +473,10 @@ def sort_document(
 
     activity_client = None
     if update_activity:
-        activity_client = GithubActivityClient(exclude_spam=exclude_spam)
+        activity_client = GithubActivityClient(
+            exclude_spam=exclude_spam,
+            ignored_accounts=ignored_accounts,
+        )
 
     for index, line in enumerate(lines):
         match = SECTION_RE.match(line)
@@ -500,14 +549,37 @@ def main() -> None:
         default=DEFAULT_REPO,
         help="Default owner/repo for rows without a GitHub URL.",
     )
+    parser.add_argument(
+        "--ignored-account",
+        action="append",
+        default=[],
+        help=(
+            "GitHub login to exclude from activity counts. Can be repeated. "
+            "Defaults also exclude osolmaz and dutifulbob."
+        ),
+    )
+    parser.add_argument(
+        "--no-default-ignored-accounts",
+        action="store_true",
+        help="Do not exclude the default osolmaz and dutifulbob accounts.",
+    )
     args = parser.parse_args()
 
     env_skip_activity = os.environ.get("OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY") == "1"
+    env_ignored = {
+        account.strip()
+        for account in os.environ.get("OPENCLAW_ONUR_INVENTORY_IGNORED_ACCOUNTS", "").split(",")
+        if account.strip()
+    }
+    ignored_accounts = set(args.ignored_account) | env_ignored
+    if not args.no_default_ignored_accounts:
+        ignored_accounts |= set(DEFAULT_IGNORED_ACCOUNTS)
     issue_count, pr_count, closed_count, changed, warnings = sort_document(
         args.path,
         update_activity=not args.no_activity and not env_skip_activity,
         default_repo=args.repo,
         exclude_spam=not args.include_minimized_spam,
+        ignored_accounts=ignored_accounts,
     )
     status = "updated" if changed else "already sorted"
     print(

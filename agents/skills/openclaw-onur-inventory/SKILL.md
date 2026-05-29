@@ -85,14 +85,19 @@ If a row has an assignee, put `Assignee: <name>` below the title in the `Title` 
 
 Weights:
 
-- Issue or PR conversation comment: `4`
-- PR review comment: `4`
-- PR review body with non-empty text: `5`
+- First issue or PR conversation comment by a human account: `4`
+- Additional issue or PR conversation comments by the same human account: `1`
+- First PR review comment by a human account: `4`
+- Additional PR review comments by the same human account: `1`
+- First PR review body with non-empty text by a human account: `5`
+- Additional PR review bodies with non-empty text by the same human account: `1`
 - Reaction on the issue/PR body, conversation comments, or PR review comments: `1`
 
 Classification and filtering:
 
 - Count non-human activity separately by excluding it from the `Activity` score. An actor is non-human when GitHub reports the actor type as `Bot` or the login ends with `[bot]`.
+- Exclude `osolmaz` and `dutifulbob` from the `Activity` score by default.
+- Use `--ignored-account <login>` to add more excluded human accounts. This can be repeated. `OPENCLAW_ONUR_INVENTORY_IGNORED_ACCOUNTS` can also provide a comma-separated list.
 - When GraphQL exposes minimized comment metadata, exclude comments where `isMinimized=true` and `minimizedReason=SPAM`.
 - The current `Activity` cell format is only the total score, for example `45` on an issue or `82` on a PR.
 
