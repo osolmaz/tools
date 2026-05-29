@@ -24,7 +24,7 @@ The orchestrator must launch real interactive/resumable child sessions and drive
 - If the user asks for Claude, Pi, or another agent family, use that family's standalone session mechanism instead of Codex sessions.
 - Keep one child session per cluster unless the user asks for one session per item.
 - Track every child session until it reaches a clear end state.
-- Feed the sequential prompts into each child session as needed. The child should not stop after its first review answer when the answer is still abstract, proof-light, or missing the decision packet.
+- Feed the sequential prompts into each child session as needed. The child should not stop after its first review answer when the answer is still abstract, proof-light, or missing the maintainer decision.
 - Report session identifiers, resume command when available, stored title when available, cluster membership, current state, and the remaining human decision for every child session. Do not guess the title.
 
 ## Session Mechanism Guard
@@ -92,7 +92,7 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
    - Identify the root cause in plain language.
    - Immediately judge local fix vs good global solution after root-cause finding.
    - Send `Write it plainer and shorter.` again whenever the child writes overly technical word diarrhea.
-   - Map related refs, classify proof, and end with a decision packet.
+   - Map related refs, classify proof, and end with the maintainer decision and next action.
 
 5. Drive Socratic follow-up prompts sequentially in that same session.
    - Treat the kickoff prompt as starting context.
@@ -101,10 +101,10 @@ Sometimes the user wants this skill itself to run inside a separate Codex sessio
    - After the first agent response, always send `Write it plainer and shorter.`.
    - After that, send the follow-up prompts in order when the session answer is vague, proof-light, or decision-incomplete.
    - Repeat `Write it plainer and shorter.` whenever a later answer becomes overly technical or hard to follow.
-   - Stop early only when the session already answers the decision packet clearly.
+   - Stop early only when the session already answers the maintainer decision clearly.
 
 6. Drive every child session to human takeover.
-   - Poll or inspect every child session until it answers the decision packet.
+   - Poll or inspect every child session until it answers the maintainer decision clearly.
    - Send the next Socratic prompt when a child session stalls at a generic review, skips proof classification, or fails to say local fix vs good global solution.
    - Mark a session takeover-ready only when the human can decide the next action without asking the child to explain the basics again.
    - Continue until all child sessions are takeover-ready, blocked for a concrete reason, or explicitly paused by the user.
@@ -137,7 +137,7 @@ Keep GitHub and files unchanged unless explicitly asked. If you find a proposed 
 Do not invoke orchestration skills from inside this child session. Do not create subagents or more child sessions. Do the triage work in this session.
 
 End state:
-Continue in this standalone session until you produce the full maintainer decision packet. The top-level orchestrator will keep prompting you if the answer is too abstract, missing proof classification, or missing the local fix vs good global solution judgment.
+Continue in this standalone session until you explain the maintainer decision, the recommended next action, and the proof behind it. The top-level orchestrator will keep prompting you if the answer is too abstract, missing proof classification, or missing the local fix vs good global solution judgment.
 ```
 
 ## Sequential Follow-Ups
