@@ -72,7 +72,16 @@ cd ~/scratch && python3 scripts/sort_openclaw_onur_inventory.py
 
 ## Activity Score
 
-The `Activity` column is a weighted, human-only count of current visible GitHub activity. Keep the raw counts visible in the cell alongside the score.
+The `Activity` column is a single weighted, human-only count of current visible GitHub activity. It is the only priority-like ranking column in the open issue and PR tables; do not keep a separate `Priority` column.
+
+Open issue and PR tables must use this column order:
+
+- `Issue` or `PR`
+- `Activity`
+- `Area`
+- `Title`
+
+If a row has an assignee, put `Assignee: <name>` below the title in the `Title` cell.
 
 Weights:
 
@@ -85,8 +94,7 @@ Classification and filtering:
 
 - Count non-human activity separately by excluding it from the `Activity` score. An actor is non-human when GitHub reports the actor type as `Bot` or the login ends with `[bot]`.
 - When GraphQL exposes minimized comment metadata, exclude comments where `isMinimized=true` and `minimizedReason=SPAM`.
-- The current `Activity` cell format is `score (raw counts)`, for example `45 (c11 r1)` on an issue or `82 (c7 rc9 rv3 r2)` on a PR.
-- Raw count labels: `c` conversation comments, `rc` PR review comments, `rv` PR review bodies, and `r` all counted reactions.
+- The current `Activity` cell format is only the total score, for example `45` on an issue or `82` on a PR.
 
 ## Output Expectations
 

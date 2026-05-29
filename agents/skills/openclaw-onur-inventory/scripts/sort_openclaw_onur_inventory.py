@@ -70,12 +70,8 @@ class Activity:
             + self.pr_review_bodies * REVIEW_BODY_WEIGHT
         )
 
-    def format_cell(self, kind: str) -> str:
-        parts = [f"c{self.issue_comments}", f"r{self.reactions}"]
-        if kind == "pr":
-            parts.insert(1, f"rc{self.pr_review_comments}")
-            parts.insert(2, f"rv{self.pr_review_bodies}")
-        return f"{self.score} ({' '.join(parts)})"
+    def format_cell(self) -> str:
+        return str(self.score)
 
 
 class GithubActivityClient:
@@ -313,28 +309,45 @@ def join_row(cells: list[str]) -> str:
     return "| " + " | ".join(cells) + " |"
 
 
-def ensure_activity_column(lines: list[str], start: int, end: int) -> int | None:
+def normalize_open_table(lines: list[str], start: int, end: int) -> int | None:
     for index in range(start + 1, end):
         if not lines[index].startswith("| "):
             continue
         header = split_row(lines[index])
         if not header or not header[0] in {"Issue", "PR", "Thread"}:
             continue
-        if "Activity" in header:
-            return header.index("Activity")
-        insert_at = min(2, len(header))
-        header.insert(insert_at, "Activity")
-        lines[index] = join_row(header)
+
+        first_label = header[0]
+        old_indexes = {name: pos for pos, name in enumerate(header)}
+        new_header = [first_label, "Activity", "Area", "Title"]
+        lines[index] = join_row(new_header)
+
         if index + 1 < end and lines[index + 1].startswith("| "):
-            separator = split_row(lines[index + 1])
-            separator.insert(insert_at, "---")
-            lines[index + 1] = join_row(separator)
+            lines[index + 1] = join_row(["---", "---", "---", "---"])
+
         for row_index in range(index + 2, end):
             if THREAD_ROW_RE.match(lines[row_index]):
                 cells = split_row(lines[row_index])
-                cells.insert(insert_at, "")
-                lines[row_index] = join_row(cells)
-        return insert_at
+
+                def cell(name: str) -> str:
+                    old_index = old_indexes.get(name)
+                    if old_index is None or old_index >= len(cells):
+                        return ""
+                    return cells[old_index]
+
+                title = cell("Title")
+                assignee = cell("Assignee")
+                if assignee:
+                    title = f"{title}<br>Assignee: {assignee}" if title else f"Assignee: {assignee}"
+
+                lines[row_index] = join_row([
+                    cells[0],
+                    cell("Activity"),
+                    cell("Area"),
+                    title,
+                ])
+
+        return 1
     return None
 
 
@@ -378,7 +391,7 @@ def sort_section_rows(
             lines[index] = set_activity_cell(
                 lines[index],
                 activity_index,
-                activity.format_cell(thread.kind),
+                activity.format_cell(),
             )
 
     sorted_rows = sorted(
@@ -425,8 +438,9 @@ def sort_document(
         title = match.group("title")
         activity_index = None
         section_activity_client = None
+        if title in {"OPEN ISSUES", "OPEN PRS"}:
+            activity_index = normalize_open_table(lines, index, end)
         if activity_client is not None and title in {"OPEN ISSUES", "OPEN PRS"}:
-            activity_index = ensure_activity_column(lines, index, end)
             section_activity_client = activity_client
 
         count = sort_section_rows(
