@@ -315,6 +315,17 @@ def thread_number(row: str) -> int:
     return int(match.group("number"))
 
 
+def activity_score(row: str, activity_index: int | None) -> int:
+    if activity_index is None:
+        return 0
+    cells = split_row(row)
+    if activity_index >= len(cells):
+        return 0
+    value = cells[activity_index].strip()
+    match = re.search(r"-?\d+", value)
+    return int(match.group(0)) if match else 0
+
+
 def thread_ref_from_row(row: str, section_title: str, default_repo: str) -> ThreadRef | None:
     match = THREAD_ROW_RE.match(row)
     if not match:
@@ -439,11 +450,15 @@ def sort_section_rows(
                 activity.format_cell(),
             )
 
-    sorted_rows = sorted(
-        (lines[index] for index in row_indexes),
-        key=thread_number,
-        reverse=True,
-    )
+    rows = [lines[index] for index in row_indexes]
+    if section_title in {"OPEN ISSUES", "OPEN PRS"}:
+        sorted_rows = sorted(
+            rows,
+            key=lambda row: (activity_score(row, activity_index), thread_number(row)),
+            reverse=True,
+        )
+    else:
+        sorted_rows = sorted(rows, key=thread_number, reverse=True)
     for index, row in zip(row_indexes, sorted_rows, strict=True):
         lines[index] = row
     return len(sorted_rows)
@@ -525,7 +540,7 @@ def sort_document(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Sort OpenClaw Onur inventory tables newest-first and refresh activity scores.",
+        description="Sort OpenClaw Onur inventory tables by activity score and refresh activity counts.",
     )
     parser.add_argument(
         "path",
