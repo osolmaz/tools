@@ -17,6 +17,8 @@ Run this inventory maintenance periodically, normally about every 2 hours when t
 
 Each run must refresh live state, scrutinize candidates, update/curate the onurclaw inventory file if anything changed, sort it, and commit/push the onurclaw repo changes.
 
+For unattended automation, use the public hardened job contract in `~/repos/onurclaw/docs/inventory-job.md` and the checked-in wrapper `~/repos/onurclaw/scripts/run_inventory_job.sh`. The cron prompt must only ask the agent to run that wrapper. Do not document or expose host-specific paths, credentials, message destinations, or the private security topology in public files. The automated runner must use an isolated sandbox, read-only exported Gitcrawl/notifier data, no network egress, and an exec allowlist for the wrapper only.
+
 ## Include Or Exclude
 
 Keep a GitHub issue or PR only when the actual reported behavior or change is materially about at least one of:
