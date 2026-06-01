@@ -41,6 +41,29 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 8. Run the sorter before committing so open issue and PR tables sort by `Activity` score descending, then GitHub number descending, while closed/removed tables stay newest-first by GitHub number and open-thread activity scores are refreshed.
 9. Recount rows and compare the retained issue/PR number sets before committing.
 
+## File Shape
+
+Keep the inventory file terse. The top of the file must contain only:
+
+- title
+- `Updated: YYYY-MM-DD`
+- `Review watermark`
+- open issue table
+- open PR table
+- collapsed closed/removed details
+- short regeneration notes
+
+Do not add or maintain these noisy generated sections:
+
+- `Sources checked`
+- `Audit result`
+- `Inclusion criteria used`
+- `HIGHEST-RISK OPEN AREAS`
+- cumulative per-run source logs or review-range logs
+- broad candidate counts unless the user explicitly asks for an audit report
+
+Put audit details, source freshness, candidate counts, and rationale summaries in the chat response, commit message, or PR body instead of the inventory file.
+
 ## Review Watermark
 
 The inventory must include a `Review watermark` section near the top of `~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md`.
