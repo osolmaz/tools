@@ -9,6 +9,8 @@ Use this skill for `~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md`.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
 
+The source for this skill is `~/repos/tools/agents/skills/openclaw-onur-inventory`. Do not edit or create duplicate copies under `~/bob/skills/openclaw-onur-inventory`; sync from the tools repo source into installed/runtime skill locations instead.
+
 ## Periodic Cadence
 
 Run this inventory maintenance periodically, normally about every 2 hours when the user asks for ongoing upkeep.
