@@ -23,14 +23,24 @@ REVIEW_BODY_WEIGHT = 5
 REACTION_WEIGHT = 1
 REPEAT_COMMENT_WEIGHT = 1
 DEFAULT_IGNORED_ACCOUNTS = frozenset({"osolmaz", "dutifulbob"})
+OPEN_THREADS_TITLE = "OPEN THREADS"
+OPEN_ISSUES_TITLE = "OPEN ISSUES"
+OPEN_PRS_TITLE = "OPEN PRS"
+CLOSED_TITLE = "RECENTLY CLOSED OR REMOVED FROM OPEN INVENTORY"
+OPEN_SECTION_TITLES = {OPEN_THREADS_TITLE, OPEN_ISSUES_TITLE, OPEN_PRS_TITLE}
+ISSUE_EMOJI = "🐛"
+PR_EMOJI = "🔀"
 
-THREAD_ROW_RE = re.compile(r"^\| \[#(?P<number>\d+)\]\((?P<url>[^)]+)\)")
+THREAD_ROW_RE = re.compile(
+    rf"^\| (?:(?:{ISSUE_EMOJI}|{PR_EMOJI})\s+)?\[#(?P<number>\d+)\]\((?P<url>[^)]+)\)",
+)
 SECTION_RE = re.compile(
-    r"^## (?P<title>OPEN ISSUES|OPEN PRS|RECENTLY CLOSED OR REMOVED FROM OPEN INVENTORY)(?: \((?P<count>\d+)\))?$",
+    rf"^## (?P<title>{OPEN_THREADS_TITLE}|{OPEN_ISSUES_TITLE}|{OPEN_PRS_TITLE}|{CLOSED_TITLE})(?: \((?P<count>\d+)\))?$",
 )
 THREAD_URL_RE = re.compile(
     r"https://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)/(?:issues|pull)/(?P<number>\d+)",
 )
+THREAD_EMOJI_RE = re.compile(rf"^(?:{ISSUE_EMOJI}|{PR_EMOJI})\s+")
 
 
 @dataclass(frozen=True)
@@ -343,7 +353,7 @@ def thread_ref_from_row(row: str, section_title: str, default_repo: str) -> Thre
         owner=owner,
         repo=repo,
         number=int(match.group("number")),
-        kind="pr" if section_title == "OPEN PRS" else "issue",
+        kind="pr" if section_title == OPEN_PRS_TITLE or row.startswith(f"| {PR_EMOJI}") else "issue",
     )
 
 
@@ -365,46 +375,63 @@ def join_row(cells: list[str]) -> str:
     return "| " + " | ".join(cells) + " |"
 
 
-def normalize_open_table(lines: list[str], start: int, end: int) -> int | None:
+def thread_emoji(kind: str) -> str:
+    return PR_EMOJI if kind == "pr" else ISSUE_EMOJI
+
+
+def format_thread_cell(cell: str, kind: str) -> str:
+    return f"{thread_emoji(kind)} {THREAD_EMOJI_RE.sub('', cell).strip()}"
+
+
+def normalize_open_rows(
+    lines: list[str],
+    start: int,
+    end: int,
+    *,
+    section_title: str,
+    default_repo: str,
+) -> list[tuple[str, ThreadRef]]:
     for index in range(start + 1, end):
         if not lines[index].startswith("| "):
             continue
         header = split_row(lines[index])
-        if not header or not header[0] in {"Issue", "PR", "Thread"}:
+        if not header or header[0] not in {"Issue", "PR", "Thread"}:
             continue
 
-        first_label = header[0]
         old_indexes = {name: pos for pos, name in enumerate(header)}
-        new_header = [first_label, "Activity", "Area", "Title"]
-        lines[index] = join_row(new_header)
-
-        if index + 1 < end and lines[index + 1].startswith("| "):
-            lines[index + 1] = join_row(["---", "---", "---", "---"])
+        rows: list[tuple[str, ThreadRef]] = []
 
         for row_index in range(index + 2, end):
-            if THREAD_ROW_RE.match(lines[row_index]):
-                cells = split_row(lines[row_index])
+            if not THREAD_ROW_RE.match(lines[row_index]):
+                continue
+            thread = thread_ref_from_row(lines[row_index], section_title, default_repo)
+            if thread is None:
+                continue
+            cells = split_row(lines[row_index])
 
-                def cell(name: str) -> str:
-                    old_index = old_indexes.get(name)
-                    if old_index is None or old_index >= len(cells):
-                        return ""
-                    return cells[old_index]
+            def cell(name: str) -> str:
+                old_index = old_indexes.get(name)
+                if old_index is None or old_index >= len(cells):
+                    return ""
+                return cells[old_index]
 
-                title = cell("Title")
-                assignee = cell("Assignee")
-                if assignee:
-                    title = f"{title}<br>Assignee: {assignee}" if title else f"Assignee: {assignee}"
+            title = cell("Title")
+            assignee = cell("Assignee")
+            if assignee:
+                title = f"{title}<br>Assignee: {assignee}" if title else f"Assignee: {assignee}"
 
-                lines[row_index] = join_row([
-                    cells[0],
+            rows.append((
+                join_row([
+                    format_thread_cell(cells[0], thread.kind),
                     cell("Activity"),
                     cell("Area"),
                     title,
-                ])
+                ]),
+                thread,
+            ))
 
-        return 1
-    return None
+        return rows
+    return []
 
 
 def set_activity_cell(row: str, activity_index: int, value: str) -> str:
@@ -451,7 +478,7 @@ def sort_section_rows(
             )
 
     rows = [lines[index] for index in row_indexes]
-    if section_title in {"OPEN ISSUES", "OPEN PRS"}:
+    if section_title in OPEN_SECTION_TITLES:
         sorted_rows = sorted(
             rows,
             key=lambda row: (activity_score(row, activity_index), thread_number(row)),
@@ -469,6 +496,65 @@ def replace_count_line(lines: list[str], prefix: str, count: int) -> None:
         if line.startswith(prefix):
             lines[index] = f"{prefix}{count}."
             return
+
+
+def replace_open_count_line(lines: list[str], *, total: int, issue_count: int, pr_count: int) -> None:
+    new_line = f"- Kept open threads: {total} ({issue_count} issues, {pr_count} PRs)."
+    found = False
+    filtered: list[str] = []
+    for line in lines:
+        if line.startswith("- Kept open threads: "):
+            if not found:
+                filtered.append(new_line)
+                found = True
+            continue
+        if line.startswith("- Kept open issues: ") or line.startswith("- Kept open PRs: "):
+            continue
+        filtered.append(line)
+
+    if not found:
+        insert_at = next(
+            (
+                index
+                for index, line in enumerate(filtered)
+                if line.startswith("- Kept closed/removed")
+            ),
+            len(filtered),
+        )
+        filtered.insert(insert_at, new_line)
+
+    lines[:] = filtered
+
+
+def render_open_threads_section(rows: list[str]) -> list[str]:
+    return [
+        f"## {OPEN_THREADS_TITLE} ({len(rows)})",
+        "",
+        "| Thread | Activity | Area | Title |",
+        "| --- | --- | --- | --- |",
+        *rows,
+        "",
+    ]
+
+
+def refresh_open_activity(
+    rows: list[tuple[str, ThreadRef]],
+    *,
+    activity_client: GithubActivityClient | None,
+    warnings: list[str],
+) -> list[tuple[str, ThreadRef]]:
+    if activity_client is None:
+        return rows
+    refreshed: list[tuple[str, ThreadRef]] = []
+    for row, thread in rows:
+        try:
+            activity = activity_client.activity_for(thread)
+        except RuntimeError as exc:
+            warnings.append(f"activity skipped for #{thread.number}: {exc}")
+            refreshed.append((row, thread))
+            continue
+        refreshed.append((set_activity_cell(row, 1, activity.format_cell()), thread))
+    return refreshed
 
 
 def sort_document(
@@ -493,6 +579,47 @@ def sort_document(
             ignored_accounts=ignored_accounts,
         )
 
+    open_sections: list[tuple[int, int, str]] = []
+    for index, line in enumerate(lines):
+        match = SECTION_RE.match(line)
+        if not match:
+            continue
+        end = next_section_index(lines, index)
+        title = match.group("title")
+        if title in OPEN_SECTION_TITLES:
+            open_sections.append((index, end, title))
+
+    if open_sections:
+        open_rows: list[tuple[str, ThreadRef]] = []
+        for start, end, title in open_sections:
+            open_rows.extend(
+                normalize_open_rows(
+                    lines,
+                    start,
+                    end,
+                    section_title=title,
+                    default_repo=default_repo,
+                ),
+            )
+        open_rows = refresh_open_activity(
+            open_rows,
+            activity_client=activity_client,
+            warnings=warnings,
+        )
+        open_rows = sorted(
+            open_rows,
+            key=lambda item: (activity_score(item[0], 1), thread_number(item[0])),
+            reverse=True,
+        )
+        issue_count = sum(1 for _, thread in open_rows if thread.kind == "issue")
+        pr_count = sum(1 for _, thread in open_rows if thread.kind == "pr")
+
+        first_start = open_sections[0][0]
+        last_end = open_sections[-1][1]
+        lines[first_start:last_end] = render_open_threads_section(
+            [row for row, _ in open_rows],
+        )
+
     for index, line in enumerate(lines):
         match = SECTION_RE.match(line)
         if not match:
@@ -500,12 +627,9 @@ def sort_document(
 
         end = next_section_index(lines, index)
         title = match.group("title")
+        if title != CLOSED_TITLE:
+            continue
         activity_index = None
-        section_activity_client = None
-        if title in {"OPEN ISSUES", "OPEN PRS"}:
-            activity_index = normalize_open_table(lines, index, end)
-        if activity_client is not None and title in {"OPEN ISSUES", "OPEN PRS"}:
-            section_activity_client = activity_client
 
         count = sort_section_rows(
             lines,
@@ -513,22 +637,14 @@ def sort_document(
             end,
             section_title=title,
             activity_index=activity_index,
-            activity_client=section_activity_client,
+            activity_client=None,
             default_repo=default_repo,
             warnings=warnings,
         )
 
-        if title == "OPEN ISSUES":
-            issue_count = count
-            lines[index] = f"## OPEN ISSUES ({count})"
-        elif title == "OPEN PRS":
-            pr_count = count
-            lines[index] = f"## OPEN PRS ({count})"
-        elif title == "RECENTLY CLOSED OR REMOVED FROM OPEN INVENTORY":
-            closed_count = count
+        closed_count = count
 
-    replace_count_line(lines, "- Kept open issues: ", issue_count)
-    replace_count_line(lines, "- Kept open PRs: ", pr_count)
+    replace_open_count_line(lines, total=issue_count + pr_count, issue_count=issue_count, pr_count=pr_count)
 
     updated = "\n".join(lines) + "\n"
     changed = updated != original
@@ -598,7 +714,7 @@ def main() -> None:
     )
     status = "updated" if changed else "already sorted"
     print(
-        f"{status}: issues={issue_count} prs={pr_count} closed={closed_count}",
+        f"{status}: open_threads={issue_count + pr_count} issues={issue_count} prs={pr_count} closed={closed_count}",
     )
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
