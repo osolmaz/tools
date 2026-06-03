@@ -41,8 +41,8 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 4. You must review every candidate one by one. Keep direct/material matches and drop incidental body/comment/label matches.
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
 6. Update the `Review watermark` near the top of the file with the highest live GitHub issue number and highest live GitHub PR number that were covered by the review.
-7. Keep open issues and open PRs in separate tables.
-8. Run the sorter before committing so open issue and PR tables sort by `Activity` score descending, then GitHub number descending, while closed/removed tables stay newest-first by GitHub number and open-thread activity scores are refreshed.
+7. Keep open issues and open PRs together in one `## OPEN THREADS` table. Mark the type inside the first cell with an emoji; do not add a separate type/kind column.
+8. Run the sorter before committing so the merged open thread table sorts by `Activity` score descending, then GitHub number descending/latest, creator handles are filled from Gitcrawl where available, while closed/removed tables stay newest-first by GitHub number and open-thread activity scores are refreshed.
 9. Recount rows and compare the retained issue/PR number sets before committing.
 
 ## File Shape
@@ -52,8 +52,7 @@ Keep the inventory file terse. The top of the file must contain only:
 - title
 - `Updated: YYYY-MM-DD`
 - `Review watermark`
-- open issue table
-- open PR table
+- merged open thread table
 - collapsed closed/removed details
 - short regeneration notes
 
@@ -89,7 +88,7 @@ From the tools repo source, run:
 python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_onur_inventory.py ~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md
 ```
 
-By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It sorts open issue and PR rows by `Activity` score descending, then GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
+By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one `OPEN THREADS` table, then sorts all open rows together by `Activity` score descending and GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
 
 If the onurclaw repo has its own checked-in copy, this is also acceptable:
 
@@ -99,14 +98,22 @@ cd ~/repos/onurclaw && python3 scripts/sort_openclaw_onur_inventory.py
 
 ## Activity Score
 
-The `Activity` column is a single weighted, human-only count of current visible GitHub activity. It is the only priority-like ranking column in the open issue and PR tables; do not keep a separate `Priority` column.
+The `Activity` column is a single weighted, human-only count of current visible GitHub activity. It is the only priority-like ranking column in the open thread table; do not keep a separate `Priority` column.
 
-Open issue and PR tables must use this column order:
+The open thread table must use this column order:
 
-- `Issue` or `PR`
+- `Thread`
 - `Activity`
 - `Area`
+- `Creator`
 - `Title`
+
+The `Thread` cell must show the issue/PR kind with an emoji and the linked GitHub number, without adding a type/kind column. Use `&nbsp;` between the emoji and link so rendered markdown does not line-break between them:
+
+- `📝&nbsp;[#123](https://github.com/openclaw/openclaw/issues/123)` for issues
+- `🔀&nbsp;[#456](https://github.com/openclaw/openclaw/pull/456)` for PRs
+
+The `Creator` cell must contain the GitHub issue opener or PR author handle, formatted as `@login`. Fill it from Gitcrawl (`threads.author_login`) when available. Leave it blank only when the source data lacks an author.
 
 If a row has an assignee, put `Assignee: <name>` below the title in the `Title` cell.
 
@@ -127,7 +134,7 @@ Classification and filtering:
 - Use `--ignored-account <login>` to add more excluded human accounts. This can be repeated. `OPENCLAW_ONUR_INVENTORY_IGNORED_ACCOUNTS` can also provide a comma-separated list.
 - When GraphQL exposes minimized comment metadata, exclude comments where `isMinimized=true` and `minimizedReason=SPAM`.
 - The current `Activity` cell format is only the total score, for example `45` on an issue or `82` on a PR.
-- Open issues and open PRs must be sorted first by `Activity` score descending, then by GitHub issue/PR number descending.
+- Open threads must be sorted first by `Activity` score descending, then by GitHub issue/PR number descending/latest.
 - Closed or removed rows stay sorted by GitHub issue/PR number descending because they do not carry live activity ranking.
 
 ## Output Expectations
