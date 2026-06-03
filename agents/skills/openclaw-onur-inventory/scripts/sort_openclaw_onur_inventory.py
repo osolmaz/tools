@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import re
+import sqlite3
 import subprocess
 import sys
 from collections import Counter
@@ -389,6 +390,74 @@ def format_thread_cell(cell: str, kind: str) -> str:
     return f"{thread_emoji(kind)}{THREAD_EMOJI_GAP}{THREAD_EMOJI_RE.sub('', cell).strip()}"
 
 
+def normalize_creator_handle(value: str) -> str:
+    login = value.strip().removeprefix("@").strip()
+    return f"@{login}" if login else ""
+
+
+def default_gitcrawl_db_path() -> Path | None:
+    env_path = os.environ.get("OPENCLAW_ONUR_INVENTORY_GITCRAWL_DB") or os.environ.get(
+        "GITCRAWL_DB",
+    )
+    if env_path:
+        return Path(env_path)
+
+    for candidate in (
+        Path("/gitcrawl/gitcrawl.db"),
+        Path(".inventory-job-state/gitcrawl/gitcrawl.db"),
+    ):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def load_creator_map(
+    gitcrawl_db: Path | None,
+    *,
+    warnings: list[str],
+) -> dict[ThreadRef, str]:
+    db_path = gitcrawl_db or default_gitcrawl_db_path()
+    if db_path is None:
+        return {}
+    if not db_path.exists():
+        warnings.append(f"creator lookup skipped; Gitcrawl DB not found: {db_path}")
+        return {}
+
+    creator_by_thread: dict[ThreadRef, str] = {}
+    try:
+        connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        try:
+            rows = connection.execute(
+                """
+                select r.full_name, t.kind, t.number, t.author_login
+                from threads t
+                join repositories r on r.id = t.repo_id
+                where t.author_login is not null and t.author_login != ''
+                """,
+            )
+            for full_name, kind, number, author_login in rows:
+                if not isinstance(full_name, str) or "/" not in full_name:
+                    continue
+                owner, repo = full_name.split("/", maxsplit=1)
+                thread_kind = "pr" if kind == "pull_request" else "issue"
+                creator = normalize_creator_handle(str(author_login))
+                if creator:
+                    creator_by_thread[
+                        ThreadRef(
+                            owner=owner,
+                            repo=repo,
+                            number=int(number),
+                            kind=thread_kind,
+                        )
+                    ] = creator
+        finally:
+            connection.close()
+    except sqlite3.Error as exc:
+        warnings.append(f"creator lookup skipped; Gitcrawl DB read failed: {exc}")
+
+    return creator_by_thread
+
+
 def normalize_open_rows(
     lines: list[str],
     start: int,
@@ -396,6 +465,7 @@ def normalize_open_rows(
     *,
     section_title: str,
     default_repo: str,
+    creator_by_thread: dict[ThreadRef, str],
 ) -> list[tuple[str, ThreadRef]]:
     for index in range(start + 1, end):
         if not lines[index].startswith("| "):
@@ -425,12 +495,17 @@ def normalize_open_rows(
             assignee = cell("Assignee")
             if assignee:
                 title = f"{title}<br>Assignee: {assignee}" if title else f"Assignee: {assignee}"
+            creator = normalize_creator_handle(cell("Creator")) or creator_by_thread.get(
+                thread,
+                "",
+            )
 
             rows.append((
                 join_row([
                     format_thread_cell(cells[0], thread.kind),
                     cell("Activity"),
                     cell("Area"),
+                    creator,
                     title,
                 ]),
                 thread,
@@ -536,8 +611,8 @@ def render_open_threads_section(rows: list[str]) -> list[str]:
     return [
         f"## {OPEN_THREADS_TITLE} ({len(rows)})",
         "",
-        "| Thread | Activity | Area | Title |",
-        "| --- | --- | --- | --- |",
+        "| Thread | Activity | Area | Creator | Title |",
+        "| --- | --- | --- | --- | --- |",
         *rows,
         "",
     ]
@@ -570,6 +645,7 @@ def sort_document(
     default_repo: str = DEFAULT_REPO,
     exclude_spam: bool = True,
     ignored_accounts: set[str] | None = None,
+    gitcrawl_db: Path | None = None,
 ) -> tuple[int, int, int, bool, list[str]]:
     original = path.read_text()
     lines = original.splitlines()
@@ -584,6 +660,7 @@ def sort_document(
             exclude_spam=exclude_spam,
             ignored_accounts=ignored_accounts,
         )
+    creator_by_thread = load_creator_map(gitcrawl_db, warnings=warnings)
 
     open_sections: list[tuple[int, int, str]] = []
     for index, line in enumerate(lines):
@@ -605,6 +682,7 @@ def sort_document(
                     end,
                     section_title=title,
                     default_repo=default_repo,
+                    creator_by_thread=creator_by_thread,
                 ),
             )
         open_rows = refresh_open_activity(
@@ -687,6 +765,15 @@ def main() -> None:
         help="Default owner/repo for rows without a GitHub URL.",
     )
     parser.add_argument(
+        "--gitcrawl-db",
+        type=Path,
+        help=(
+            "Gitcrawl SQLite DB used to fill Creator cells. Defaults to "
+            "OPENCLAW_ONUR_INVENTORY_GITCRAWL_DB, GITCRAWL_DB, /gitcrawl/gitcrawl.db, "
+            "or .inventory-job-state/gitcrawl/gitcrawl.db when present."
+        ),
+    )
+    parser.add_argument(
         "--ignored-account",
         action="append",
         default=[],
@@ -717,6 +804,7 @@ def main() -> None:
         default_repo=args.repo,
         exclude_spam=not args.include_minimized_spam,
         ignored_accounts=ignored_accounts,
+        gitcrawl_db=args.gitcrawl_db,
     )
     status = "updated" if changed else "already sorted"
     print(
