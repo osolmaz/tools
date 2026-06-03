@@ -28,11 +28,15 @@ OPEN_ISSUES_TITLE = "OPEN ISSUES"
 OPEN_PRS_TITLE = "OPEN PRS"
 CLOSED_TITLE = "RECENTLY CLOSED OR REMOVED FROM OPEN INVENTORY"
 OPEN_SECTION_TITLES = {OPEN_THREADS_TITLE, OPEN_ISSUES_TITLE, OPEN_PRS_TITLE}
-ISSUE_EMOJI = "🐛"
+ISSUE_EMOJI = "📝"
+OLD_ISSUE_EMOJI = "\U0001F41B"
 PR_EMOJI = "🔀"
+THREAD_EMOJI_GAP = "&nbsp;"
+THREAD_EMOJI_GAP_RE = r"(?:\s|&nbsp;|&#160;|&#xA0;|\u00a0)+"
+THREAD_EMOJI_RE_SOURCE = rf"(?:{ISSUE_EMOJI}|{OLD_ISSUE_EMOJI}|{PR_EMOJI})"
 
 THREAD_ROW_RE = re.compile(
-    rf"^\| (?:(?:{ISSUE_EMOJI}|{PR_EMOJI})\s+)?\[#(?P<number>\d+)\]\((?P<url>[^)]+)\)",
+    rf"^\| (?:(?:{THREAD_EMOJI_RE_SOURCE}){THREAD_EMOJI_GAP_RE})?\[#(?P<number>\d+)\]\((?P<url>[^)]+)\)",
 )
 SECTION_RE = re.compile(
     rf"^## (?P<title>{OPEN_THREADS_TITLE}|{OPEN_ISSUES_TITLE}|{OPEN_PRS_TITLE}|{CLOSED_TITLE})(?: \((?P<count>\d+)\))?$",
@@ -40,7 +44,7 @@ SECTION_RE = re.compile(
 THREAD_URL_RE = re.compile(
     r"https://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)/(?:issues|pull)/(?P<number>\d+)",
 )
-THREAD_EMOJI_RE = re.compile(rf"^(?:{ISSUE_EMOJI}|{PR_EMOJI})\s+")
+THREAD_EMOJI_RE = re.compile(rf"^{THREAD_EMOJI_RE_SOURCE}{THREAD_EMOJI_GAP_RE}")
 
 
 @dataclass(frozen=True)
@@ -353,7 +357,9 @@ def thread_ref_from_row(row: str, section_title: str, default_repo: str) -> Thre
         owner=owner,
         repo=repo,
         number=int(match.group("number")),
-        kind="pr" if section_title == OPEN_PRS_TITLE or row.startswith(f"| {PR_EMOJI}") else "issue",
+        kind="pr"
+        if section_title == OPEN_PRS_TITLE or row.startswith(f"| {PR_EMOJI}")
+        else "issue",
     )
 
 
@@ -380,7 +386,7 @@ def thread_emoji(kind: str) -> str:
 
 
 def format_thread_cell(cell: str, kind: str) -> str:
-    return f"{thread_emoji(kind)} {THREAD_EMOJI_RE.sub('', cell).strip()}"
+    return f"{thread_emoji(kind)}{THREAD_EMOJI_GAP}{THREAD_EMOJI_RE.sub('', cell).strip()}"
 
 
 def normalize_open_rows(
