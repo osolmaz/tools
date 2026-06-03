@@ -13,6 +13,7 @@
 - If the repository does not accept fully AI-generated issues or pull requests, include a brief apology in the top note.
 - When creating a pull request, you MUST use the `pr-description` skill for the PR description.
 - When opening a pull request that is related to an issue, cite the related issue in the pull request body.
+- When prompting or coordinating other agents from Herdr, do not break the fourth wall by telling those agents about other Herdr panes, sidecars, or UI layout unless the user explicitly asks you to do so.
 
 ## Tools repo agent context
 

@@ -1,6 +1,6 @@
 ---
 name: herdr
-description: Use when running inside Herdr to inspect and control Herdr workspaces, tabs, panes, agents, output waits, and sibling terminal processes through the herdr CLI.
+description: Use when running inside Herdr to inspect and control Herdr workspaces, tabs, panes, agents, output waits, sibling terminal processes, and GitHub PR sidecar layouts through the herdr CLI.
 ---
 
 # Herdr
@@ -23,6 +23,10 @@ and waits.
   explicitly wants focus moved.
 - Use `pane read` for output that already exists.
 - Use `wait output` or `wait agent-status` for future state changes.
+- After spawning or prompting an agent in a pane, do not wait for the agent to
+  finish unless the user explicitly asks you to wait for completion or collect
+  the final answer. It is enough to verify the command or prompt landed and the
+  agent started working.
 - Parse JSON from create/split commands instead of hard-coding returned IDs.
 
 ## Discovery
@@ -145,6 +149,42 @@ herdr tab focus 1:2
 herdr tab rename 1:2 "logs"
 herdr tab close 1:2
 ```
+
+## PR Management
+
+When the user asks to use Herdr to open a GitHub PR, always build a two-pane
+view:
+
+- Left pane: `ghzinga`/`gzg` showing the PR.
+- Right pane: Codex running from the relevant repo or a PR-specific worktree.
+
+Prefer a dedicated worktree for the right pane when the task may involve code
+review, edits, tests, CI repair, or follow-up implementation. Reuse an existing
+matching worktree if one already exists; otherwise create one using the repo's
+normal worktree conventions before launching Codex.
+
+Quote GitHub resources that contain `#` so shells do not treat the number as a
+comment or pattern:
+
+```bash
+gzg 'owner/repo#123'
+```
+
+Recipe:
+
+```bash
+WORKTREE=/path/to/repo-worktrees/pr-123
+WORKSPACE=$(herdr workspace create --cwd "$WORKTREE" --label "repo PR #123" --focus | python3 -c 'import json,sys; print(json.load(sys.stdin)["result"]["workspace"]["workspace_id"])')
+LEFT=$(herdr pane list | python3 -c 'import json,sys; data=json.load(sys.stdin)["result"]["panes"]; print(next(p["pane_id"] for p in data if p["workspace_id"] == "'$WORKSPACE'" and p.get("focused")))')
+RIGHT=$(herdr pane split "$LEFT" --direction right --cwd "$WORKTREE" --no-focus | python3 -c 'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+herdr pane rename "$LEFT" "PR #123"
+herdr pane rename "$RIGHT" "codex PR #123"
+herdr pane run "$LEFT" "gzg 'owner/repo#123'"
+herdr pane run "$RIGHT" "codex"
+```
+
+After launch, read both panes to verify the left pane is rendering the PR and
+the right pane is an idle Codex session in the intended worktree.
 
 ## Recipes
 
