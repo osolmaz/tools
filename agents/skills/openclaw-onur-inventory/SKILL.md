@@ -17,7 +17,7 @@ Run this inventory maintenance periodically, normally about every 2 hours when t
 
 Each run must refresh live state, scrutinize candidates, update/curate the onurclaw inventory file if anything changed, sort it, and commit/push the onurclaw repo changes.
 
-For unattended automation, use the public hardened job contract in `~/repos/onurclaw/docs/inventory-job.md`. The cron prompt must tell the sandboxed agent to read `/workspace/skills/openclaw-onur-inventory/SKILL.md`, curate `/workspace/OPENCLAW_ONUR_INVENTORY.md` from `/gitcrawl/gitcrawl.db`, write candidates with `scripts/list_inventory_review_candidates.py --format jsonl --output /state/inventory-candidates.jsonl`, review that file in small chunks, then run `/workspace/scripts/finalize_inventory_job.sh`. Do not reduce the cron job to a wrapper-only sort/compare step. Do not document or expose host-specific paths, credentials, message destinations, or the private security topology in public files. The automated runner must use an isolated sandbox, read-only exported Gitcrawl/notifier data, no network egress, no host secrets, and host-side pushing only. The sandbox does not have Codex `apply_patch`; use checked-in scripts or simple preflightable shell/Python commands for mechanical edits.
+For unattended automation, use the public hardened job contract in `~/repos/onurclaw/docs/inventory-job.md`. The cron prompt must tell the sandboxed agent to read `/workspace/skills/openclaw-onur-inventory/SKILL.md`, curate `/workspace/OPENCLAW_ONUR_INVENTORY.md` from `/gitcrawl/gitcrawl.db`, write candidates with `scripts/list_inventory_review_candidates.py --format jsonl --output /state/inventory-candidates.jsonl`, review that file in small chunks, then run `/workspace/scripts/finalize_inventory_job.sh`. The finalizer must export `/workspace/OPENCLAW_ONUR_INVENTORY.json` and notifier comparison must read that JSON, not parse Markdown tables. Do not reduce the cron job to a wrapper-only sort/compare step. Do not document or expose host-specific paths, credentials, message destinations, or the private security topology in public files. The automated runner must use an isolated sandbox, read-only exported Gitcrawl/notifier data, no network egress, no host secrets, and host-side pushing only. The sandbox does not have Codex `apply_patch`; use checked-in scripts or simple preflightable shell/Python commands for mechanical edits.
 
 ## Include Or Exclude
 
@@ -66,6 +66,13 @@ Do not add or maintain these noisy generated sections:
 - broad candidate counts unless the user explicitly asks for an audit report
 
 Put audit details, source freshness, candidate counts, and rationale summaries in the chat response, commit message, or PR body instead of the inventory file.
+
+`~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.json` is the machine-readable mirror
+for automation, with schema at
+`~/repos/onurclaw/schemas/openclaw-onur-inventory.schema.json`. Regenerate it
+with `python3 scripts/export_inventory_json.py` or by running the finalizer.
+Notifier compare and other automation must read the JSON mirror instead of
+parsing the Markdown table.
 
 ## Review Watermark
 
