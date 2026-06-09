@@ -1,0 +1,38 @@
+# Mirrors the active iTerm2 "Default" profile.
+
+font-family = "Monaco"
+font-size = 21
+font-synthetic-style = bold,italic,bold-italic
+
+theme = "Solarized Dark Patched"
+
+cursor-style = block
+cursor-style-blink = false
+
+background-opacity = 1
+background-blur = false
+
+window-width = 80
+window-height = 25
+window-padding-x = 0
+window-padding-y = 0
+working-directory = home
+confirm-close-surface = false
+
+scrollback-limit = 1000000
+mouse-reporting = true
+copy-on-select = false
+bell-features = no-system,no-audio,attention,title
+
+term = xterm-256color
+macos-option-as-alt = false
+
+quick-terminal-position = center
+quick-terminal-size = 100%,100%
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0
+quick-terminal-autohide = true
+quick-terminal-space-behavior = move
+
+auto-update = download
+auto-update-channel = tip

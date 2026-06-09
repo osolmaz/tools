@@ -1,7 +1,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-zed
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-zed
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -38,6 +38,10 @@ install-aerospace:
 install-iterm2:
 	./scripts/iterm2-prefs install
 
+install-ghostty:
+	mkdir -p "$$HOME/Library/Application Support/com.mitchellh.ghostty"
+	cp -f "Library/Application Support/com.mitchellh.ghostty/config.ghostty" "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+
 install-zed:
 	mkdir -p ~/.config/zed
 	cp -f .config/zed/settings.json ~/.config/zed/settings.json
@@ -54,6 +58,8 @@ copy:
 	cp -f ~/.xinitrc .xinitrc
 	cp -f ~/.aerospace.toml .aerospace.toml
 	./scripts/iterm2-prefs copy
+	mkdir -p "Library/Application Support/com.mitchellh.ghostty"
+	cp -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 	mkdir -p .config/terminator/
 	cp -f ~/.config/terminator/config .config/terminator/config
 	mkdir -p .config/zed/
