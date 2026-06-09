@@ -11,6 +11,11 @@ The inventory is curated. Do not regenerate it by dumping keyword hits.
 
 The source for this skill is `~/repos/tools/agents/skills/openclaw-onur-inventory`. Do not edit or create duplicate copies under `~/bob/skills/openclaw-onur-inventory`; sync from the tools repo source into installed/runtime skill locations instead.
 
+The sandbox cron-job variant is `sandbox/SKILL.md` in this tools skill source.
+It is synced into `osolmaz/onurclaw:skills/openclaw-onur-inventory/SKILL.md`
+because the no-network job must read a local `/workspace` copy. Edit the tools
+source first, then sync/check the onurclaw copy.
+
 ## Periodic Cadence
 
 Run this inventory maintenance periodically, normally about every 2 hours when the user asks for ongoing upkeep.
