@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Copy/apply a sanitized cmux preferences plist for dotfiles."""
+
+from __future__ import annotations
+
+import argparse
+import plistlib
+from pathlib import Path
+from typing import Any
+
+
+DOTFILES_DIR = Path(__file__).resolve().parents[1]
+REPO_PREFS = DOTFILES_DIR / "Library" / "Preferences" / "com.cmuxterm.app.plist"
+SYSTEM_PREFS = Path.home() / "Library" / "Preferences" / "com.cmuxterm.app.plist"
+
+# Keep durable app preferences. Drop runtime state, window frames, browser
+# profile identifiers, telemetry cache, update timestamps, and session data.
+KEEP_TOP_LEVEL_KEYS = {
+    "appearanceMode",
+    "appIconMode",
+    "cmuxDisableBundleIconPersistence",
+    "confirmQuit",
+    "hideTabCloseButton",
+    "menuBarOnly",
+    "notificationSound",
+    "rightSidebar.mode",
+    "sidebarAppearanceDefaultsVersion",
+    "sidebarBlendMode",
+    "sidebarBlurOpacity",
+    "sidebarCornerRadius",
+    "sidebarMatchTerminalBackground",
+    "sidebarMaterial",
+    "sidebarPreset",
+    "sidebarState",
+    "sidebarTintHex",
+    "sidebarTintOpacity",
+    "systemWideHotkey.enabled",
+    "warnBeforeClosingTabShortcut",
+    "warnBeforeQuitShortcut",
+}
+
+
+def load_plist(path: Path) -> dict[str, Any]:
+    with path.open("rb") as plist_file:
+        data = plistlib.load(plist_file)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} is not a plist dictionary")
+    return data
+
+
+def write_plist(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as plist_file:
+        plistlib.dump(data, plist_file, fmt=plistlib.FMT_XML, sort_keys=True)
+
+
+def sanitized(data: dict[str, Any]) -> dict[str, Any]:
+    return {key: data[key] for key in sorted(KEEP_TOP_LEVEL_KEYS) if key in data}
+
+
+def copy_from_system() -> None:
+    if not SYSTEM_PREFS.exists():
+        raise FileNotFoundError(f"cmux preferences not found: {SYSTEM_PREFS}")
+    write_plist(REPO_PREFS, sanitized(load_plist(SYSTEM_PREFS)))
+    print(f"wrote {REPO_PREFS}")
+
+
+def apply_to_system() -> None:
+    if not REPO_PREFS.exists():
+        raise FileNotFoundError(f"repo cmux preferences not found: {REPO_PREFS}")
+    write_plist(SYSTEM_PREFS, load_plist(REPO_PREFS))
+    print(f"wrote {SYSTEM_PREFS}")
+    print("restart cmux and run: killall cfprefsd")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=["copy", "install"])
+    args = parser.parse_args()
+
+    if args.command == "copy":
+        copy_from_system()
+    else:
+        apply_to_system()
+
+
+if __name__ == "__main__":
+    main()

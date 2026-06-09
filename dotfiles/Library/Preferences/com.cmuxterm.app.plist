@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>appIconMode</key>
+	<string>dark</string>
+	<key>appearanceMode</key>
+	<string>dark</string>
+	<key>cmuxDisableBundleIconPersistence</key>
+	<false/>
+	<key>confirmQuit</key>
+	<string>never</string>
+	<key>hideTabCloseButton</key>
+	<true/>
+	<key>menuBarOnly</key>
+	<false/>
+	<key>notificationSound</key>
+	<string>Pop</string>
+	<key>rightSidebar.mode</key>
+	<string>files</string>
+	<key>sidebarAppearanceDefaultsVersion</key>
+	<integer>1</integer>
+	<key>sidebarBlendMode</key>
+	<string>withinWindow</string>
+	<key>sidebarBlurOpacity</key>
+	<real>1.0</real>
+	<key>sidebarCornerRadius</key>
+	<real>0.0</real>
+	<key>sidebarMatchTerminalBackground</key>
+	<false/>
+	<key>sidebarMaterial</key>
+	<string>sidebar</string>
+	<key>sidebarPreset</key>
+	<string>nativeSidebar</string>
+	<key>sidebarState</key>
+	<string>followWindow</string>
+	<key>sidebarTintHex</key>
+	<string>#000000</string>
+	<key>sidebarTintOpacity</key>
+	<real>0.18</real>
+	<key>systemWideHotkey.enabled</key>
+	<true/>
+	<key>warnBeforeClosingTabShortcut</key>
+	<false/>
+	<key>warnBeforeQuitShortcut</key>
+	<false/>
+</dict>
+</plist>
