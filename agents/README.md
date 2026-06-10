@@ -35,7 +35,7 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX
 - `skills/daily-work-summary/`
   Use this when summarizing one person's recent GitHub work across org repos in plain, source-linked bullets.
 
-- `skills/implementation-loop/`
+- `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
 - `skills/parallel-agent-kickoff/`
