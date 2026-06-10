@@ -42,6 +42,10 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into `$CODEX
   Use this when clustering related issues or PRs and starting decision-focused
   agent sessions for each shared bug or fix-shape group.
 
+- `skills/semver/`
+  Use this while deciding how to choose the next major, minor, patch, or
+  pre-1.0 version during release.
+
 - `skills/write-readme/`
   Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 
