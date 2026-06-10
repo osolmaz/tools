@@ -23,7 +23,7 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 ## Process docs
 
 - [PR automation workflow](agents/workflows/pr-automation.md)
-- [Implementation loop skill](agents/skills/implementation-loop/SKILL.md)
+- [Autoimplement skill](agents/skills/autoimplement/SKILL.md)
 - [Implementation plan prompt](agents/prompts/implement-plan.md)
 - [PR / issue triage prompt](agents/prompts/pr-issue-triage.md)
 - [Land-ready PR prompt](agents/prompts/land-ready-pr.md)
