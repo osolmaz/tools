@@ -46,8 +46,8 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 4. You must review every candidate one by one. Keep direct/material matches and drop incidental body/comment/label matches.
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
 6. Update the `Review watermark` near the top of the file with the highest live GitHub issue number and highest live GitHub PR number that were covered by the review.
-7. Keep open issues and open PRs together in one `## OPEN THREADS` table. Mark the type inside the first cell with an emoji; do not add a separate type/kind column.
-8. Run the sorter before committing so the merged open thread table sorts by `Activity` score descending, then GitHub number descending/latest, creator handles are filled from Gitcrawl where available, while closed/removed tables stay newest-first by GitHub number and open-thread activity scores are refreshed.
+7. Keep open issues and open PRs together in one canonical `## OPEN THREADS` table. Mark the type inside the first cell with an emoji; do not add a separate type/kind column.
+8. Run the sorter before committing so it generates `## NEW OPEN THREADS` with the newest 20 open rows, wraps the canonical `## OPEN THREADS` table in a collapsed `<details>` block, sorts the canonical open table by `Activity` score descending and GitHub number descending/latest, fills creator handles and created dates from Gitcrawl where available, keeps closed/removed tables newest-first by GitHub number, and refreshes open-thread activity scores.
 9. Recount rows and compare the retained issue/PR number sets before committing.
 
 ## File Shape
@@ -57,7 +57,8 @@ Keep the inventory file terse. The top of the file must contain only:
 - title
 - `Updated: YYYY-MM-DD`
 - `Review watermark`
-- merged open thread table
+- generated `## NEW OPEN THREADS` section capped at 20 rows, open by default
+- canonical merged `## OPEN THREADS` table, collapsed by default
 - collapsed closed/removed details
 - short regeneration notes
 
@@ -100,7 +101,7 @@ From the tools repo source, run:
 python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_onur_inventory.py ~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md
 ```
 
-By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one `OPEN THREADS` table, then sorts all open rows together by `Activity` score descending and GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
+By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one canonical `OPEN THREADS` table, generates a `NEW OPEN THREADS` view with the newest 20 open rows using Gitcrawl `created_at_gh`, then sorts all canonical open rows together by `Activity` score descending and GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
 
 If the onurclaw repo has its own checked-in copy, this is also acceptable:
 
@@ -112,13 +113,17 @@ cd ~/repos/onurclaw && python3 scripts/sort_openclaw_onur_inventory.py
 
 The `Activity` column is a single weighted, human-only count of current visible GitHub activity. It is the only priority-like ranking column in the open thread table; do not keep a separate `Priority` column.
 
-The open thread table must use this column order:
+The canonical open thread table must use this column order:
 
 - `Thread`
 - `Activity`
 - `Area`
 - `Creator`
 - `Title`
+
+The generated `NEW OPEN THREADS` table adds a `Created` column after `Thread`;
+it is a derived view only. The canonical inventory source remains
+`OPEN THREADS`.
 
 The `Thread` cell must show the issue/PR kind with an emoji and the linked GitHub number, without adding a type/kind column. Use `&nbsp;` between the emoji and link so rendered markdown does not line-break between them:
 
@@ -146,7 +151,7 @@ Classification and filtering:
 - Use `--ignored-account <login>` to add more excluded human accounts. This can be repeated. `OPENCLAW_ONUR_INVENTORY_IGNORED_ACCOUNTS` can also provide a comma-separated list.
 - When GraphQL exposes minimized comment metadata, exclude comments where `isMinimized=true` and `minimizedReason=SPAM`.
 - The current `Activity` cell format is only the total score, for example `45` on an issue or `82` on a PR.
-- Open threads must be sorted first by `Activity` score descending, then by GitHub issue/PR number descending/latest.
+- The canonical open thread table must be sorted first by `Activity` score descending, then by GitHub issue/PR number descending/latest. The generated `NEW OPEN THREADS` section must be sorted by GitHub creation date descending, then GitHub number descending/latest, and must not be parsed as the canonical inventory source.
 - Closed or removed rows stay sorted by GitHub issue/PR number descending because they do not carry live activity ranking.
 
 ## Output Expectations

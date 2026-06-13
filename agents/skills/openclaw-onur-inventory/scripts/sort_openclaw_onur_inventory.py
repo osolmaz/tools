@@ -24,6 +24,8 @@ REVIEW_BODY_WEIGHT = 5
 REACTION_WEIGHT = 1
 REPEAT_COMMENT_WEIGHT = 1
 DEFAULT_IGNORED_ACCOUNTS = frozenset({"osolmaz", "dutifulbob"})
+NEW_OPEN_THREADS_TITLE = "NEW OPEN THREADS"
+NEW_OPEN_THREADS_LIMIT = 20
 OPEN_THREADS_TITLE = "OPEN THREADS"
 OPEN_ISSUES_TITLE = "OPEN ISSUES"
 OPEN_PRS_TITLE = "OPEN PRS"
@@ -42,6 +44,9 @@ THREAD_ROW_RE = re.compile(
 SECTION_RE = re.compile(
     rf"^## (?P<title>{OPEN_THREADS_TITLE}|{OPEN_ISSUES_TITLE}|{OPEN_PRS_TITLE}|{CLOSED_TITLE})(?: \((?P<count>\d+)\))?$",
 )
+GENERATED_SECTION_RE = re.compile(
+    rf"^## (?P<title>{NEW_OPEN_THREADS_TITLE})(?: \((?P<count>\d+)\))?$",
+)
 THREAD_URL_RE = re.compile(
     r"https://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)/(?:issues|pull)/(?P<number>\d+)",
 )
@@ -58,6 +63,12 @@ class ThreadRef:
     @property
     def full_repo(self) -> str:
         return f"{self.owner}/{self.repo}"
+
+
+@dataclass(frozen=True)
+class ThreadMetadata:
+    creator: str = ""
+    created_at: str = ""
 
 
 @dataclass
@@ -411,51 +422,52 @@ def default_gitcrawl_db_path() -> Path | None:
     return None
 
 
-def load_creator_map(
+def load_thread_metadata(
     gitcrawl_db: Path | None,
     *,
     warnings: list[str],
-) -> dict[ThreadRef, str]:
+) -> dict[ThreadRef, ThreadMetadata]:
     db_path = gitcrawl_db or default_gitcrawl_db_path()
     if db_path is None:
         return {}
     if not db_path.exists():
-        warnings.append(f"creator lookup skipped; Gitcrawl DB not found: {db_path}")
+        warnings.append(f"metadata lookup skipped; Gitcrawl DB not found: {db_path}")
         return {}
 
-    creator_by_thread: dict[ThreadRef, str] = {}
+    metadata_by_thread: dict[ThreadRef, ThreadMetadata] = {}
     try:
         connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
         try:
             rows = connection.execute(
                 """
-                select r.full_name, t.kind, t.number, t.author_login
+                select r.full_name, t.kind, t.number, t.author_login, t.created_at_gh
                 from threads t
                 join repositories r on r.id = t.repo_id
-                where t.author_login is not null and t.author_login != ''
                 """,
             )
-            for full_name, kind, number, author_login in rows:
+            for full_name, kind, number, author_login, created_at in rows:
                 if not isinstance(full_name, str) or "/" not in full_name:
                     continue
                 owner, repo = full_name.split("/", maxsplit=1)
                 thread_kind = "pr" if kind == "pull_request" else "issue"
                 creator = normalize_creator_handle(str(author_login))
-                if creator:
-                    creator_by_thread[
-                        ThreadRef(
-                            owner=owner,
-                            repo=repo,
-                            number=int(number),
-                            kind=thread_kind,
-                        )
-                    ] = creator
+                metadata_by_thread[
+                    ThreadRef(
+                        owner=owner,
+                        repo=repo,
+                        number=int(number),
+                        kind=thread_kind,
+                    )
+                ] = ThreadMetadata(
+                    creator=creator,
+                    created_at=str(created_at or ""),
+                )
         finally:
             connection.close()
     except sqlite3.Error as exc:
-        warnings.append(f"creator lookup skipped; Gitcrawl DB read failed: {exc}")
+        warnings.append(f"metadata lookup skipped; Gitcrawl DB read failed: {exc}")
 
-    return creator_by_thread
+    return metadata_by_thread
 
 
 def normalize_open_rows(
@@ -465,7 +477,7 @@ def normalize_open_rows(
     *,
     section_title: str,
     default_repo: str,
-    creator_by_thread: dict[ThreadRef, str],
+    metadata_by_thread: dict[ThreadRef, ThreadMetadata],
 ) -> list[tuple[str, ThreadRef]]:
     for index in range(start + 1, end):
         if not lines[index].startswith("| "):
@@ -495,10 +507,10 @@ def normalize_open_rows(
             assignee = cell("Assignee")
             if assignee:
                 title = f"{title}<br>Assignee: {assignee}" if title else f"Assignee: {assignee}"
-            creator = normalize_creator_handle(cell("Creator")) or creator_by_thread.get(
+            creator = normalize_creator_handle(cell("Creator")) or metadata_by_thread.get(
                 thread,
-                "",
-            )
+                ThreadMetadata(),
+            ).creator
 
             rows.append((
                 join_row([
@@ -607,15 +619,80 @@ def replace_open_count_line(lines: list[str], *, total: int, issue_count: int, p
     lines[:] = filtered
 
 
+def created_date_for_thread(
+    thread: ThreadRef,
+    metadata_by_thread: dict[ThreadRef, ThreadMetadata],
+) -> str:
+    created_at = metadata_by_thread.get(thread, ThreadMetadata()).created_at
+    return created_at[:10] if created_at else ""
+
+
+def insert_created_cell(row: str, created: str) -> str:
+    cells = split_row(row)
+    if len(cells) < 2:
+        return row
+    return join_row([cells[0], created, *cells[1:]])
+
+
+def render_new_open_threads_section(
+    rows: list[tuple[str, ThreadRef]],
+    *,
+    metadata_by_thread: dict[ThreadRef, ThreadMetadata],
+    limit: int = NEW_OPEN_THREADS_LIMIT,
+) -> list[str]:
+    newest_rows = sorted(
+        rows,
+        key=lambda item: (
+            metadata_by_thread.get(item[1], ThreadMetadata()).created_at,
+            item[1].number,
+        ),
+        reverse=True,
+    )[:limit]
+    rendered_rows = [
+        insert_created_cell(row, created_date_for_thread(thread, metadata_by_thread))
+        for row, thread in newest_rows
+    ]
+    return [
+        f"## {NEW_OPEN_THREADS_TITLE} ({len(rendered_rows)})",
+        "",
+        "<details open>",
+        f"<summary>Newest {len(rendered_rows)} open threads</summary>",
+        "",
+        "| Thread | Created | Activity | Area | Creator | Title |",
+        "| --- | --- | --- | --- | --- | --- |",
+        *rendered_rows,
+        "",
+        "</details>",
+        "",
+    ]
+
+
 def render_open_threads_section(rows: list[str]) -> list[str]:
     return [
         f"## {OPEN_THREADS_TITLE} ({len(rows)})",
+        "",
+        "<details>",
+        "<summary>All open threads, sorted by activity</summary>",
         "",
         "| Thread | Activity | Area | Creator | Title |",
         "| --- | --- | --- | --- | --- |",
         *rows,
         "",
+        "</details>",
+        "",
     ]
+
+
+def remove_generated_sections(lines: list[str]) -> None:
+    index = 0
+    while index < len(lines):
+        if GENERATED_SECTION_RE.match(lines[index]):
+            end = next_section_index(lines, index)
+            del lines[index:end]
+            while index < len(lines) and lines[index] == "":
+                del lines[index]
+            continue
+        index += 1
 
 
 def refresh_open_activity(
@@ -660,7 +737,8 @@ def sort_document(
             exclude_spam=exclude_spam,
             ignored_accounts=ignored_accounts,
         )
-    creator_by_thread = load_creator_map(gitcrawl_db, warnings=warnings)
+    metadata_by_thread = load_thread_metadata(gitcrawl_db, warnings=warnings)
+    remove_generated_sections(lines)
 
     open_sections: list[tuple[int, int, str]] = []
     for index, line in enumerate(lines):
@@ -682,7 +760,7 @@ def sort_document(
                     end,
                     section_title=title,
                     default_repo=default_repo,
-                    creator_by_thread=creator_by_thread,
+                    metadata_by_thread=metadata_by_thread,
                 ),
             )
         open_rows = refresh_open_activity(
@@ -700,9 +778,13 @@ def sort_document(
 
         first_start = open_sections[0][0]
         last_end = open_sections[-1][1]
-        lines[first_start:last_end] = render_open_threads_section(
-            [row for row, _ in open_rows],
-        )
+        lines[first_start:last_end] = [
+            *render_new_open_threads_section(
+                open_rows,
+                metadata_by_thread=metadata_by_thread,
+            ),
+            *render_open_threads_section([row for row, _ in open_rows]),
+        ]
 
     for index, line in enumerate(lines):
         match = SECTION_RE.match(line)
