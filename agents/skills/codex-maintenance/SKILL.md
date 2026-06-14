@@ -24,10 +24,22 @@ Use this skill for local Codex state maintenance. The source tool is
 Identify the target session by full ID, unique prefix, or rollout JSONL path.
 Dry-run first unless the user explicitly asked to apply immediately.
 
+When the target session is already known, the first command should be the
+`codex-tools set-cwd ... --dry-run` command. Do not start with `pwd`; `pwd`
+only reports the shell's current directory and does not validate or repair
+persisted Codex session state.
+
 ```bash
 cd /Users/onur/repos/tools/codex-tools
 cargo run --bin codex-tools -- set-cwd <session-id-or-prefix-or-rollout-jsonl> <new-cwd> --dry-run
 cargo run --bin codex-tools -- set-cwd <session-id-or-prefix-or-rollout-jsonl> <new-cwd>
+```
+
+If the user says "this session" but the session ID is not available in context,
+first identify the session from Codex state, then run the dry-run:
+
+```bash
+sqlite3 ~/.codex/state_5.sqlite "SELECT id, cwd, title FROM threads ORDER BY updated_at DESC LIMIT 10;"
 ```
 
 By default, `set-cwd` updates:
