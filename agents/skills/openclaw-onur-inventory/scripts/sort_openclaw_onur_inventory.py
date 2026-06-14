@@ -25,7 +25,8 @@ REACTION_WEIGHT = 1
 REPEAT_COMMENT_WEIGHT = 1
 DEFAULT_IGNORED_ACCOUNTS = frozenset({"osolmaz", "dutifulbob"})
 NEW_OPEN_THREADS_TITLE = "NEW OPEN THREADS"
-NEW_OPEN_THREADS_LIMIT = 20
+FEATURED_ROW_LIMIT = 50
+NEW_OPEN_THREADS_LIMIT = FEATURED_ROW_LIMIT
 OPEN_THREADS_TITLE = "OPEN THREADS"
 OPEN_ISSUES_TITLE = "OPEN ISSUES"
 OPEN_PRS_TITLE = "OPEN PRS"
@@ -655,32 +656,39 @@ def render_new_open_threads_section(
     return [
         f"## {NEW_OPEN_THREADS_TITLE} ({len(rendered_rows)})",
         "",
-        "<details open>",
-        f"<summary>Newest {len(rendered_rows)} open threads</summary>",
-        "",
         "| Thread | Created | Activity | Area | Creator | Title |",
         "| --- | --- | --- | --- | --- | --- |",
         *rendered_rows,
-        "",
-        "</details>",
         "",
     ]
 
 
 def render_open_threads_section(rows: list[str]) -> list[str]:
-    return [
+    visible_rows = rows[:FEATURED_ROW_LIMIT]
+    overflow_rows = rows[FEATURED_ROW_LIMIT:]
+    section = [
         f"## {OPEN_THREADS_TITLE} ({len(rows)})",
-        "",
-        "<details>",
-        "<summary>All open threads, sorted by activity</summary>",
         "",
         "| Thread | Activity | Area | Creator | Title |",
         "| --- | --- | --- | --- | --- |",
-        *rows,
-        "",
-        "</details>",
+        *visible_rows,
         "",
     ]
+    if overflow_rows:
+        section.extend(
+            [
+                "<details>",
+                f"<summary>Remaining {len(overflow_rows)} open threads, sorted by activity</summary>",
+                "",
+                "| Thread | Activity | Area | Creator | Title |",
+                "| --- | --- | --- | --- | --- |",
+                *overflow_rows,
+                "",
+                "</details>",
+                "",
+            ],
+        )
+    return section
 
 
 def remove_generated_sections(lines: list[str]) -> None:

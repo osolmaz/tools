@@ -40,7 +40,7 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 5. Put closed or removed notable threads under the existing collapsed `<details>` block so they do not bloat the open inventory.
 6. Update the `Review watermark` near the top of the file with the highest live GitHub issue number and highest live GitHub PR number that were covered by the review.
 7. Keep open issues and open PRs together in one canonical `## OPEN THREADS` table. Mark the type inside the first cell with an emoji; do not add a separate type/kind column.
-8. Run the sorter before committing so it generates `## NEW OPEN THREADS` with the newest 20 open rows, wraps the canonical `## OPEN THREADS` table in a collapsed `<details>` block, sorts the canonical open table by `Activity` score descending and GitHub number descending/latest, fills creator handles and created dates from Gitcrawl where available, keeps closed/removed tables newest-first by GitHub number, and refreshes open-thread activity scores.
+8. Run the sorter before committing so it generates `## NEW OPEN THREADS` with the newest 50 open rows, keeps the first 50 canonical `## OPEN THREADS` rows visible inline, places only the remaining open rows in a collapsed `<details>` block, sorts the canonical open table by `Activity` score descending and GitHub number descending/latest, fills creator handles and created dates from Gitcrawl where available, keeps closed/removed tables newest-first by GitHub number, and refreshes open-thread activity scores.
 9. Recount rows and compare the retained issue/PR number sets before committing.
 
 ## File Shape
@@ -50,8 +50,8 @@ Keep the inventory file terse. The top of the file must contain only:
 - title
 - `Updated: YYYY-MM-DD`
 - `Review watermark`
-- generated `## NEW OPEN THREADS` section capped at 20 rows, open by default
-- canonical merged `## OPEN THREADS` table, collapsed by default
+- generated `## NEW OPEN THREADS` section capped at 50 rows and visible by default
+- canonical merged `## OPEN THREADS` table with the first 50 rows visible by default and only overflow rows collapsed
 - collapsed closed/removed details
 - short regeneration notes
 
@@ -94,7 +94,7 @@ From the inventory repository root, run:
 python3 scripts/sort_openclaw_onur_inventory.py
 ```
 
-By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one canonical `OPEN THREADS` table, generates a `NEW OPEN THREADS` view with the newest 20 open rows using Gitcrawl `created_at_gh`, then sorts all canonical open rows together by `Activity` score descending and GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
+By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one canonical `OPEN THREADS` table, generates a `NEW OPEN THREADS` view with the newest 50 open rows using Gitcrawl `created_at_gh`, then sorts all canonical open rows together by `Activity` score descending and GitHub number descending. It keeps the first 50 canonical open rows visible and collapses only overflow rows. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
 
 ## Activity Score
 

@@ -125,9 +125,10 @@ available. Leave it blank only when the source data lacks an author.
 New rows created in the sandbox should use `0` for `Activity`; the sorter
 fills missing `Creator` cells and creation dates from `/gitcrawl/gitcrawl.db`,
 merges old open issue/PR sections if needed, generates `## NEW OPEN THREADS`
-with the newest 20 open rows, wraps the canonical `## OPEN THREADS` table in a
-collapsed `<details>` block, and keeps the canonical open thread table ordered
-by `Activity` descending, then GitHub number descending/latest.
+with the newest 50 open rows, keeps the first 50 canonical `## OPEN THREADS`
+rows visible inline, places only the remaining open rows in a collapsed
+`<details>` block, and keeps the canonical open thread table ordered by
+`Activity` descending, then GitHub number descending/latest.
 
 Use these area labels unless an existing label is clearly more specific:
 
@@ -149,8 +150,8 @@ Keep the inventory file terse. The top of the file must contain only:
 - title
 - `Updated: YYYY-MM-DD`
 - `Review watermark`
-- generated `## NEW OPEN THREADS` section capped at 20 rows, open by default
-- canonical merged `## OPEN THREADS` table, collapsed by default
+- generated `## NEW OPEN THREADS` section capped at 50 rows and visible by default
+- canonical merged `## OPEN THREADS` table with the first 50 rows visible by default and only overflow rows collapsed
 - collapsed closed/removed details
 - short regeneration notes
 
