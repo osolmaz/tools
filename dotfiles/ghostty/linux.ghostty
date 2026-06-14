@@ -1,0 +1,16 @@
+# Linux Ghostty config. Pulls in shared settings, then Linux-specific bits.
+# Deployed to ~/.config/ghostty/config
+config-file = common.ghostty
+
+font-family = "JetBrains Mono"
+font-size = 12
+
+# GTK / Linux UI
+window-theme = ghostty
+window-padding-x = 8
+window-padding-y = 8
+gtk-toolbar-style = flat
+resize-overlay = never
+
+# Updates are managed by the snap, so don't self-update.
+auto-update = off

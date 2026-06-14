@@ -162,12 +162,26 @@ def sync_skill(skill: Skill, dest_root: Path, *, dry_run: bool) -> None:
     print(f"{'Would sync' if dry_run else 'Syncing'} {skill.skill_id} -> {dest_path}")
     if dry_run:
         return
+    source_path = skill.source_path.resolve()
+
+    def ignore_nested_skill_files(directory: str, names: list[str]) -> set[str]:
+        # Codex discovers SKILL.md files recursively; nested reference copies
+        # should not register as additional local skills.
+        if Path(directory).resolve() != source_path and "SKILL.md" in names:
+            return {"SKILL.md"}
+        return set()
+
     with tempfile.TemporaryDirectory(
         prefix=f".{skill.skill_id}.tmp-",
         dir=dest_root,
     ) as temp_dir:
         temp_path = Path(temp_dir) / skill.skill_id
-        shutil.copytree(skill.source_path, temp_path, copy_function=shutil.copy2)
+        shutil.copytree(
+            skill.source_path,
+            temp_path,
+            copy_function=shutil.copy2,
+            ignore=ignore_nested_skill_files,
+        )
         if dest_path.exists():
             remove_path(dest_path, dry_run=False)
         temp_path.replace(dest_path)

@@ -1,0 +1,14 @@
+# macOS Ghostty config. Pulls in shared settings, then macOS-specific bits.
+# Deployed to ~/Library/Application Support/com.mitchellh.ghostty/config.ghostty
+config-file = common.ghostty
+
+font-family = "Monaco"
+font-size = 21
+
+window-padding-x = 0
+window-padding-y = 0
+
+macos-option-as-alt = false
+
+auto-update = download
+auto-update-channel = tip
