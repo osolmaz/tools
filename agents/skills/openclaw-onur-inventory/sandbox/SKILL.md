@@ -5,12 +5,9 @@ description: Maintain /workspace/OPENCLAW_ONUR_INVENTORY.md from the sandboxed o
 
 # OpenClaw Onur Inventory
 
-Source of truth: `osolmaz/tools:agents/skills/openclaw-onur-inventory/sandbox/SKILL.md`.
-The `osolmaz/onurclaw:skills/openclaw-onur-inventory/SKILL.md` copy must stay
-byte-identical to this file because the sandbox job needs a local `/workspace`
-copy with no network or host repo access.
-
 Use this skill for `/workspace/OPENCLAW_ONUR_INVENTORY.md`.
+This file is checked into the inventory repository so the sandbox job can read a
+local copy with no network or host repo access.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
 

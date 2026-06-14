@@ -1,20 +1,13 @@
 ---
 name: openclaw-onur-inventory
-description: Use when maintaining ~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md, including periodic roughly every-2-hour refreshes, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, updating the reviewed-through issue/PR watermark, or explaining why an item was included or excluded.
+description: Use when maintaining the OpenClaw Onur inventory repository, including periodic roughly every-2-hour refreshes, auditing OpenClaw local model and open-weight model issue/PR inventories, deciding whether a thread belongs in that file, sorting the inventory, updating the reviewed-through issue/PR watermark, or explaining why an item was included or excluded.
 ---
 
 # OpenClaw Onur Inventory
 
-Use this skill for `~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md`.
+Use this skill for `OPENCLAW_ONUR_INVENTORY.md` in the OpenClaw Onur inventory repository.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
-
-The source for this skill is `~/repos/tools/agents/skills/openclaw-onur-inventory`. Do not edit or create duplicate copies under `~/bob/skills/openclaw-onur-inventory`; sync from the tools repo source into installed/runtime skill locations instead.
-
-The sandbox cron-job variant is `sandbox/SKILL.md` in this tools skill source.
-It is synced into `osolmaz/onurclaw:skills/openclaw-onur-inventory/SKILL.md`
-because the no-network job must read a local `/workspace` copy. Edit the tools
-source first, then sync/check the onurclaw copy.
 
 ## Periodic Cadence
 
@@ -22,7 +15,7 @@ Run this inventory maintenance periodically, normally about every 2 hours when t
 
 Each run must refresh live state, scrutinize candidates, update/curate the onurclaw inventory file if anything changed, sort it, and commit/push the onurclaw repo changes.
 
-For unattended automation, use the public hardened job contract in `~/repos/onurclaw/docs/inventory-job.md`. The cron prompt must tell the sandboxed agent to read `/workspace/skills/openclaw-onur-inventory/SKILL.md`, curate `/workspace/OPENCLAW_ONUR_INVENTORY.md` from `/gitcrawl/gitcrawl.db`, write candidates with `scripts/list_inventory_review_candidates.py --format jsonl --output /state/inventory-candidates.jsonl`, review that file in small chunks, then run `/workspace/scripts/finalize_inventory_job.sh`. The finalizer must export `/workspace/OPENCLAW_ONUR_INVENTORY.json` and notifier comparison must read that JSON, not parse Markdown tables. Do not reduce the cron job to a wrapper-only sort/compare step. Do not document or expose host-specific paths, credentials, message destinations, or the private security topology in public files. The automated runner must use an isolated sandbox, read-only exported Gitcrawl/notifier data, no network egress, no host secrets, and host-side pushing only. The sandbox does not have Codex `apply_patch`; use checked-in scripts or simple preflightable shell/Python commands for mechanical edits.
+For unattended automation, use the public hardened job contract in `docs/inventory-job.md`. The cron prompt must tell the sandboxed agent to read `/workspace/.agents/skills/openclaw-onur-inventory/SKILL.md`, curate `/workspace/OPENCLAW_ONUR_INVENTORY.md` from `/gitcrawl/gitcrawl.db`, write candidates with `scripts/list_inventory_review_candidates.py --format jsonl --output /state/inventory-candidates.jsonl`, review that file in small chunks, then run `/workspace/scripts/finalize_inventory_job.sh`. The finalizer must export `/workspace/OPENCLAW_ONUR_INVENTORY.json` and notifier comparison must read that JSON, not parse Markdown tables. Do not reduce the cron job to a wrapper-only sort/compare step. Do not document or expose host-specific paths, credentials, message destinations, or the private security topology in public files. The automated runner must use an isolated sandbox, read-only exported Gitcrawl/notifier data, no network egress, no host secrets, and host-side pushing only. The sandbox does not have Codex `apply_patch`; use checked-in scripts or simple preflightable shell/Python commands for mechanical edits.
 
 ## Include Or Exclude
 
@@ -40,7 +33,7 @@ Example exclusion: a remote native Moonshot/Kimi Discord dispatch delay is not l
 
 ## Refresh Workflow
 
-1. Work in `~/repos/onurclaw`.
+1. Work at the root of the OpenClaw Onur inventory repository.
 2. Verify Gitcrawl freshness and fetch live GitHub open issue/PR state.
 3. Build a broad candidate pool from local/open-weight/provider terms.
 4. You must review every candidate one by one. Keep direct/material matches and drop incidental body/comment/label matches.
@@ -73,16 +66,16 @@ Do not add or maintain these noisy generated sections:
 
 Put audit details, source freshness, candidate counts, and rationale summaries in the chat response, commit message, or PR body instead of the inventory file.
 
-`~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.json` is the machine-readable mirror
+`OPENCLAW_ONUR_INVENTORY.json` is the machine-readable mirror
 for automation, with schema at
-`~/repos/onurclaw/schemas/openclaw-onur-inventory.schema.json`. Regenerate it
+`schemas/openclaw-onur-inventory.schema.json`. Regenerate it
 with `python3 scripts/export_inventory_json.py` or by running the finalizer.
 Notifier compare and other automation must read the JSON mirror instead of
 parsing the Markdown table.
 
 ## Review Watermark
 
-The inventory must include a `Review watermark` section near the top of `~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md`.
+The inventory must include a `Review watermark` section near the top of `OPENCLAW_ONUR_INVENTORY.md`.
 
 Record:
 
@@ -93,21 +86,15 @@ Only advance these numbers after the run has considered all issues or PRs up to 
 
 ## Sorter
 
-The sorter is bundled with this skill at `scripts/sort_openclaw_onur_inventory.py`.
+The inventory repository includes the sorter at `scripts/sort_openclaw_onur_inventory.py`.
 
-From the tools repo source, run:
+From the inventory repository root, run:
 
 ```bash
-python3 ~/repos/tools/agents/skills/openclaw-onur-inventory/scripts/sort_openclaw_onur_inventory.py ~/repos/onurclaw/OPENCLAW_ONUR_INVENTORY.md
+python3 scripts/sort_openclaw_onur_inventory.py
 ```
 
 By default the sorter also refreshes the `Activity` column for open issues and PRs using authenticated `gh api` calls. It fills the `Creator` column from local Gitcrawl data when a Gitcrawl DB is available, merges any old `OPEN ISSUES` and `OPEN PRS` sections into one canonical `OPEN THREADS` table, generates a `NEW OPEN THREADS` view with the newest 20 open rows using Gitcrawl `created_at_gh`, then sorts all canonical open rows together by `Activity` score descending and GitHub number descending. It keeps sorting/counting even if an activity lookup fails, and prints warnings for skipped threads. Use `--no-activity` or `OPENCLAW_ONUR_INVENTORY_SKIP_ACTIVITY=1` only for tests or emergency offline sorting.
-
-If the onurclaw repo has its own checked-in copy, this is also acceptable:
-
-```bash
-cd ~/repos/onurclaw && python3 scripts/sort_openclaw_onur_inventory.py
-```
 
 ## Activity Score
 
