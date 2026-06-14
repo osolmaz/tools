@@ -10,7 +10,7 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 
 - [`chardiff/`](chardiff/) — character-level diff tool in a single HTML page.
 - [`claude-code-data/`](claude-code-data/) — library for parsing and analyzing Claude Code conversation files.
-- [`codex-session-extract/`](codex-session-extract/) — recover plaintext messages from Codex rollout JSONL files.
+- [`codex-tools/`](codex-tools/) — inspect and repair local Codex session metadata.
 - [`padify/`](padify/) — add padding to images (handy for terminal screenshots).
 - [`prooompter/`](prooompter/) — CLI for constructing prompts from files that fit the context window.
 - [`agents/skills/`](agents/skills/) — repo-local skills for autonomous implementation and PR follow-through.

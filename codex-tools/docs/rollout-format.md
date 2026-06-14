@@ -41,7 +41,7 @@ That means a transcript tool needs to decide which view it wants:
 - Effective replay history: the newest surviving `replacement_history` plus newer replay items, with rollback semantics applied.
 - Desktop visible transcript: what the app renders, which may include app-specific filtering or hydrated state outside this plaintext JSONL.
 
-The `codex-session-extract` helper implements the raw recoverable ledger view,
+The `codex-tools extract` helper implements the raw recoverable ledger view,
 with setup messages hidden by default so the first printed conversation message
 usually matches the Desktop-visible session. Pass `--include-setup` to include
 injected developer, environment, and AGENTS.md setup messages too.
