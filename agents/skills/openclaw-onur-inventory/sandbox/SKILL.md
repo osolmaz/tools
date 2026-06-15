@@ -5,12 +5,9 @@ description: Maintain /workspace/OPENCLAW_ONUR_INVENTORY.md from the sandboxed o
 
 # OpenClaw Onur Inventory
 
-Source of truth: `osolmaz/tools:agents/skills/openclaw-onur-inventory/sandbox/SKILL.md`.
-The `osolmaz/onurclaw:skills/openclaw-onur-inventory/SKILL.md` copy must stay
-byte-identical to this file because the sandbox job needs a local `/workspace`
-copy with no network or host repo access.
-
 Use this skill for `/workspace/OPENCLAW_ONUR_INVENTORY.md`.
+This file is checked into the inventory repository so the sandbox job can read a
+local copy with no network or host repo access.
 
 The inventory is curated. Do not regenerate it by dumping keyword hits.
 
@@ -79,9 +76,9 @@ OpenAI-compatible routing, local runtime behavior, or local embeddings.
 7. For the highest issue and PR numbers in Gitcrawl, also confirm there are no
    unreviewed non-candidate rows that should have been considered. If you only
    review a subset, do not advance that watermark beyond the reviewed range.
-8. Add kept open issues and PRs together under `## OPEN THREADS`. Mark the
-   type inside the first cell with an emoji; do not add a separate type/kind
-   column.
+8. Add kept open issues and PRs together under the canonical
+   `## OPEN THREADS` table. Mark the type inside the first cell with an emoji;
+   do not add a separate type/kind column.
 9. Put closed or removed notable threads under the existing collapsed
    `<details>` block so they do not bloat the open inventory.
 10. Update `Updated: YYYY-MM-DD`.
@@ -110,6 +107,10 @@ The open thread table must use this column order:
 - `Creator`
 - `Title`
 
+The generated `NEW OPEN THREADS` table adds a `Created` column after `Thread`;
+it is a derived view only. The canonical inventory source remains
+`OPEN THREADS`.
+
 The `Thread` cell must show the issue/PR kind with an emoji and the linked
 GitHub number, without adding a type/kind column. Use `&nbsp;` between the
 emoji and link so rendered markdown does not line-break between them:
@@ -122,8 +123,11 @@ formatted as `@login`. Fill it from Gitcrawl (`threads.author_login`) when
 available. Leave it blank only when the source data lacks an author.
 
 New rows created in the sandbox should use `0` for `Activity`; the sorter
-fills missing `Creator` cells from `/gitcrawl/gitcrawl.db`, merges old open
-issue/PR sections if needed, and keeps the open thread table ordered by
+fills missing `Creator` cells and creation dates from `/gitcrawl/gitcrawl.db`,
+merges old open issue/PR sections if needed, generates `## NEW OPEN THREADS`
+with the newest 50 open rows, keeps the first 50 canonical `## OPEN THREADS`
+rows visible inline, places only the remaining open rows in a collapsed
+`<details>` block, and keeps the canonical open thread table ordered by
 `Activity` descending, then GitHub number descending/latest.
 
 Use these area labels unless an existing label is clearly more specific:
@@ -146,7 +150,8 @@ Keep the inventory file terse. The top of the file must contain only:
 - title
 - `Updated: YYYY-MM-DD`
 - `Review watermark`
-- merged open thread table
+- generated `## NEW OPEN THREADS` section capped at 50 rows and visible by default
+- canonical merged `## OPEN THREADS` table with the first 50 rows visible by default and only overflow rows collapsed
 - collapsed closed/removed details
 - short regeneration notes
 
