@@ -40,7 +40,13 @@ install-iterm2:
 
 install-ghostty:
 	mkdir -p "$$HOME/Library/Application Support/com.mitchellh.ghostty"
-	cp -f "Library/Application Support/com.mitchellh.ghostty/config.ghostty" "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+	cp -f ghostty/common.ghostty "$$HOME/Library/Application Support/com.mitchellh.ghostty/common.ghostty"
+	cp -f ghostty/macos.ghostty "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+
+install-ghostty-linux:
+	mkdir -p "$$HOME/.config/ghostty"
+	cp -f ghostty/common.ghostty "$$HOME/.config/ghostty/common.ghostty"
+	cp -f ghostty/linux.ghostty "$$HOME/.config/ghostty/config"
 
 install-cmux:
 	mkdir -p "$$HOME/.config/cmux"
@@ -63,8 +69,11 @@ copy:
 	cp -f ~/.xinitrc .xinitrc
 	cp -f ~/.aerospace.toml .aerospace.toml
 	./scripts/iterm2-prefs copy
-	mkdir -p "Library/Application Support/com.mitchellh.ghostty"
-	cp -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+	mkdir -p ghostty
+	if [ -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/common.ghostty" ]; then cp -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/common.ghostty" ghostty/common.ghostty; fi
+	if [ -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" ]; then cp -f "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" ghostty/macos.ghostty; fi
+	if [ -f "$$HOME/.config/ghostty/common.ghostty" ]; then cp -f "$$HOME/.config/ghostty/common.ghostty" ghostty/common.ghostty; fi
+	if [ -f "$$HOME/.config/ghostty/config" ]; then cp -f "$$HOME/.config/ghostty/config" ghostty/linux.ghostty; fi
 	mkdir -p .config/cmux
 	cp -f "$$HOME/.config/cmux/cmux.json" .config/cmux/cmux.json
 	./scripts/cmux-prefs copy
