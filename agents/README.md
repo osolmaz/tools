@@ -36,6 +36,9 @@ Options:
   Use this when writing or reviewing copy-paste README blurbs that tell a
   coding agent how to install, configure, verify, or adopt a project workflow.
 
+- `skills/check-ingredients/`
+  Use this when evaluating a product ingredient list or safety claim for source-backed health, toxicity, pregnancy/child, regulatory, environmental, allergy, irritation, and finished-product risk context.
+
 - `skills/conventional-commit/`
   Use this when you need to draft, rewrite, or validate a commit message or PR title using Conventional Commits, plus a concise repo-aware PR body when the task is a pull request.
 
