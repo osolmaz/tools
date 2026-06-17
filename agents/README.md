@@ -45,6 +45,11 @@ Options:
 - `skills/daily-work-summary/`
   Use this when summarizing one person's recent GitHub work across org repos in plain, source-linked bullets.
 
+- `skills/data-model/`
+  Use this when creating JSON schemas, API payloads, SQL tables, migrations, or
+  other structured data models so each field or column is scrutinized before the
+  minimum viable schema is finalized.
+
 - `skills/online-shopping/`
   Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.
 
