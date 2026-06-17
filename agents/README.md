@@ -36,11 +36,17 @@ Options:
   Use this when writing or reviewing copy-paste README blurbs that tell a
   coding agent how to install, configure, verify, or adopt a project workflow.
 
+- `skills/check-ingredients/`
+  Use this when evaluating a product ingredient list or safety claim for source-backed health, toxicity, pregnancy/child, regulatory, environmental, allergy, irritation, and finished-product risk context.
+
 - `skills/conventional-commit/`
   Use this when you need to draft, rewrite, or validate a commit message or PR title using Conventional Commits, plus a concise repo-aware PR body when the task is a pull request.
 
 - `skills/daily-work-summary/`
   Use this when summarizing one person's recent GitHub work across org repos in plain, source-linked bullets.
+
+- `skills/online-shopping/`
+  Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.
 
 - `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
