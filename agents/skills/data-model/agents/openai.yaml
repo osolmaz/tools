@@ -1,4 +1,4 @@
 interface:
   display_name: "Data Model"
-  short_description: "Review every schema field or SQL column before finalizing a minimum viable data model"
-  default_prompt: "Use $data-model when creating or revising JSON schemas, API payloads, SQL tables, migrations, or other structured data models. Draft the smallest plausible schema, fill the field-by-field scrutiny table, prune or rename fields, then produce the final revised model."
+  short_description: "Write per-model review files with separate information and decision tables"
+  default_prompt: "Use $data-model when creating or revising JSON schemas, API payloads, SQL tables, migrations, or other structured data models. Create a separate Markdown review file for each data model, draft the smallest plausible schema, fill the field-by-field information table, reason about the tradeoffs, fill a separate decision table, then produce the final revised model."
