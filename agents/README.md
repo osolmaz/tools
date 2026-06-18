@@ -55,6 +55,10 @@ Options:
   Use this when clustering related issues or PRs and starting decision-focused
   agent sessions for each shared bug or fix-shape group.
 
+- `skills/pi-demo-grid/`
+  Use this when launching a balanced tmux grid of concurrent `localpi --demo`
+  Pi sessions for demos, load demos, and side-by-side output comparisons.
+
 - `skills/semver/`
   Use this while deciding how to choose the next major, minor, patch, or
   pre-1.0 version during release.
