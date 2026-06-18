@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Repos"
+  short_description: "Apply safe GitHub repo defaults"
+  default_prompt: "Use $manage-repos to apply GitHub repository defaults and strict merge-review rules."

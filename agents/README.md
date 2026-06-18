@@ -48,6 +48,9 @@ Options:
 - `skills/online-shopping/`
   Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.
 
+- `skills/manage-repos/`
+  Use this when creating, onboarding, auditing, or tightening GitHub repositories with sane defaults and stricter merge-review rules.
+
 - `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
