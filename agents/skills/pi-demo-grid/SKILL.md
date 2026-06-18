@@ -15,7 +15,10 @@ This skill is intentionally conservative: first show the launch plan, then start
 
 1. Resolve the target concurrency.
    - If the user gives a number, use it.
-   - If no number is given, ask for the target concurrency before launching.
+   - If the user asks for a demo without a number, default to the maximum currently available concurrency for the selected backend.
+   - Discover that number from the running provider or localpi status before launching. For vLLM, use the running server's configured `--max-num-seqs`.
+   - "Maximum available concurrency" means the backend's configured request/sequence capacity, not an invented machine-wide estimate.
+   - If the backend capacity cannot be discovered, do not guess. Show what is known and ask for the target concurrency.
    - Concurrency must be a positive integer.
 
 2. Resolve the localpi demo command.
@@ -26,7 +29,8 @@ This skill is intentionally conservative: first show the launch plan, then start
 3. Do a safety preflight before launching.
    - Run the script without `--start` first and show the plan.
    - Do not start panes if the user only asks what would happen, asks for a command, or sounds unsure.
-   - Treat high concurrency as risky for local model servers. Above 4 panes, require an explicit user instruction to proceed and pass `--allow-high-concurrency`.
+   - Treat high concurrency as risky for local model servers, but if the user asks to run a demo and the backend's configured max is discovered, use that discovered max by default.
+   - Above 4 panes, pass `--allow-high-concurrency` only when the pane count comes from an explicit user number or a discovered backend capacity.
    - If the machine is already tight on memory, add `--min-available-gb <GiB>` or reduce concurrency before starting.
    - Do not start a model server from this skill. It should only run `localpi --demo` clients against the model/provider the user intentionally selected.
 
@@ -41,21 +45,25 @@ This skill is intentionally conservative: first show the launch plan, then start
 
 ## Commands
 
-Preview 4 panes using an explicit model:
+Preview the backend's maximum available concurrency using an explicit model.
+For a vLLM server configured with `--max-num-seqs 16`:
 
 ```bash
 python3 agents/skills/pi-demo-grid/scripts/launch_pi_demo_grid.py \
-  --concurrency 4 \
-  -- localpi --demo --model gemma-e4b
+  --concurrency 16 \
+  --allow-high-concurrency \
+  -- localpi --runtime vllm --demo --model nvidia/Gemma-4-26B-A4B-NVFP4
 ```
 
-Launch 4 panes after reviewing the preview:
+Launch the discovered maximum after reviewing the preview:
 
 ```bash
 python3 agents/skills/pi-demo-grid/scripts/launch_pi_demo_grid.py \
-  --concurrency 4 \
+  --concurrency 16 \
+  --allow-high-concurrency \
+  --min-available-gb 24 \
   --start \
-  -- localpi --demo --model gemma-e4b
+  -- localpi --runtime vllm --demo --model nvidia/Gemma-4-26B-A4B-NVFP4
 ```
 
 Launch 16 panes with a named session only after checking model-server capacity:
@@ -101,3 +109,4 @@ The script:
 - Do not use background one-shot localpi commands for this skill; the purpose is a live visible tmux wall.
 - Do not attach automatically unless the user asks. Create the session and report the attach command.
 - Do not bypass the preview and safety gates for convenience. The expensive operation is starting many concurrent localpi clients, so make that decision visible.
+- When the user says "run the demo" with no pane count, they are asking for the backend's maximum available concurrency, subject to the discovery and memory checks above.
