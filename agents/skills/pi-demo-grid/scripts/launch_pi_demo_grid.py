@@ -21,16 +21,21 @@ class LaunchPlan:
     cwd: Path
     command: str
     attach_command: str
+    start: bool
+    max_safe_concurrency: int
+    allow_high_concurrency: bool
+    min_available_gb: float | None
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
     plan = build_plan(args)
 
-    if args.dry_run:
+    if not plan.start:
         print_plan(plan)
         return 0
 
+    run_preflight(plan)
     require_tmux()
     if tmux_session_exists(plan.session):
         if not args.restart:
@@ -78,9 +83,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="kill an existing tmux session with the same name before launching",
     )
     parser.add_argument(
+        "--start",
+        action="store_true",
+        help="actually create the tmux session; without this flag only a launch plan is printed",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="print the launch plan without creating a tmux session",
+        help="print the launch plan without creating a tmux session; this is also the default",
+    )
+    parser.add_argument(
+        "--max-safe-concurrency",
+        type=positive_int,
+        default=default_max_safe_concurrency(),
+        help="maximum pane count allowed without --allow-high-concurrency",
+    )
+    parser.add_argument(
+        "--allow-high-concurrency",
+        action="store_true",
+        help="allow pane counts above --max-safe-concurrency after external capacity checks",
+    )
+    parser.add_argument(
+        "--min-available-gb",
+        type=positive_float,
+        default=default_min_available_gb(),
+        help="refuse to launch unless this many GiB of RAM is available",
     )
     parser.add_argument(
         "command_args",
@@ -102,6 +129,10 @@ def build_plan(args: argparse.Namespace) -> LaunchPlan:
         cwd=cwd,
         command=command,
         attach_command=f"tmux attach -t {shlex.quote(args.session)}",
+        start=args.start and not args.dry_run,
+        max_safe_concurrency=args.max_safe_concurrency,
+        allow_high_concurrency=args.allow_high_concurrency,
+        min_available_gb=args.min_available_gb,
     )
 
 
@@ -115,6 +146,43 @@ def command_from_args(command: str | None, command_args: list[str]) -> str:
     if not args:
         return "localpi --demo"
     return shlex.join(args)
+
+
+def run_preflight(plan: LaunchPlan) -> None:
+    if plan.concurrency > plan.max_safe_concurrency and not plan.allow_high_concurrency:
+        raise SystemExit(
+            "refusing to launch "
+            f"{plan.concurrency} panes without --allow-high-concurrency "
+            f"(current safe limit: {plan.max_safe_concurrency})"
+        )
+
+    if not has_explicit_model(plan.command):
+        raise SystemExit(
+            "demo grid launch requires an explicit model: add --model <id> "
+            "or set LOCALPI_MODEL for the command"
+        )
+
+    if plan.min_available_gb is not None:
+        available = available_memory_gb()
+        if available is None:
+            raise SystemExit("could not determine available memory for --min-available-gb")
+        if available < plan.min_available_gb:
+            raise SystemExit(
+                f"available memory is {available:.1f} GiB, below required "
+                f"{plan.min_available_gb:.1f} GiB"
+            )
+
+
+def has_explicit_model(command: str) -> bool:
+    if os.environ.get("LOCALPI_MODEL"):
+        return True
+    if "LOCALPI_MODEL=" in command:
+        return True
+    try:
+        parts = shlex.split(command)
+    except ValueError:
+        return "--model" in command
+    return "--model" in parts or any(part.startswith("--model=") for part in parts)
 
 
 def launch_tmux_grid(plan: LaunchPlan) -> None:
@@ -177,6 +245,16 @@ def print_plan(plan: LaunchPlan) -> None:
     print(f"cwd: {plan.cwd}")
     print(f"command: {plan.command}")
     print(f"layout: tiled")
+    print(f"start: {'yes' if plan.start else 'no (pass --start to create panes)'}")
+    print(
+        "high concurrency: "
+        f"{'allowed' if plan.allow_high_concurrency else 'blocked above ' + str(plan.max_safe_concurrency)}"
+    )
+    available = available_memory_gb()
+    if available is not None:
+        print(f"available memory: {available:.1f} GiB")
+    if plan.min_available_gb is not None:
+        print(f"minimum available memory: {plan.min_available_gb:.1f} GiB")
     print(f"attach: {plan.attach_command}")
 
 
@@ -204,6 +282,47 @@ def positive_int(value: str) -> int:
     if parsed <= 0:
         raise argparse.ArgumentTypeError("must be a positive integer")
     return parsed
+
+
+def positive_float(value: str) -> float:
+    parsed = float(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive number")
+    return parsed
+
+
+def default_max_safe_concurrency() -> int:
+    value = os.environ.get("PI_DEMO_GRID_MAX_SAFE_CONCURRENCY")
+    if value is None:
+        return 4
+    try:
+        return positive_int(value)
+    except (argparse.ArgumentTypeError, ValueError) as exc:
+        raise SystemExit(
+            "PI_DEMO_GRID_MAX_SAFE_CONCURRENCY must be a positive integer"
+        ) from exc
+
+
+def default_min_available_gb() -> float | None:
+    value = os.environ.get("PI_DEMO_GRID_MIN_AVAILABLE_GB")
+    if value is None or value == "":
+        return None
+    try:
+        return positive_float(value)
+    except (argparse.ArgumentTypeError, ValueError) as exc:
+        raise SystemExit("PI_DEMO_GRID_MIN_AVAILABLE_GB must be a positive number") from exc
+
+
+def available_memory_gb() -> float | None:
+    meminfo = Path("/proc/meminfo")
+    if not meminfo.exists():
+        return None
+    for line in meminfo.read_text(encoding="utf-8").splitlines():
+        if line.startswith("MemAvailable:"):
+            parts = line.split()
+            if len(parts) >= 2:
+                return int(parts[1]) / 1024 / 1024
+    return None
 
 
 def default_session_name() -> str:
