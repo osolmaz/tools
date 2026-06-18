@@ -25,6 +25,37 @@ Use `plan` first when auditing or when the user has not explicitly approved chan
 npx -y github-sane-defaults@latest plan OWNER/REPO
 ```
 
+## Slophammer
+
+When creating or onboarding a project in a language supported by Slophammer,
+apply Slophammer standards too. The point is not a one-off local scan; add the
+checker/config/CI so the repository keeps enforcing the standard.
+
+Supported checker selection:
+
+- Go: `slophammer-go`
+- TypeScript: `slophammer-ts`
+- Rust: `slophammer-rs`
+- Python: `slophammer-py`
+
+Start from the Slophammer agent entrypoint:
+
+```text
+https://github.com/dutifuldev/slophammer/blob/main/docs/AGENT_ENTRYPOINT.md
+```
+
+Typical new-repo tasks:
+
+- add `AGENTS.md` with the commands agents must run before finishing
+- add `slophammer.yml`
+- add or update CI so the selected Slophammer checker runs
+- pin the checker version in CI
+- run the selected checker locally and report whether it passed
+
+Do not claim Slophammer passed if the language-specific checker is unavailable.
+In that case, apply the documented standards manually and say what could not be
+run.
+
 ## Strict Merge Review
 
 Some repositories need a stricter rule: an agent may have write access, but must
@@ -94,9 +125,10 @@ rm -f "$payload_file"
    user-provided target.
 2. Run `github-sane-defaults plan` unless the user already asked to apply.
 3. Run `github-sane-defaults apply` for every target repository.
-4. For strict repositories, create or update the separate review-required
+4. For supported languages, add Slophammer configuration and CI.
+5. For strict repositories, create or update the separate review-required
    ruleset with organization-admin-only bypass.
-5. Verify with:
+6. Verify GitHub rulesets with:
 
 ```sh
 gh api "repos/OWNER/REPO/rulesets" --jq '.[] | {name, target, enforcement}'
