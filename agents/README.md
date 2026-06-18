@@ -66,6 +66,10 @@ Options:
   Use this while deciding how to choose the next major, minor, patch, or
   pre-1.0 version during release.
 
+- `skills/sync-x/`
+  Use this when syncing Onur's X posts from xTap into xtap-store and the blog,
+  including when starting from either the blog repo or the xtap-store repo.
+
 - `skills/write-readme/`
   Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 

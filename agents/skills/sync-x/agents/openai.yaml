@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync X"
+  short_description: "Sync xTap posts into the blog"
+  default_prompt: "Use $sync-x to sync Onur's X posts from xTap. If you are in the xtap-store repo, sync and verify that archive first, then run the blog sync from /home/bob/offline/blog and manually curate homepage featured posts."
