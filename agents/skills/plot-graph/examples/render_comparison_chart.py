@@ -13,14 +13,13 @@ target background color before rendering.
 """
 
 import argparse
-import colorsys
 import json
 import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as MplPath
-from matplotlib.patches import Patch, PathPatch, Rectangle
+from matplotlib.patches import PathPatch, Rectangle
 
 
 DEFAULT_DATA = {
@@ -98,53 +97,7 @@ def luminance(color):
     return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
 
 
-def color_character(color):
-    r, g, b = (channel / 255 for channel in hex_to_rgb(color))
-    hue, lightness, saturation = colorsys.rgb_to_hls(r, g, b)
-    return hue, lightness, saturation
-
-
-def hls_hex(hue, lightness, saturation):
-    r, g, b = colorsys.hls_to_rgb(hue % 1, lightness, saturation)
-    return rgb_to_hex((r * 255, g * 255, b * 255))
-
-
-def choose_palette(background):
-    if background == "light":
-        return {
-            "highlight": "#be185d",
-            "secondary": "#f9a8d4",
-            "neutral": "#b89bad",
-        }
-
-    figure_background = "#0f1a30" if background == "dark" else background
-    hue, lightness, saturation = color_character(figure_background)
-    is_dark = luminance(figure_background) < 0.35
-
-    if background == "dark" or (is_dark and 0.55 <= hue <= 0.75):
-        return {
-            "highlight": "#f59e0b",
-            "secondary": "#fdba74",
-            "neutral": "#b59a74",
-        }
-
-    if saturation < 0.12:
-        return {
-            "highlight": "#be185d",
-            "secondary": "#f9a8d4",
-            "neutral": "#b89bad",
-        }
-
-    complement = (hue + 0.5) % 1
-    return {
-        "highlight": hls_hex(complement, 0.62 if is_dark else 0.42, 0.62),
-        "secondary": hls_hex(complement, 0.78 if is_dark else 0.70, 0.55),
-        "neutral": hls_hex(complement, 0.58 if is_dark else 0.62, 0.20),
-    }
-
-
 def resolve_style(background):
-    palette = choose_palette(background)
     if background == "light":
         return {
             "rounded_block": False,
@@ -154,7 +107,9 @@ def resolve_style(background):
             "grid": "#e9edf3",
             "text": "#111827",
             "muted_text": "#4b5563",
-            **palette,
+            "highlight": "#2563eb",
+            "secondary": "#93c5fd",
+            "neutral": "#aeb7c5",
         }
 
     figure_background = "#0f1a30" if background == "dark" else background
@@ -167,7 +122,9 @@ def resolve_style(background):
         "grid": mix(figure_background, "#ffffff" if is_dark else "#000000", 0.16),
         "text": "#e8eef8" if is_dark else "#111827",
         "muted_text": "#b8c4d6" if is_dark else "#4b5563",
-        **palette,
+        "highlight": "#60a5fa" if is_dark else "#2563eb",
+        "secondary": "#93c5fd",
+        "neutral": "#7c8aa2" if is_dark else "#aeb7c5",
     }
 
 
@@ -329,17 +286,9 @@ def render_throughput_panel(ax, models, names, style):
         rounded_bar(ax, x, value, width, style["highlight"], radius_px=6)
         annotate_value(ax, x, value, f"{value:.0f}", style, is_best=value == max(aggregate_values))
 
-    legend = ax.legend(
-        handles=[
-            Patch(facecolor=style["secondary"], edgecolor="none", label="Per single worker"),
-            Patch(facecolor=style["highlight"], edgecolor="none", label="Aggregate"),
-        ],
-        loc="upper right",
-        frameon=False,
-        fontsize=7.2,
-        ncols=1,
-        handlelength=1.2,
-    )
+    ax.bar([], [], width=width, color=style["secondary"], edgecolor="none", label="Per single worker")
+    ax.bar([], [], width=width, color=style["highlight"], edgecolor="none", label="Aggregate")
+    legend = ax.legend(loc="upper right", frameon=False, fontsize=7.2, ncols=1, handlelength=1.2)
     for text in legend.get_texts():
         text.set_color(style["muted_text"])
 
@@ -385,18 +334,9 @@ def render_parameter_panel(ax, models, names, style):
         rounded_bar(ax, x, value, width, style["secondary"], radius_px=6)
         annotate_value(ax, x, value, f"{value:.0f}B", style)
 
-    legend = ax.legend(
-        handles=[
-            Patch(facecolor=style["highlight"], edgecolor="none", label="Total"),
-            Patch(facecolor=style["secondary"], edgecolor="none", label="Active"),
-        ],
-        loc="upper left",
-        frameon=False,
-        fontsize=7.5,
-        ncols=2,
-        handlelength=1.2,
-        columnspacing=0.8,
-    )
+    ax.bar([], [], width=width, color=style["highlight"], edgecolor="none", label="Total")
+    ax.bar([], [], width=width, color=style["secondary"], edgecolor="none", label="Active")
+    legend = ax.legend(loc="upper left", frameon=False, fontsize=7.5, ncols=2, handlelength=1.2, columnspacing=0.8)
     for text in legend.get_texts():
         text.set_color(style["muted_text"])
 
