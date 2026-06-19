@@ -13,6 +13,12 @@ The goal is a minimum viable schema: the smallest set of keys or columns that
 preserves the required behavior, is clear to future readers, and avoids
 premature modeling.
 
+Use Schemator's Lindy and simplicity criteria as the standard for judging the
+model. See `dutifuldev/schemator` or the `$schemator` skill for the fuller
+workflow: prefer the smallest durable schema, boring names, clear current use
+cases, fewer fields, derived values over stored values when safe, and no
+future-proof fields whose only reason is "might need later."
+
 ## Required Workflow
 
 Do these steps in order. Do not skip the information or decision table because
