@@ -27,7 +27,7 @@ description: Create polished SVG/PNG chart figures from experiment metrics, espe
 - Keep the intended panel order explicit in source code. For example, if the narrative wants model-size context before throughput, place `Parameters` before `Output tok/s` rather than relying on whatever order the data file happens to use.
 - Keep model names visible on the x-axis; do not add a redundant x-axis title.
 - If every panel has a different y-scale, say so in the caption.
-- Use a consistent highlight color for the best value in each panel and neutral gray for the others.
+- Use a consistent highlight color for the best value in each panel and a quieter related/neutral color for the others.
 - Preserve units in titles or legends, for example `Output tok/s`, `Parameters`, `Concurrency`.
 
 4. Choose the background deliberately.
@@ -35,6 +35,11 @@ description: Create polished SVG/PNG chart figures from experiment metrics, espe
 - Before rendering, determine the target background. If the user has not specified one, ask whether they want `light`, `dark`, or a specific background color.
 - For a specific background, accept a concrete color such as a hex value sampled from a reference page or brand asset.
 - Keep the chart readable against that target: light backgrounds need dark text; dark backgrounds need light text.
+- Choose accent colors against the target background, not independently of it.
+- On white or very light backgrounds, prefer bright but serious magenta/dark-pink/bordeaux accents. Avoid direct neon magenta; use polished pastel or deep tones.
+- On dark blue backgrounds like the Hugging Face dark blog color, prefer orange/amber/copper accents because they sit opposite the background.
+- On neutral backgrounds, choose a striking accent family such as pastel dark-pink/bordeaux, amber, or teal, depending on the surrounding page.
+- On non-neutral colored backgrounds, use a palette from the opposite side of the color wheel, softened enough to avoid neon glare.
 - If using a dark chart block, make the main figure background match the target color, make the plot panels slightly lighter than the main background, and use muted-light grid/border colors.
 - If the figure has rounded outer corners, make the outside corners transparent. Use display/physical units for the outer corner radius so corners stay circular rather than stretched by the figure aspect ratio.
 
