@@ -27,7 +27,3 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [Implementation plan prompt](agents/prompts/implement-plan.md)
 - [PR / issue triage prompt](agents/prompts/pr-issue-triage.md)
 - [Land-ready PR prompt](agents/prompts/land-ready-pr.md)
-
-## License
-
-[MIT](LICENSE)
