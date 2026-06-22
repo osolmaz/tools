@@ -25,6 +25,18 @@ Use `plan` first when auditing or when the user has not explicitly approved chan
 npx -y github-sane-defaults@latest plan OWNER/REPO
 ```
 
+## New Open Source Software Repositories
+
+When creating a new repository that is intended to publish open source software:
+
+- Use the `add-license` skill to add the appropriate license. Default to MIT
+  unless the user or repository requirements specify another license.
+- Use the `write-readme` skill for the README. Keep it user-focused: what the
+  software does, how to install it, how to use it, and what users need to know.
+- Keep maintainer process details, local machine paths, private usernames,
+  credentials, scratch notes, and history of how the repo was created out of the
+  README.
+
 ## Slophammer
 
 When creating or onboarding a project in a language supported by Slophammer,
@@ -125,10 +137,12 @@ rm -f "$payload_file"
    user-provided target.
 2. Run `github-sane-defaults plan` unless the user already asked to apply.
 3. Run `github-sane-defaults apply` for every target repository.
-4. For supported languages, add Slophammer configuration and CI.
-5. For strict repositories, create or update the separate review-required
+4. For new open source software repositories, add a license with `add-license`
+   and write the README with `write-readme`.
+5. For supported languages, add Slophammer configuration and CI.
+6. For strict repositories, create or update the separate review-required
    ruleset with organization-admin-only bypass.
-6. Verify GitHub rulesets with:
+7. Verify GitHub rulesets with:
 
 ```sh
 gh api "repos/OWNER/REPO/rulesets" --jq '.[] | {name, target, enforcement}'
