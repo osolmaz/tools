@@ -1,19 +1,21 @@
 ---
 name: data-model
-description: Use when creating or revising data models, JSON files, JSON schemas, API payload schemas, database schemas, SQL tables, migrations, or any structured set of keys, fields, or columns. Acts as a lightweight wrapper around Schemator and its bundled schemator skill.
+description: "Use when creating or revising Lindy data models: durable, simple schemas for JSON files, JSON schemas, API payloads, database schemas, SQL tables, migrations, or any structured set of keys, fields, or columns. Acts as a lightweight wrapper around Schemator and its bundled schemator skill."
 ---
 
 # Data Model
 
-Use this skill as a pointer to Schemator, not as a separate data-model review
-method. Schemator is the source of truth for reviewing schemas, simplifying
-fields, checking naming, and producing auditable reports.
+Use this skill when the goal is to create a Lindy data model: a schema that is
+small, durable, boring in the best way, and likely to survive changing product
+details because it captures stable concepts instead of temporary assumptions.
+
+This skill is only a wrapper. Schemator is the source of truth for reviewing
+schemas, simplifying fields, checking naming, and producing auditable reports.
 
 ## How To Use It
 
-1. Use the Schemator repository and its bundled `schemator` skill for the actual
-   workflow. If the skill is installed, invoke `$schemator`; otherwise read the
-   `skills/schemator/SKILL.md` file from `dutifuldev/schemator`.
+1. Use Schemator and its bundled `schemator` skill for the actual workflow. If
+   the skill is installed, invoke `$schemator`.
 2. Start from a real draft schema or proposal. If no draft exists yet, make the
    smallest useful draft first, then hand it to Schemator.
 3. Provide project/task context before review so Schemator can judge names,
@@ -23,20 +25,19 @@ fields, checking naming, and producing auditable reports.
 5. Treat Schemator output as a candidate result and do the final human/product
    pass required by the `schemator` skill.
 
-## Local Reference
+## Schemator Reference
 
-The Schemator repo is expected at:
-
-```text
-~/repos/schemator
-```
-
-Typical local commands from that repo:
+Install Schemator from npm:
 
 ```bash
-npm install
-npm run dev -- run --source schema.md --context project-context.md --out .schemator
-npm run dev -- report --run .schemator --out .schemator/final-report.md
+npm install -g @dutifuldev/schemator
+```
+
+Use the bundled Schemator skill as the detailed instruction source:
+
+```bash
+schemator --skill show schemator
+schemator --skill export schemator | npx skillflag install --agent codex
 ```
 
 Do not duplicate Schemator's review rules, report checklist, prompt guidance, or

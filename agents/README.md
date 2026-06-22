@@ -47,7 +47,7 @@ Options:
 
 - `skills/data-model/`
   Use this when creating or revising JSON schemas, API payloads, SQL tables,
-  migrations, or other structured data models through Schemator.
+  migrations, or other Lindy data models through Schemator.
 
 - `skills/online-shopping/`
   Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.
