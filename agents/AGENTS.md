@@ -14,6 +14,7 @@
 - When creating a pull request, you MUST use the `pr-description` skill for the PR description.
 - When opening a pull request that is related to an issue, cite the related issue in the pull request body.
 - When prompting or coordinating other agents from Herdr, do not break the fourth wall by telling those agents about other Herdr panes, sidecars, or UI layout unless the user explicitly asks you to do so.
+- When running inside Herdr (`HERDR_ENV=1`), if the current Herdr workspace/window or current tab has no title/label, set one automatically once the conversation topic is clear. The title must be at most 25 characters and at most 5 words, and should be based on the topic of the conversation.
 
 ## Tools repo agent context
 

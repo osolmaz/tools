@@ -27,6 +27,8 @@ and waits.
   finish unless the user explicitly asks you to wait for completion or collect
   the final answer. It is enough to verify the command or prompt landed and the
   agent started working.
+- If the current workspace/window or current tab has no meaningful label, set a
+  concise label automatically once the conversation topic is clear.
 - Parse JSON from create/split commands instead of hard-coding returned IDs.
 
 ## Discovery
@@ -47,6 +49,41 @@ List tabs in a workspace:
 
 ```bash
 herdr tab list --workspace 1
+```
+
+## Workspace And Tab Titles
+
+When running inside Herdr, keep the current workspace/window and current tab
+titled once the conversation topic is clear. Do this automatically; do not wait
+for the user to ask.
+
+Rules:
+
+- Only set a title when the current workspace/window or current tab has no
+  meaningful label. Treat missing, empty, or default numeric tab labels like
+  `1` as untitled.
+- Do not overwrite an existing meaningful user-provided label.
+- The title must be at most 25 characters and at most 5 words.
+- Base the title on the conversation topic, not implementation details.
+
+Find the current IDs from the focused pane:
+
+```bash
+herdr pane list
+```
+
+Use the focused pane's `workspace_id` and `tab_id`, then inspect labels:
+
+```bash
+herdr workspace list
+herdr tab list --workspace <workspace_id>
+```
+
+Set missing labels with:
+
+```bash
+herdr workspace rename <workspace_id> "Short Topic"
+herdr tab rename <tab_id> "Short Topic"
 ```
 
 ## Reading Panes
