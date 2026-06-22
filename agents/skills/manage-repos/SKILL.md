@@ -1,6 +1,6 @@
 ---
 name: manage-repos
-description: Use when creating, onboarding, auditing, or tightening GitHub repositories, especially applying github-sane-defaults to every repository and adding stricter branch rulesets that require human review before merges to the default branch.
+description: Use when creating, onboarding, auditing, or tightening GitHub repositories, including repository descriptions, github-sane-defaults, and stricter branch rulesets that require human review before merges to the default branch.
 ---
 
 # Manage Repos
@@ -29,6 +29,9 @@ npx -y github-sane-defaults@latest plan OWNER/REPO
 
 When creating a new repository that is intended to publish open source software:
 
+- Set a concise GitHub repository description that says what the software does.
+  Use `gh repo edit OWNER/REPO --description "..."` and keep it specific enough
+  to distinguish the repository in GitHub lists.
 - Use the `add-license` skill to add the appropriate license. Default to MIT
   unless the user or repository requirements specify another license.
 - Use the `write-readme` skill for the README. Keep it user-focused: what the
@@ -137,12 +140,14 @@ rm -f "$payload_file"
    user-provided target.
 2. Run `github-sane-defaults plan` unless the user already asked to apply.
 3. Run `github-sane-defaults apply` for every target repository.
-4. For new open source software repositories, add a license with `add-license`
-   and write the README with `write-readme`.
+4. For new open source software repositories, set a concise GitHub repository
+   description, add a license with `add-license`, and write the README with
+   `write-readme`.
 5. For supported languages, add Slophammer configuration and CI.
 6. For strict repositories, create or update the separate review-required
    ruleset with organization-admin-only bypass.
-7. Verify GitHub rulesets with:
+7. Verify repository metadata with `gh repo view OWNER/REPO --json description`.
+8. Verify GitHub rulesets with:
 
 ```sh
 gh api "repos/OWNER/REPO/rulesets" --jq '.[] | {name, target, enforcement}'
