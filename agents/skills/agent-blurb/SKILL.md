@@ -22,6 +22,8 @@ to use, where to start, what to ask, and how to verify.
 - Put the prompt in a fenced `text` code block so GitHub renders a clean
   copyable block.
 - Start the prompt with the desired outcome and the project or tool name.
+- For durable agent workflows, prefer adding a real agent entrypoint instead
+  of packing the whole procedure into the README prompt.
 - Point to the source of truth before asking the agent to change files. Use an
   `AGENT_ENTRYPOINT.md`, install doc, README section, or stable raw URL when
   the repo has one.
@@ -53,14 +55,51 @@ Use a top-level quick setup section when the README has no install section yet.
 Use a subsection when the README already has an install, quickstart, or setup
 section.
 
+## Agent Entrypoints
+
+Add or update an agent entrypoint when the tool needs a repeatable operational
+workflow, safety boundaries, validation steps, or final reporting expectations.
+Do not create one for a tiny one-shot prompt where a README anchor is enough.
+
+Use this pattern:
+
+1. Add `docs/AGENT_ENTRYPOINT.md` as the source of truth for agents.
+2. Add or update a root `AGENTS.md` with a short pointer to that entrypoint.
+3. Add a README quick setup section with a copyable prompt that points to the
+   entrypoint, preferably through a stable raw URL for published repositories.
+
+Keep the entrypoint operational rather than promotional. It should usually
+cover:
+
+- what the agent should do before changing files
+- how to inspect the target repository or existing setup
+- how to choose inputs, configuration, or implementation path
+- what commands or tool modes to run
+- how to inspect generated artifacts or results
+- what requires user confirmation before applying changes
+- what local checks to run before finishing
+- what to report back
+
+Keep `AGENTS.md` short. It should route agents to the entrypoint and add only
+repo-specific rules that are enforceable or important locally. Do not duplicate
+the full entrypoint there.
+
+Keep the README prompt short once an entrypoint exists. The prompt should state
+the desired outcome, point to the entrypoint before asking for changes, and tell
+the agent to follow it and report unsupported setup or missing choices.
+
 ## Workflow
 
 1. Inspect the README and install docs to find the natural setup section.
-2. Start with a short source-of-truth pointer. Expand only if the agent would
-   otherwise miss important setup steps.
-3. Add a short human lead-in followed by one fenced `text` block.
-4. Keep the block short, direct, and wrapped to 80 characters.
-5. Cut any line that repeats the README or does not change agent behavior.
+2. Decide whether the task needs a durable agent entrypoint. Add one when the
+   workflow is more than a short prompt.
+3. If adding an entrypoint, create or update `docs/AGENT_ENTRYPOINT.md` and a
+   short root `AGENTS.md` pointer before editing the README prompt.
+4. Start the README prompt with a short source-of-truth pointer. Expand only if
+   the agent would otherwise miss important setup steps.
+5. Add a short human lead-in followed by one fenced `text` block.
+6. Keep the block short, direct, and wrapped to 80 characters.
+7. Cut any line that repeats the README or does not change agent behavior.
 
 ## Template
 
@@ -94,16 +133,39 @@ Prefer an even shorter prompt when the project already has a strong agent
 entrypoint:
 
 ````md
-## Quick setup: tell your agent about <Tool>
+## Quick Setup: Tell Your Agent About <Tool>
 
 Copy this block into your coding agent to use <Tool> in this repository.
 
 ```text
 Use <Tool> to <outcome> for this project.
 
-Attention agent: start here before changing code:
+Attention agent: start with this file before changing files:
 <raw-url-or-repo-path>
 
 Follow it exactly. Report if the requested setup is unsupported.
 ```
+````
+
+For new entrypoints, keep examples schematic and adapt the section names to the
+tool:
+
+````md
+# Agent Entrypoint
+
+Attention agent: start here when you are asked to use <Tool> for <outcome>.
+
+## Operating Rules
+
+## First Pass
+
+## Run Or Configure The Tool
+
+## Inspect Results
+
+## Apply Changes
+
+## Validation
+
+## Final Report
 ````
