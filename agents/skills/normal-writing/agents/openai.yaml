@@ -1,0 +1,4 @@
+interface:
+  display_name: "Normal Writing"
+  short_description: "Write in a clearer, more human GPT-5 style"
+  default_prompt: "Use $normal-writing to rewrite this in a more natural, direct style."

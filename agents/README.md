@@ -60,6 +60,10 @@ Options:
   namespaces, social handles, app-store names, or AI/developer platform accounts
   are free, taken, reserved, or still need manual verification.
 
+- `skills/normal-writing/`
+  Use this when GPT-5 should write or rewrite text in a more normal, natural,
+  direct voice.
+
 - `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
