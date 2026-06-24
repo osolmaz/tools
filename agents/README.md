@@ -55,6 +55,11 @@ Options:
 - `skills/manage-repos/`
   Use this when creating, onboarding, auditing, or tightening GitHub repositories with sane defaults and stricter merge-review rules.
 
+- `skills/name-claim/`
+  Use this when checking whether project names, domains, packages, code-host
+  namespaces, social handles, app-store names, or AI/developer platform accounts
+  are free, taken, reserved, or still need manual verification.
+
 - `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
 
