@@ -75,6 +75,11 @@ Options:
   Use this while deciding how to choose the next major, minor, patch, or
   pre-1.0 version during release.
 
+- `skills/write-format-spec/`
+  Use this when writing, reviewing, or rewriting a specification for a portable
+  file, folder, resource, package, manifest, profile, schema, or other
+  structured format.
+
 - `skills/write-readme/`
   Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 
