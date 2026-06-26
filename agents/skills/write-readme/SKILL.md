@@ -17,6 +17,24 @@ process history unless a user needs them to install or use the project.
 
 Keep maintainer process details out unless the project is itself a maintainer tool.
 
+## Opening Intro
+
+Start the first paragraph with what the project is, then what it does.
+
+- First sentence: state the project's category or identity.
+- Second sentence: state the practical job it performs for users.
+- Avoid starting with only a verb-led feature claim; readers should not have to
+  infer what kind of thing the project is.
+
+Example:
+
+```markdown
+Schemator is a schema and data-model review CLI for agents and maintainers.
+It turns draft TypeScript, JSON Schema, YAML, JSON, or Markdown proposal snippets
+into a reviewed field graph and applies safe simplifications until the model
+stabilizes.
+```
+
 Examples of maintainer process details:
 
 - release mechanics
