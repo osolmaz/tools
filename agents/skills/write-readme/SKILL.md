@@ -29,7 +29,7 @@ Start the first paragraph with what the project is, then what it does.
 Example:
 
 ```markdown
-Schemator is a schema and data-model review CLI for agents and maintainers.
+Schemator is a schema and data-model review CLI for agents.
 It turns draft TypeScript, JSON Schema, YAML, JSON, or Markdown proposal snippets
 into a reviewed field graph and applies safe simplifications until the model
 stabilizes.
