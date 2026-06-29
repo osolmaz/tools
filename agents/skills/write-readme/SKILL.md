@@ -45,6 +45,11 @@ Examples of maintainer process details:
 
 Put those in maintainer docs when they need to exist.
 
+Do not add a generic `Documentation`, `Docs`, `Further Reading`, or similar
+section that indexes docs in the repository unless the user explicitly asks for
+that section. Link to a specific doc only when it directly helps the user
+complete an install or usage task from the README.
+
 ## Demo Media
 
 When adding asciinema, GIF, or video demos to a README:
