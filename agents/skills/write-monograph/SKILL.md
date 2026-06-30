@@ -44,6 +44,33 @@ say what is missing, or ask for the needed source/context.
 Truth, source fidelity, and mathematical correctness come before matching the
 recommended sequence. Drop, merge, or reorder steps when the subject demands it.
 
+## Markdown Formatting
+
+When writing Markdown, use clean semantic headings without manual section
+numbers.
+
+Write:
+
+```markdown
+## Dennard Formulation
+## KV-Aware Bounds
+```
+
+Do not write:
+
+```markdown
+## 1. Dennard Formulation
+## 2. KV-Aware Bounds
+```
+
+Let the renderer, table of contents, or surrounding publication system provide
+numbering when numbering is needed. Use ordered lists for actual ordered steps,
+procedures, or exercise lists, not for section titles.
+
+Only preserve manual numbering in headings when the user explicitly asks for it,
+or when rewriting an existing source whose section numbers must remain stable
+for citation or cross-reference.
+
 ## Reader Contract
 
 Write for a serious learner who is willing to work but does not yet know why the
@@ -279,6 +306,8 @@ Before considering a chapter ready, check:
 - Later sections refer back to earlier results by name or role.
 - The text does not overgeneralize before the reader has seen the small case.
 - The suggested structure has not forced unsupported or fabricated facts.
+- Markdown headings do not contain manual numbers unless they are explicitly
+  required for stable references.
 
 ## Avoid
 
@@ -286,6 +315,7 @@ Before considering a chapter ready, check:
   another without explanatory prose.
 - Making up motivation, examples, applications, or facts to satisfy the skill's
   suggested structure.
+- Numbering Markdown headings by hand when plain semantic headings would work.
 - Starting with a maximally general definition when a familiar case can motivate it.
 - Introducing notation only inside a formula and explaining it later.
 - Treating examples as optional after a hard theorem.
