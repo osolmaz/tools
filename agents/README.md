@@ -80,6 +80,11 @@ Options:
   file, folder, resource, package, manifest, profile, schema, or other
   structured format.
 
+- `skills/write-monograph/`
+  Use this when planning, drafting, revising, or reviewing a mathematical or
+  technical monograph, lecture-note sequence, long-form tutorial, or textbook
+  chapter.
+
 - `skills/write-readme/`
   Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 
