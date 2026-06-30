@@ -1,6 +1,6 @@
 ---
 name: write-monograph
-description: Use when planning, drafting, revising, or reviewing a mathematical or technical monograph, lecture-note sequence, long-form tutorial, or textbook chapter. Helps build exposition from motivation to formal definitions, propositions, proofs, examples, applications, questions, exercises, and solutions without dumping unexplained abstractions on the reader.
+description: Use when planning, drafting, revising, or reviewing a mathematical or technical monograph, lecture-note sequence, long-form tutorial, or textbook chapter. Helps build exposition from motivation to formal definitions, propositions, proofs, examples, applications, questions, exercises, and solutions without dumping unexplained formulas or inventing facts to fit a template.
 ---
 
 # Write Monograph
@@ -11,6 +11,38 @@ subject by building it in layers.
 The goal is not to make the text easy by removing rigor. The goal is to make
 rigor feel inevitable: each definition, theorem, notation choice, proof, example,
 algorithm, and exercise should answer a need the reader has already seen.
+
+## Non-Negotiable Exposition Rules
+
+No section may become a dump of formulas, theorem statements, or definitions one
+after another.
+
+Every displayed formula must be introduced by prose that says why it appears,
+what problem it addresses, or what the reader should notice. After a displayed
+formula, add prose that interprets it, names the important terms, explains the
+transition, or states what has been gained, unless the formula is an immediate
+continuation of the same short derivation.
+
+Long derivations must be broken into stages. Between stages, explain the goal,
+the invariant, the simplification, or the reason the next manipulation is valid.
+The reader should be able to follow the conceptual path from the surrounding
+paragraphs before checking every algebraic detail.
+
+Use formulas as load-bearing parts of the exposition, not as a replacement for
+exposition.
+
+## Heuristic, Not A Template
+
+The structure in this skill is a suggested teaching pattern, not a strict
+formula.
+
+Do not invent definitions, examples, applications, historical motivation,
+theorems, citations, exercises, or domain facts just to satisfy this pattern. If
+the source material does not support a section, write a narrower true section,
+say what is missing, or ask for the needed source/context.
+
+Truth, source fidelity, and mathematical correctness come before matching the
+recommended sequence. Drop, merge, or reorder steps when the subject demands it.
 
 ## Reader Contract
 
@@ -234,7 +266,10 @@ show the method, not merely the answer.
 Before considering a chapter ready, check:
 
 - The chapter says what new capability it gives the reader.
+- No section degenerates into formulas or formal statements without explanatory
+  paragraphs between them.
 - Every major definition is motivated before it is stated.
+- Displayed formulas are introduced and interpreted in prose.
 - Notation is introduced before dense use and dependencies are named.
 - Theorems are followed by proofs, examples, or a clear reason for omission.
 - Examples are not all of the same type.
@@ -243,9 +278,14 @@ Before considering a chapter ready, check:
 - Questions test concepts; exercises test use.
 - Later sections refer back to earlier results by name or role.
 - The text does not overgeneralize before the reader has seen the small case.
+- The suggested structure has not forced unsupported or fabricated facts.
 
 ## Avoid
 
+- Dumping formulas, equations, definitions, or theorem statements one after
+  another without explanatory prose.
+- Making up motivation, examples, applications, or facts to satisfy the skill's
+  suggested structure.
 - Starting with a maximally general definition when a familiar case can motivate it.
 - Introducing notation only inside a formula and explaining it later.
 - Treating examples as optional after a hard theorem.
