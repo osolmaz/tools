@@ -71,6 +71,21 @@ Only preserve manual numbering in headings when the user explicitly asks for it,
 or when rewriting an existing source whose section numbers must remain stable
 for citation or cross-reference.
 
+Make headings labels, not sentences. A heading names the topic of its section as
+a noun phrase — "The Capacity Limit", "Dense Transformer Adapter", "Worked
+Examples" — so the reader can scan the structure. A full subject-verb-object
+heading ("Capacity Caps the Batch") pre-empts the section and reads as a slogan,
+the more so when several sibling headings are stamped from one parallel template.
+
+The exception is a deliberate major statement. A heading may be a full sentence
+when that sentence is a load-bearing claim the section exists to defend — a named
+law, or a thesis like "Memory Power Is the Wrong Metric for Latency". Use it
+rarely: in a document whose headings are otherwise noun phrases, a sentence
+heading should earn its emphasis, and two of them in a row almost never do.
+
+After drafting, read a chapter's headings as a flat list and check that they are
+the same kind of thing, labels with labels, in one register.
+
 ## Reader Contract
 
 Write for a serious learner who is willing to work but does not yet know why the
@@ -334,6 +349,8 @@ Before considering a chapter ready, check:
   required for stable references.
 - No sentence uses the "it is not X, it is Y" antithesis reframe where a direct
   positive statement would serve.
+- Headings are noun-phrase labels in a consistent register, except where a full
+  sentence is a deliberate major statement.
 
 ## Avoid
 
@@ -350,6 +367,9 @@ Before considering a chapter ready, check:
 - Writing exercises that only repeat the worked examples with new numbers.
 - Collapsing proof, computation, and explanation into one unstructured block.
 - Making the monograph sound like a survey when it is meant to teach.
+- Writing headings as full sentences or slogans ("Capacity Caps the Batch") when
+  a noun-phrase label would serve, or stamping sibling headings from one parallel
+  template. Reserve sentence headings for deliberate major statements.
 - Using the negation-contrast reframe ("it is not X, it is Y"; "not X but Y";
   "X isn't about Y, it's about Z"). State Y directly; the reframe reads as
   machine-generated and makes the reader hold a clause that is immediately
