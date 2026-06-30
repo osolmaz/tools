@@ -288,6 +288,30 @@ Order exercises from direct checks to synthesis. If solutions are included,
 encourage the reader to attempt the work first, then provide enough detail to
 show the method, not merely the answer.
 
+## Sentence-Level Voice
+
+State claims positively. Avoid the negation-contrast reframe — "it is not X, it
+is Y", "not X but Y", "X isn't about Y, it's about Z", "the point isn't X, it's
+Y". This antithesis construction is a recognizable marker of machine-generated
+prose, and it forces the reader to hold a clause (X) that the sentence
+immediately throws away. Say Y directly.
+
+Rewrite the reframe into a plain assertion:
+
+- "It is not a benchmark predictor. It is a roofline." becomes "It is a
+  roofline."
+- "The product appears not because we multiplied two specs, but because
+  throughput factors into parallelism times step rate." becomes "The product
+  appears because throughput factors into parallelism times step rate."
+- "This is a batched-throughput statement, not a latency statement." becomes
+  "This governs batched throughput." — then show the degenerate case directly.
+
+A plain negation is fine when the negation is the content: a genuine
+non-equivalence ("fitting in memory does not imply serving usefully"), a
+disambiguation between two real quantities, or a warning about a real
+misconception. Use it once, plainly, without the paired "it is Y" reveal that
+turns the fact into a rhetorical move.
+
 ## Revision Checklist
 
 Before considering a chapter ready, check:
@@ -308,6 +332,8 @@ Before considering a chapter ready, check:
 - The suggested structure has not forced unsupported or fabricated facts.
 - Markdown headings do not contain manual numbers unless they are explicitly
   required for stable references.
+- No sentence uses the "it is not X, it is Y" antithesis reframe where a direct
+  positive statement would serve.
 
 ## Avoid
 
@@ -324,3 +350,7 @@ Before considering a chapter ready, check:
 - Writing exercises that only repeat the worked examples with new numbers.
 - Collapsing proof, computation, and explanation into one unstructured block.
 - Making the monograph sound like a survey when it is meant to teach.
+- Using the negation-contrast reframe ("it is not X, it is Y"; "not X but Y";
+  "X isn't about Y, it's about Z"). State Y directly; the reframe reads as
+  machine-generated and makes the reader hold a clause that is immediately
+  discarded.
