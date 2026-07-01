@@ -44,9 +44,9 @@ say what is missing, or ask for the needed source/context.
 Truth, source fidelity, and mathematical correctness come before matching the
 recommended sequence. Drop, merge, or reorder steps when the subject demands it.
 
-## Markdown Formatting
+## Title Formatting
 
-When writing Markdown, use clean semantic headings without manual section
+Write section titles as clean semantic headings without manual
 numbers.
 
 Write:
