@@ -15,6 +15,7 @@
 - When opening a pull request that is related to an issue, cite the related issue in the pull request body.
 - When prompting or coordinating other agents from Herdr, do not break the fourth wall by telling those agents about other Herdr panes, sidecars, or UI layout unless the user explicitly asks you to do so.
 - When running inside Herdr (`HERDR_ENV=1`), if the current Herdr workspace/window or current tab has no title/label, set one automatically once the conversation topic is clear. The title must be at most 25 characters and at most 5 words, and should be based on the topic of the conversation.
+- Do not create, install, start, or convert anything into a system or user service (including systemd units) unless the user explicitly asks for a service. A request to "serve" something means use a temporary process, not a persistent service.
 
 ## Tools repo agent context
 
@@ -24,6 +25,8 @@
 - To update local Codex agent instructions or repo-local skills, pull the latest version of this repo, then run `agents/sync-skills.py`.
 - If a skill is referred to but is not installed in the active Codex skill list, check `agents/skills/` before treating it as missing; it may already exist in this repo and simply need to be synced.
 - If an installed skill came from this tools repo, edit the source under `agents/skills/` first. Do not hand-edit the copied installation under `$CODEX_HOME/skills`, `~/.codex/skills`, or OpenClaw agent runtime mirrors except via the sync script.
+- Use the `manage-runtimes` skill before creating, updating, promoting, auditing, or deleting local inference runtimes.
+- Do not create ad hoc vLLM, SGLang, llama.cpp, TensorRT-LLM, or similar runtime environments under `~/scratch`, `~/services`, repos, or project-local `.venv` directories. Canonical runtimes belong under `~/runtimes/<engine>/`.
 
 ## Repo maintenance conventions
 
