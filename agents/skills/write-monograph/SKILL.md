@@ -44,9 +44,9 @@ say what is missing, or ask for the needed source/context.
 Truth, source fidelity, and mathematical correctness come before matching the
 recommended sequence. Drop, merge, or reorder steps when the subject demands it.
 
-## Title Formatting
+## Markdown Formatting
 
-Write section titles as clean semantic headings without manual
+When writing Markdown, use clean semantic headings without manual section
 numbers.
 
 Write:
@@ -70,6 +70,8 @@ procedures, or exercise lists, not for section titles.
 Only preserve manual numbering in headings when the user explicitly asks for it,
 or when rewriting an existing source whose section numbers must remain stable
 for citation or cross-reference.
+
+## Title Formatting
 
 Make headings labels, not sentences. A heading names the topic of its section as
 a noun phrase — "Capacity limit", "Dense transformer", "Worked examples" — so the
