@@ -71,20 +71,38 @@ Only preserve manual numbering in headings when the user explicitly asks for it,
 or when rewriting an existing source whose section numbers must remain stable
 for citation or cross-reference.
 
+## Title Formatting
+
 Make headings labels, not sentences. A heading names the topic of its section as
-a noun phrase — "The Capacity Limit", "Dense Transformer Adapter", "Worked
-Examples" — so the reader can scan the structure. A full subject-verb-object
-heading ("Capacity Caps the Batch") pre-empts the section and reads as a slogan,
-the more so when several sibling headings are stamped from one parallel template.
+a noun phrase — "Capacity limit", "Dense transformer", "Worked examples" — so the
+reader can scan the structure. A full subject-verb-object heading ("Capacity caps
+the batch") pre-empts the section and reads as a slogan, the more so when several
+sibling headings are stamped from one parallel template.
+
+Use sentence case, not Title Case. Capitalize only the first word, proper nouns,
+and specific coined terms; lowercase the rest. Keep eponymous or named constructs
+in their canonical form (Dennard Ceiling, KV-Aware Bound, DGX Spark) and acronyms
+uppercase (KV, MoE, LLM). So "The Memory-Fit Batch" becomes "Memory-fit batch"
+and "The Usable-Batch Correction" becomes "Usable-batch correction". A leading
+article is fine when it reads naturally ("A toy decoder").
+
+Do not make "The" a reflexive prefix. Drop a rote leading "The" from a
+noun-phrase label ("The capacity limit" → "Capacity limit"); keep it only when
+the heading is a full clause that would read wrong without it ("The loose bound is
+too generous").
+
+Prefer a plain declarative heading to a rhetorical frame, and do not repeat one
+frame down the outline. A run of "Why X" or "How Y" headings is a smell: turn
+"Why the Loose Bound Is Too Generous" into "The loose bound is too generous".
 
 The exception is a deliberate major statement. A heading may be a full sentence
 when that sentence is a load-bearing claim the section exists to defend — a named
-law, or a thesis like "Memory Power Is the Wrong Metric for Latency". Use it
+law, or a thesis like "Memory power is the wrong metric for latency". Use it
 rarely: in a document whose headings are otherwise noun phrases, a sentence
 heading should earn its emphasis, and two of them in a row almost never do.
 
 After drafting, read a chapter's headings as a flat list and check that they are
-the same kind of thing, labels with labels, in one register.
+the same kind of thing, labels with labels, in one register and one casing.
 
 ## Reader Contract
 
@@ -351,6 +369,8 @@ Before considering a chapter ready, check:
   positive statement would serve.
 - Headings are noun-phrase labels in a consistent register, except where a full
   sentence is a deliberate major statement.
+- Headings are sentence case (proper nouns and coined terms aside), carry no rote
+  "The" prefix, and do not repeat a "Why X" / "How Y" frame down the outline.
 
 ## Avoid
 
@@ -370,6 +390,11 @@ Before considering a chapter ready, check:
 - Writing headings as full sentences or slogans ("Capacity Caps the Batch") when
   a noun-phrase label would serve, or stamping sibling headings from one parallel
   template. Reserve sentence headings for deliberate major statements.
+- Title-casing headings or making "The" a reflexive prefix ("The Memory-Fit
+  Batch"); use sentence case and drop the rote article ("Memory-fit batch"),
+  keeping only proper nouns and coined terms (Dennard Ceiling) capitalized.
+- Leaning on one heading frame repeatedly (a run of "Why X" / "How Y"); prefer a
+  plain declarative title.
 - Using the negation-contrast reframe ("it is not X, it is Y"; "not X but Y";
   "X isn't about Y, it's about Z"). State Y directly; the reframe reads as
   machine-generated and makes the reader hold a clause that is immediately
