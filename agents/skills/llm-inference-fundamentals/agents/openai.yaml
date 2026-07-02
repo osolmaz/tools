@@ -1,0 +1,4 @@
+interface:
+  display_name: "LLM Inference Fundamentals"
+  short_description: "Domain knowledge for LLM inference performance"
+  default_prompt: "Use $llm-inference-fundamentals to ground reasoning about LLM inference metrics, KV cache, batching, and serving trade-offs in the vendored LLM Inference Handbook."
