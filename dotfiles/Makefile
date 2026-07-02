@@ -1,7 +1,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -57,6 +57,9 @@ install-zed:
 	mkdir -p ~/.config/zed
 	cp -f .config/zed/settings.json ~/.config/zed/settings.json
 
+install-tmux:
+	cp -f .tmux.conf ~/.tmux.conf
+
 copy:
 	cp -f ~/.vimrc .vimrc
 	mkdir -p .i3
@@ -81,3 +84,4 @@ copy:
 	cp -f ~/.config/terminator/config .config/terminator/config
 	mkdir -p .config/zed/
 	cp -f ~/.config/zed/settings.json .config/zed/settings.json
+	if [ -f "$$HOME/.tmux.conf" ]; then cp -f "$$HOME/.tmux.conf" .tmux.conf; fi
