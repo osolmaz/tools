@@ -63,16 +63,24 @@ When a user asks for a patch bump on a pre-1.0 app, do not override that just be
 3. Update all version sources that the project treats as authoritative.
    Examples: `Cargo.toml`, `Cargo.lock`, `package.json`, generated lockfiles, docs, install snippets, and changelogs.
 4. Use package-manager commands where they reduce mistakes, but inspect the resulting diff.
-5. Run the repo's release-relevant checks before tagging.
+5. Run the repo's release-relevant checks before release.
    Prefer local CI scripts, tests, package verification, install smoke tests, and release dry-runs where available.
 6. Commit with a Conventional Commit release title if the repo uses that style.
    Example: `chore: release 1.2.3`.
-7. Wait for required CI on the release commit before creating the tag or release unless the repo explicitly allows tagging first.
-8. Create the tag using the repo convention.
-   Common Git tag format is `vX.Y.Z`, while the SemVer value itself is `X.Y.Z`.
-9. Create release notes that match the bump.
+7. Wait for required CI on the release commit before publishing the GitHub Release unless the repo explicitly allows releasing first.
+8. Create or publish the GitHub Release for the version.
+   The release may create or point at the repo's conventional tag, commonly `vX.Y.Z`, while the SemVer value itself is `X.Y.Z`.
+9. Put release notes on the GitHub Release before or during publication.
    Keep patch notes narrow, minor notes focused on new capabilities, and major notes explicit about migration.
 10. Verify the publish workflow or registry state after release.
+
+## Publish Workflow Setup
+
+- When adding a new publish workflow, default to `on: release: types: [published]`, not `on: push: tags`.
+- New package versions should be created by publishing a GitHub Release. A tag can identify the released commit, but a bare tag push should not be the normal release action or the sole publish trigger unless the repo explicitly requires tag-push releases.
+- In the workflow, validate that the release tag matches the package metadata version before publishing. Also check that the tagged commit is on the default branch, the version is not already published, and the build artifacts come from the tagged commit.
+- For trusted publishing setups such as PyPI or npm provenance, wire the workflow environment and permissions to the release-published job, then verify the registry after the GitHub Release publishes.
+- If a version was already published through an old tag-triggered workflow, do not delete, recreate, yank, or republish that same immutable version just to replay it through a GitHub Release. Update the workflow for the next version and explain the history if users may be confused.
 
 ## If The Wrong Version Was Published
 
