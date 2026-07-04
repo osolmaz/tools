@@ -101,10 +101,23 @@ repositories, create an additional branch ruleset that:
 
 - targets `~DEFAULT_BRANCH`
 - requires one approving pull request review
-- allows bypass only for organization admins
-- does not grant bypass to write, maintain, or repository-admin roles
+- allows bypass only for the human admin role that owns the repository:
+  organization admins for organization repositories, or repository admins for
+  personal repositories
+- does not grant bypass to write, maintain, or agent accounts
 
 This strict rule complements `github-sane-defaults`; it does not replace it.
+
+Bypass actor choice:
+
+- Organization repository: `{ actor_id: null, actor_type: "OrganizationAdmin",
+  bypass_mode: "always" }`
+- Personal repository: `{ actor_id: 5, actor_type: "RepositoryRole",
+  bypass_mode: "always" }`
+
+`RepositoryRole` actor id `5` is GitHub's repository admin role. Use it for
+personal repositories where the human owner should be able to bypass the rule,
+but write-role agent accounts should not.
 
 Example `gh` command:
 
@@ -112,15 +125,16 @@ Example `gh` command:
 OWNER="example-org"
 REPO="example-repo"
 RULESET_NAME="strict: require review before default-branch merge"
+BYPASS_ACTORS_JSON='[
+  { "actor_id": null, "actor_type": "OrganizationAdmin", "bypass_mode": "always" }
+]'
 payload_file="$(mktemp)"
 
-jq -n --arg name "$RULESET_NAME" '{
+jq -n --arg name "$RULESET_NAME" --argjson bypass_actors "$BYPASS_ACTORS_JSON" '{
   name: $name,
   target: "branch",
   enforcement: "active",
-  bypass_actors: [
-    { actor_id: null, actor_type: "OrganizationAdmin", bypass_mode: "always" }
-  ],
+  bypass_actors: $bypass_actors,
   conditions: {
     ref_name: { include: ["~DEFAULT_BRANCH"], exclude: [] }
   },
@@ -169,7 +183,8 @@ rm -f "$payload_file"
    publish from GitHub Releases rather than bare tag pushes.
 6. For supported languages, add Slophammer configuration and CI.
 7. For strict repositories, create or update the separate review-required
-   ruleset with organization-admin-only bypass.
+   ruleset with the correct human-admin-only bypass actor for the repository
+   owner type.
 8. Verify repository metadata with `gh repo view OWNER/REPO --json description`.
 9. Verify GitHub rulesets with:
 
@@ -178,14 +193,19 @@ gh api "repos/OWNER/REPO/rulesets" --jq '.[] | {name, target, enforcement}'
 ```
 
 For the strict ruleset, fetch the full payload and confirm `pull_request`
-requires one approval and `bypass_actors` contains only `OrganizationAdmin`.
+requires one approval. For organization repositories, `bypass_actors` should
+contain only `OrganizationAdmin`. For personal repositories, `bypass_actors`
+should contain only `RepositoryRole` actor id `5`.
 
 ## Safety
 
 - Do not put personal names, private usernames, credentials, or local machine paths
   into reusable skill docs, ruleset names, or example commands.
 - Do not weaken an existing stricter rule unless the user explicitly asks.
-- Do not give bypass to agent accounts, write-role actors, maintain-role actors,
-  or broad repository-admin roles for organization repositories.
-- If the target is a personal repository without organization admins, stop and
-  ask before choosing a different bypass model.
+- Do not give bypass to agent accounts, write-role actors, or maintain-role
+  actors.
+- For organization repositories, do not give bypass to broad repository-admin
+  roles; use organization admins unless the user explicitly asks for a different
+  model.
+- For personal repositories, use repository-admin bypass when the human owner
+  should retain override ability.
