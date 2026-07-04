@@ -1,4 +1,4 @@
 interface:
   display_name: "Manage Repos"
-  short_description: "Set GitHub repo metadata and defaults"
-  default_prompt: "Use $manage-repos to set repository descriptions, apply GitHub defaults, and configure strict merge-review rules."
+  short_description: "Set repo metadata, defaults, and publishing"
+  default_prompt: "Use $manage-repos to set repository descriptions, apply GitHub defaults, configure release-published package workflows, and configure strict merge-review rules."

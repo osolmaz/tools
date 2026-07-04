@@ -1,6 +1,6 @@
 ---
 name: manage-repos
-description: Use when creating, onboarding, auditing, or tightening GitHub repositories, including repository descriptions, github-sane-defaults, and stricter branch rulesets that require human review before merges to the default branch.
+description: Use when creating, onboarding, auditing, or tightening GitHub repositories, including repository descriptions, release-published package workflows, github-sane-defaults, and stricter branch rulesets that require human review before merges to the default branch.
 ---
 
 # Manage Repos
@@ -39,6 +39,28 @@ When creating a new repository that is intended to publish open source software:
 - Keep maintainer process details, local machine paths, private usernames,
   credentials, scratch notes, and history of how the repo was created out of the
   README.
+
+## Package Publish Workflows
+
+When adding or revising package publish workflows for a repository:
+
+- Use the `semver` skill to choose the version when a release bump is part of the
+  task.
+- Default new publish workflows to `on: release: types: [published]`, not
+  `on: push: tags`.
+- Create new package versions by publishing a GitHub Release. A tag can identify
+  the released commit, but a bare tag push should not be the normal release
+  action or the sole publish trigger unless the repository explicitly requires
+  tag-push releases.
+- Validate the release tag against package metadata before publishing. Also
+  check that the tagged commit is on the default branch, the version is not
+  already published, and build artifacts come from the tagged commit.
+- For trusted publishing setups such as PyPI or npm provenance, wire the
+  workflow environment and permissions to the release-published job, then verify
+  the registry after the GitHub Release publishes.
+- If an older tag-triggered workflow already published a version, do not delete,
+  recreate, yank, or republish that immutable version just to replay it through a
+  GitHub Release. Update the workflow for the next version.
 
 ## Slophammer
 
@@ -143,11 +165,13 @@ rm -f "$payload_file"
 4. For new open source software repositories, set a concise GitHub repository
    description, add a license with `add-license`, and write the README with
    `write-readme`.
-5. For supported languages, add Slophammer configuration and CI.
-6. For strict repositories, create or update the separate review-required
+5. If the repository needs package publishing, configure publish workflows to
+   publish from GitHub Releases rather than bare tag pushes.
+6. For supported languages, add Slophammer configuration and CI.
+7. For strict repositories, create or update the separate review-required
    ruleset with organization-admin-only bypass.
-7. Verify repository metadata with `gh repo view OWNER/REPO --json description`.
-8. Verify GitHub rulesets with:
+8. Verify repository metadata with `gh repo view OWNER/REPO --json description`.
+9. Verify GitHub rulesets with:
 
 ```sh
 gh api "repos/OWNER/REPO/rulesets" --jq '.[] | {name, target, enforcement}'
