@@ -6,7 +6,7 @@ description: Use when maintaining local Codex state, including changing or repai
 # Codex Maintenance
 
 Use this skill for local Codex state maintenance. The source tool is
-`/Users/onur/repos/tools/codex-tools`.
+`~/repos/tools/codex-tools`.
 
 ## Core Rules
 
@@ -30,7 +30,7 @@ only reports the shell's current directory and does not validate or repair
 persisted Codex session state.
 
 ```bash
-cd /Users/onur/repos/tools/codex-tools
+cd ~/repos/tools/codex-tools
 cargo run --bin codex-tools -- set-cwd <session-id-or-prefix-or-rollout-jsonl> <new-cwd> --dry-run
 cargo run --bin codex-tools -- set-cwd <session-id-or-prefix-or-rollout-jsonl> <new-cwd>
 ```
@@ -59,7 +59,7 @@ updates. If it fails, stop and inspect before retrying.
 Use transcript extraction for readable summaries or migration/debugging.
 
 ```bash
-cd /Users/onur/repos/tools/codex-tools
+cd ~/repos/tools/codex-tools
 cargo run --bin codex-tools -- extract <rollout.jsonl>
 cargo run --bin codex-tools -- extract <rollout.jsonl> --jsonl
 ```
@@ -70,12 +70,20 @@ messages.
 ## Transfer Sessions Between Machines
 
 When the user asks to transfer, copy, migrate, move, export, import, or resume a
-Codex session on another machine, use `cct` from `codex-claude-transfer`.
+Codex session on another machine, use `cct` from Onur's fork:
+`https://github.com/osolmaz/codex-claude-transfer`.
 
 The local source checkout is usually:
 
 ```bash
-cd /Users/onur/repos/codex-claude-transfer
+cd ~/repos/codex-claude-transfer
+```
+
+If it is missing, clone the fork into `~/repos`:
+
+```bash
+git clone https://github.com/osolmaz/codex-claude-transfer.git ~/repos/codex-claude-transfer
+cd ~/repos/codex-claude-transfer
 ```
 
 If the `cct` binary is not present, build it from the checkout:
@@ -146,11 +154,11 @@ while no Codex process is actively writing to the database. Verify
 When changing the maintenance tooling itself:
 
 ```bash
-cd /Users/onur/repos/tools/codex-tools
+cd ~/repos/tools/codex-tools
 cargo test
 cargo clippy -- -D warnings
 ```
 
-Keep edits in `/Users/onur/repos/tools`, then run
-`/Users/onur/repos/tools/agents/sync-skills.py` if the installed skill copy
-under `~/.codex/skills` should be refreshed.
+Keep edits in `~/repos/tools`, then run
+`~/repos/tools/agents/sync-skills.py` if the installed skill copy under
+`~/.codex/skills` should be refreshed.
