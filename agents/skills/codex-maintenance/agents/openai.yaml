@@ -1,4 +1,4 @@
 interface:
   display_name: "Codex Maintenance"
-  short_description: "Maintain local Codex session state safely"
-  default_prompt: "Use codex-maintenance to inspect or repair local Codex session state."
+  short_description: "Maintain and transfer local Codex session state safely"
+  default_prompt: "Use codex-maintenance to inspect, repair, or transfer local Codex session state."

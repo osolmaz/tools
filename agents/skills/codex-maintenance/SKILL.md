@@ -1,6 +1,6 @@
 ---
 name: codex-maintenance
-description: Use when maintaining local Codex state, including changing or repairing session cwd/title/metadata, inspecting rollout JSONL files, extracting transcripts, editing trusted project config, or using the tools repo codex-tools CLI. Prefer this skill for work involving ~/.codex/state_5.sqlite, ~/.codex/sessions, ~/.codex/config.toml, and local Codex session repair.
+description: Use when maintaining local Codex state, including changing or repairing session cwd/title/metadata, inspecting rollout JSONL files, extracting transcripts, transferring Codex sessions between machines, editing trusted project config, or using the tools repo codex-tools CLI. Prefer this skill for work involving ~/.codex/state_5.sqlite, ~/.codex/sessions, ~/.codex/config.toml, local Codex session repair, and Codex session transfer.
 ---
 
 # Codex Maintenance
@@ -66,6 +66,52 @@ cargo run --bin codex-tools -- extract <rollout.jsonl> --jsonl
 
 Use plain output for reading and `--jsonl` when another tool needs structured
 messages.
+
+## Transfer Sessions Between Machines
+
+When the user asks to transfer, copy, migrate, move, export, import, or resume a
+Codex session on another machine, use `cct` from `codex-claude-transfer`.
+
+The local source checkout is usually:
+
+```bash
+cd /Users/onur/repos/codex-claude-transfer
+```
+
+If the `cct` binary is not present, build it from the checkout:
+
+```bash
+go build -o cct ./cmd/cct
+```
+
+Export the target session to a `.codexbundle`:
+
+```bash
+./cct list --tool codex
+./cct export --tool codex --session <session-id-or-prefix> --output <name>.codexbundle
+```
+
+On the destination machine, import the bundle instead of editing SQLite:
+
+```bash
+./cct inspect <name>.codexbundle
+./cct import <name>.codexbundle
+```
+
+Use `--dry-run` before import when the destination state is not known. Use
+`--map-cwd-here` or `--map-cwd OLD=NEW` when the project lives at a different
+path on the destination machine. After import, restart or resume Codex so it
+re-scans the rollout files and updates its own index.
+
+Important constraints:
+
+- Do not copy or raw-edit `~/.codex/state_5.sqlite` to transfer sessions.
+- Do not manually place rollout files unless `cct` is unavailable and the user
+  explicitly accepts a manual fallback.
+- Treat `.codexbundle` files as sensitive; they can contain prompts, code,
+  terminal output, image payloads, and secrets.
+- Prefer redaction/encryption when transferring bundles through any untrusted
+  channel.
 
 ## Verification
 
