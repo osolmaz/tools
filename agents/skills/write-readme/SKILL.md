@@ -50,6 +50,22 @@ section that indexes docs in the repository unless the user explicitly asks for
 that section. Link to a specific doc only when it directly helps the user
 complete an install or usage task from the README.
 
+## Version References
+
+Do not anchor the README to a specific released version. Hard-coded current
+versions go stale on the next release and nobody remembers to update them.
+
+- In install or pin examples, use a placeholder such as `<tag>` or `<version>`
+  and link to the project's releases page, instead of hard-coding the latest
+  tag (write `--ref <tag>`, not `--ref v0.2.0`).
+- Do not write "the current version is X", changelog-style "as of vX" notes,
+  or dates tied to a release.
+- A concrete version is fine only as a hard compatibility boundary that is
+  part of the requirement itself, such as `requires foo >= 0.7.0` or
+  `Python 3.12+`.
+- Pinned versions inside lockfiles, CI snippets, or reproducibility examples
+  are also fine when the pin itself is the point.
+
 ## Demo Media
 
 When adding asciinema, GIF, or video demos to a README:
