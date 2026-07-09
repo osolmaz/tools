@@ -46,6 +46,27 @@ def default_claude_dest_root() -> Path:
     return Path.home() / ".claude" / "skills"
 
 
+def default_cursor_config_root() -> Path:
+    cursor_home = os.environ.get("CURSOR_CONFIG_DIR")
+    if cursor_home:
+        return Path(cursor_home).expanduser()
+    return Path.home() / ".cursor"
+
+
+def default_cursor_dest_root() -> Path:
+    return default_cursor_config_root() / "skills"
+
+
+def default_cursor_agents_dest() -> Path:
+    cursor_agents_dest = os.environ.get("CURSOR_AGENTS_DEST")
+    if cursor_agents_dest:
+        return Path(cursor_agents_dest).expanduser()
+    cursor_workspace_root = os.environ.get("CURSOR_WORKSPACE_ROOT")
+    if cursor_workspace_root:
+        return Path(cursor_workspace_root).expanduser() / "AGENTS.md"
+    return Path.home() / "AGENTS.md"
+
+
 def default_agents_source() -> Path:
     return Path(__file__).resolve().parent / "AGENTS.md"
 
@@ -251,8 +272,8 @@ def sync_destination(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Synchronize repo-local skills and AGENTS.md into Codex and "
-            "Claude Code home directories."
+            "Synchronize repo-local skills and AGENTS.md into Codex, "
+            "Claude Code, and Cursor destinations."
         )
     )
     parser.add_argument(
@@ -279,6 +300,23 @@ def parse_args() -> argparse.Namespace:
         help="Destination Claude Code skills root. Also syncs agents/AGENTS.md to CLAUDE.md in the parent Claude home dir. Defaults to $CLAUDE_CONFIG_DIR/skills or ~/.claude/skills.",
     )
     parser.add_argument(
+        "--cursor-dest",
+        default=default_cursor_dest_root(),
+        type=Path,
+        help="Destination Cursor personal skills root. Defaults to $CURSOR_CONFIG_DIR/skills or ~/.cursor/skills.",
+    )
+    parser.add_argument(
+        "--cursor-agents-dest",
+        default=default_cursor_agents_dest(),
+        type=Path,
+        help=(
+            "Destination Cursor workspace AGENTS.md path. Cursor loads AGENTS.md "
+            "from workspace roots and subdirectories, not from ~/.cursor globally. "
+            "Defaults to $CURSOR_AGENTS_DEST, $CURSOR_WORKSPACE_ROOT/AGENTS.md, "
+            "or ~/AGENTS.md."
+        ),
+    )
+    parser.add_argument(
         "--skip-codex",
         action="store_true",
         help="Do not sync to the Codex destination.",
@@ -287,6 +325,11 @@ def parse_args() -> argparse.Namespace:
         "--skip-claude",
         action="store_true",
         help="Do not sync to the Claude Code destination.",
+    )
+    parser.add_argument(
+        "--skip-cursor",
+        action="store_true",
+        help="Do not sync to the Cursor destination.",
     )
     prune = parser.add_mutually_exclusive_group()
     prune.add_argument(
@@ -309,8 +352,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    if args.skip_codex and args.skip_claude:
-        raise ValueError("nothing to do: both --skip-codex and --skip-claude given")
+    if args.skip_codex and args.skip_claude and args.skip_cursor:
+        raise ValueError(
+            "nothing to do: --skip-codex, --skip-claude, and --skip-cursor given"
+        )
 
     source_root = args.source_root.expanduser().resolve()
     agents_source = default_agents_source().expanduser().resolve()
@@ -334,6 +379,21 @@ def main() -> int:
                 skills_root=claude_skills_root,
                 agents_dest=claude_skills_root.parent / "CLAUDE.md",
                 restart_hint="Start a new Claude Code session to pick up synced skills.",
+            )
+        )
+    if not args.skip_cursor:
+        cursor_skills_root = args.cursor_dest.expanduser().resolve()
+        cursor_agents_dest = args.cursor_agents_dest.expanduser().resolve()
+        destinations.append(
+            Destination(
+                name="Cursor",
+                skills_root=cursor_skills_root,
+                agents_dest=cursor_agents_dest,
+                restart_hint=(
+                    "Start a new Cursor session in the workspace containing "
+                    f"{cursor_agents_dest} to pick up synced AGENTS.md; restart "
+                    "Cursor to refresh synced personal skills."
+                ),
             )
         )
 
