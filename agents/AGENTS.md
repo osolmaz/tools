@@ -21,10 +21,10 @@
 
 - Repository: https://github.com/osolmaz/tools.
 - Repo-local agent skills live in `agents/skills/<skill-name>/SKILL.md`.
-- `agents/sync-skills.py` mirrors repo-local skills into `$CODEX_HOME/skills` or `~/.codex/skills` as copied files.
+- `agents/sync-skills.py` mirrors repo-local skills into Codex, Claude Code, and Cursor skills directories as copied files.
 - To update local Codex agent instructions or repo-local skills, pull the latest version of this repo, then run `agents/sync-skills.py`.
 - If a skill is referred to but is not installed in the active Codex skill list, check `agents/skills/` before treating it as missing; it may already exist in this repo and simply need to be synced.
-- If an installed skill came from this tools repo, edit the source under `agents/skills/` first. Do not hand-edit the copied installation under `$CODEX_HOME/skills`, `~/.codex/skills`, or OpenClaw agent runtime mirrors except via the sync script.
+- If an installed skill came from this tools repo, edit the source under `agents/skills/` first. Do not hand-edit the copied installation under `$CODEX_HOME/skills`, `~/.codex/skills`, `~/.claude/skills`, `~/.cursor/skills`, or OpenClaw agent runtime mirrors except via the sync script.
 - Use the `manage-runtimes` skill before creating, updating, promoting, auditing, or deleting local inference runtimes.
 - Do not create ad hoc vLLM, SGLang, llama.cpp, TensorRT-LLM, or similar runtime environments under `~/scratch`, `~/services`, repos, or project-local `.venv` directories. Canonical runtimes belong under `~/runtimes/<engine>/`.
 
