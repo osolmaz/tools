@@ -51,6 +51,10 @@ Options:
   Use this when creating or revising JSON schemas, API payloads, SQL tables,
   migrations, or other Lindy data models through Schemator.
 
+- `skills/hf-inference-endpoints/`
+  Use this when deploying, inspecting, profiling, benchmarking, or shutting
+  down Hugging Face Inference Endpoints with mandatory unused-endpoint cleanup.
+
 - `skills/online-shopping/`
   Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.
 
