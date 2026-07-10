@@ -1,4 +1,0 @@
-interface:
-  display_name: "Benchmark Sweeps"
-  short_description: "Plan context and concurrency benchmark sweeps"
-  default_prompt: "Use $benchmark-sweeps to design a context and concurrency sweep for this workload."

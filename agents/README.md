@@ -55,9 +55,9 @@ Options:
   Use this when deploying, inspecting, profiling, benchmarking, or shutting
   down Hugging Face Inference Endpoints with mandatory unused-endpoint cleanup.
 
-- `skills/benchmark-sweeps/`
-  Use this when planning or running engine-agnostic context and concurrency
-  sweeps with powers-of-two discovery ladders and measured stopping rules.
+- `skills/serving-configuration-selection/`
+  Use this when choosing an LLM serving configuration from measured context,
+  concurrency, throughput, latency, stability, and memory tradeoffs.
 
 - `skills/online-shopping/`
   Use this when researching products to buy online, comparing listings, checking price history, verifying discounts, normalizing unit prices, evaluating sale timing, and deciding whether to buy now or wait.

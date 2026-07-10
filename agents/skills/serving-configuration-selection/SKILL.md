@@ -1,13 +1,13 @@
 ---
-name: benchmark-sweeps
-description: Use when designing, running, validating, or reporting an LLM inference sweep across context length and concurrency. Provides an engine-agnostic powers-of-two ladder, distinguishes active context from server context capacity, separates prefill and decode workloads, finds throughput and goodput knees efficiently, and requires explicit safety, stop, verification, and reproducibility rules.
+name: serving-configuration-selection
+description: Use when choosing, tuning, validating, or recommending an LLM serving configuration, especially context limits, concurrency, sequence capacity, batching, and KV-cache settings. Uses engine-agnostic powers-of-two candidate testing, distinguishes active context from server capacity, separates prefill and decode workloads, and selects throughput or goodput winners with explicit safety, verification, and reproducibility rules.
 ---
 
-# Benchmark Sweeps
+# Serving Configuration Selection
 
-Characterize an inference deployment with a coarse-to-fine context and
-concurrency sweep. Keep the method independent of any benchmark tool or
-inference engine.
+Choose a serving configuration through coarse-to-fine measurements of context,
+concurrency, latency, throughput, stability, and memory pressure. Keep the
+method independent of any benchmark tool or inference engine.
 
 ## Define The Question
 
@@ -97,10 +97,10 @@ operational performance.
 
 Keep model, weights, precision, KV-cache dtype, engine build, hardware,
 replicas, sampling settings, request shape, and client location fixed while
-sweeping context and concurrency. Change one serving parameter family at a
-time.
+evaluating context and concurrency candidates. Change one serving parameter
+family at a time.
 
-## Plan The Run
+## Evaluate Candidates
 
 1. Record exact model, engine, hardware, memory, server limit, sequence cap,
    batch-token cap, KV-cache settings, and endpoint/runtime identity.
@@ -115,9 +115,9 @@ time.
    `c16` and `c32`. Repeat boundary candidates at least three times.
 7. Record every planned point as completed, skipped, or failed with a reason.
 
-Use burst traffic for concurrency saturation. Use a separate request-rate sweep
-for arrival-rate and queueing behavior; concurrency and requests per second are
-not interchangeable.
+Use burst traffic for concurrency saturation. Use a separate request-rate
+experiment for arrival-rate and queueing behavior; concurrency and requests per
+second are not interchangeable.
 
 Keep these limits distinct:
 
@@ -146,8 +146,8 @@ a health probe; if it fails again, preserve the error and stop that ladder.
 Do not lower safety guards merely to force a larger result.
 
 If the largest point is still healthy and improving, extend with the next power
-of two. Record why the sweep stopped instead of treating the initial grid as a
-hard ceiling.
+of two. Record why candidate testing stopped instead of treating the initial
+grid as a hard ceiling.
 
 ## Verify Every Point
 
@@ -170,7 +170,7 @@ Capture at least:
 - peak memory or KV-cache pressure and utilization,
 - exact raw artifact and log locations.
 
-## Select And Report
+## Recommend A Configuration
 
 Create a context-by-concurrency table that shows aggregate throughput,
 per-user throughput, tail latency, goodput, errors, and memory pressure. Mark:
@@ -188,4 +188,4 @@ be reproduced.
 
 For local inference, also use `$safe-inference-launch`. For Hugging Face
 Inference Endpoints, also use `$hf-inference-endpoints` and pause the endpoint
-as soon as the sweep finishes.
+as soon as configuration testing finishes.
