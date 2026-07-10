@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inference Sweep Planning"
+  short_description: "Plan context and concurrency inference sweeps"
+  default_prompt: "Use $inference-sweep-planning to design a context and concurrency sweep for this inference workload."
