@@ -55,7 +55,7 @@ Options:
   Use this when deploying, inspecting, profiling, benchmarking, or shutting
   down Hugging Face Inference Endpoints with mandatory unused-endpoint cleanup.
 
-- `skills/inference-sweep-planning/`
+- `skills/benchmark-sweeps/`
   Use this when planning or running engine-agnostic context and concurrency
   sweeps with powers-of-two discovery ladders and measured stopping rules.
 

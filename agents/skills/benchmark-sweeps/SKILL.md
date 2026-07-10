@@ -1,9 +1,9 @@
 ---
-name: inference-sweep-planning
+name: benchmark-sweeps
 description: Use when designing, running, validating, or reporting an LLM inference sweep across context length and concurrency. Provides an engine-agnostic powers-of-two ladder, distinguishes active context from server context capacity, separates prefill and decode workloads, finds throughput and goodput knees efficiently, and requires explicit safety, stop, verification, and reproducibility rules.
 ---
 
-# Inference Sweep Planning
+# Benchmark Sweeps
 
 Characterize an inference deployment with a coarse-to-fine context and
 concurrency sweep. Keep the method independent of any benchmark tool or
