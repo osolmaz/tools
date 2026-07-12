@@ -13,6 +13,9 @@
 - If the repository does not accept fully AI-generated issues or pull requests, include a brief apology in the top note.
 - When creating a pull request, you MUST use the `pr-description` skill for the PR description.
 - When opening a pull request that is related to an issue, cite the related issue in the pull request body.
+- Do not run Codex review for documentation-only changes.
+- When a pull request is documentation-only or similarly trivial, relevant local checks such as SimpleDoc provide enough confidence, and the user has authorized merging, merge it opportunistically without waiting for CI/CD.
+- This workflow guidance does not grant merge authorization. Do not merge a pull request unless the user explicitly requested it or provided an applicable standing instruction to merge.
 - When prompting or coordinating other agents from Herdr, do not break the fourth wall by telling those agents about other Herdr panes, sidecars, or UI layout unless the user explicitly asks you to do so.
 - When running inside Herdr (`HERDR_ENV=1`), if the current Herdr workspace/window or current tab has no title/label, set one automatically once the conversation topic is clear. The title must be at most 25 characters and at most 5 words, and should be based on the topic of the conversation.
 - Do not create, install, start, or convert anything into a system or user service (including systemd units) unless the user explicitly asks for a service. A request to "serve" something means use a temporary process, not a persistent service.
