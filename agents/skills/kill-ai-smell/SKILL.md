@@ -435,3 +435,16 @@ so a clean run does not replace the checklist above. Human baselines in
 the study corpus average under one violation per document while the AI
 pages average more than three. A draft that reports several violations
 needs restructured sections rather than patched sentences.
+
+## Where the rules come from
+
+Every threshold in this skill was measured, not asserted. The rules
+derive from a stylometric study of ten AI-written landing pages
+against eight provably pre-LLM human texts, plus 42 in-the-wild tweet
+samples, maintained in the
+[ai-smell repository](https://github.com/osolmaz/ai-smell) and written
+up at [solmaz.io/ai-de-smeller](https://solmaz.io/ai-de-smeller). For
+the per-rule evidence, including which tells separate the corpus with
+no overlap, which are one-directional, which collapsed into register
+signals, and how to test a new tell candidate, see
+[evidence.md](evidence.md) in this skill's folder.
