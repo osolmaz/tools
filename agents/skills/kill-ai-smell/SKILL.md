@@ -118,6 +118,19 @@ varied length.
 - Bad: "Actively developed. Ships weekly."
 - Good: "Development is active, with releases most weeks."
 
+**Sentence flow.** Let main clauses run. The strongest rhythm tell in the
+study corpus is that AI copy breaks nearly every sentence with a comma,
+colon, dash, or parenthesis before ten words pass, while human prose
+keeps producing sentences that contain one long unbroken run of words,
+whatever the register. Do not chop a flowing clause into punctuated
+pieces; if every sentence in a paragraph pauses by word eight, merge the
+pieces back into clauses that carry through.
+
+- Bad: "The parser, once configured, rejects unknown fields, quietly, and
+  logs them."
+- Good: "Once configured, the parser quietly rejects unknown fields and
+  logs each one it drops."
+
 **Hedging boilerplate.** Cut "it's worth noting that", "it's important to
 remember", and similar throat-clearing.
 
@@ -407,6 +420,15 @@ when any violation remains:
   the content; a colon before a list is fine; a heading with a comma may
   be a legitimate title. Read each flagged line and decide; do not
   mechanically rewrite them.
+
+Two document-level `REVIEW` stats come from the stylometric study rather
+than from a single line. Sentence flow reports when the mean longest
+unbroken run of words per sentence falls under 10, which in the study
+corpus happens to every AI page and no human text; the fix is to let
+main clauses run instead of chopping them with punctuation. MTLD
+lexical diversity reports when synonym rotation pushes the score past
+110, where every AI page in the corpus sits; the fix is to reuse the
+established word for a thing.
 
 The script cannot see paragraph shape, register, or aphorism closers,
 so a clean run does not replace the checklist above. Human baselines in

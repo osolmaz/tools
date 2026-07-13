@@ -181,6 +181,51 @@ def check(path):
                          f"{len(frags)} of {len(sents)} sentences are fragments "
                          f"of 4 words or fewer ({100 * len(frags) // len(sents)}%)"))
 
+    # Sentence flow: the longest run of words in each sentence with no
+    # punctuation break. Human prose keeps producing sentences with one
+    # run of 10+ words; AI copy breaks nearly every sentence first. In
+    # the study corpus the AI pages average 4.9-8.8 words per longest
+    # run and every human text 10.0 or more.
+    runs = []
+    for s in sents:
+        pieces = re.split(r"[,;:—()]|\s--?\s", s)
+        lens = [len(re.findall(r"[\w'’-]+", p)) for p in pieces]
+        lens = [l for l in lens if l]
+        if lens:
+            runs.append(max(lens))
+    if len(runs) >= 15:
+        mean_run = sum(runs) / len(runs)
+        if mean_run < 10:
+            findings.append(("REVIEW", None,
+                             f"sentence flow: mean longest unbroken run is "
+                             f"{mean_run:.1f} words (AI pages 4.9-8.8, human "
+                             f"texts 10.0+); let main clauses run without a "
+                             f"punctuation break"))
+
+    # Synonym rotation, measured as MTLD lexical diversity (bidirectional,
+    # threshold 0.72). Every AI page in the study scores above 111 while
+    # seven of eight human texts stay under 106.
+    def mtld_pass(tokens, threshold=0.72):
+        factors, types, count = 0.0, set(), 0
+        for t in tokens:
+            count += 1
+            types.add(t)
+            if len(types) / count <= threshold:
+                factors += 1
+                types, count = set(), 0
+        if count:
+            factors += (1 - len(types) / count) / (1 - threshold)
+        return len(tokens) / factors if factors else 0.0
+
+    tokens = [w.lower() for w in re.findall(r"[A-Za-z'’-]+", text)]
+    if len(tokens) >= 300:
+        mtld = (mtld_pass(tokens) + mtld_pass(tokens[::-1])) / 2
+        if mtld > 110:
+            findings.append(("REVIEW", None,
+                             f"MTLD lexical diversity is {mtld:.0f} (AI pages "
+                             f"score 111+, humans mostly under 106); reuse the "
+                             f"established word instead of rotating synonyms"))
+
     # --- bullets ---
     labeled = []
     for n, b in bullets:
