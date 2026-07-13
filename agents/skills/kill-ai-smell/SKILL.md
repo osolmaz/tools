@@ -24,20 +24,35 @@ Knowing these rules is no defense against violating them. The patterns
 are how models write by default, so they appear even in text about the
 patterns. Sweep your own output mechanically; do not trust your ear.
 
+Most rules below carry a Bad/Good pair. Study the shape of the rewrite,
+not just the banned pattern: the fix is always restructuring, never
+swapping the banned pattern for a neighboring one.
+
 ## Punctuation
 
 **Em dashes.** At most one set per 1000 words. Restructure with commas,
 parentheses, or separate sentences instead. This is the most widely known
 tell, and readers now flinch at a single one.
 
-**Colon punchiness.** Do not compensate for the em-dash rule with "X: Y"
-constructions ("This is the answer: a simpler approach"). Colons are for
-genuine lists. Semicolons should be rare.
+- Bad: "The data plane — SSH, rsync, and command execution — goes
+  directly to the runner."
+- Good: "The data plane (SSH, rsync, and command execution) goes directly
+  to the runner."
 
-**Semicolon chains.** A related tell is the enumeration strung across one
-sentence with semicolons: "it leases a machine; syncs your files; runs
-the command; streams output; records evidence". Break it into sentences,
-each of which says something about its step.
+**Colon punchiness.** Do not compensate for the em-dash rule with "X: Y"
+constructions. Colons are for genuine lists. Semicolons should be rare.
+
+- Bad: "The fix is simple: stop guessing."
+- Good: "The fix is to stop guessing."
+
+**Semicolon chains.** Do not string an enumeration across one sentence
+with semicolons. Break it into sentences, each of which says something
+about its step.
+
+- Bad: "It leases a machine; syncs your files; runs the command; streams
+  output; records evidence."
+- Good: "It leases a machine and syncs your files to it. The command then
+  runs remotely while output streams back, and the run is recorded."
 
 ## Sentence patterns
 
@@ -46,11 +61,11 @@ and all variants are banned. The construction forces the reader to hold a
 clause (X) that the sentence immediately throws away. Say Y directly.
 
 - Bad: "It is not a benchmark predictor. It is a roofline."
-  Good: "It is a roofline."
+- Good: "It is a roofline."
 - Bad: "This changes the packaging, not the position."
-  Good: "The position stays the same."
+- Good: "The position stays the same."
 - Bad: "Queries hit the disk, not GitHub."
-  Good: "Queries hit the local database, so no GitHub quota is spent."
+- Good: "Queries hit the local database, so no GitHub quota is spent."
 
 A plain negation is fine when the negation is the content: a genuine
 non-equivalence ("fitting in memory does not imply serving usefully"), a
@@ -60,29 +75,53 @@ misconception. Use it once, plainly, without the paired "it is Y" reveal.
 **"Not just X" escalation.** "It isn't just X, it's Y" and similar
 intensifier patterns are banned for the same reason.
 
+- Bad: "It's not just a linter, it's a full review pipeline."
+- Good: "It runs a full review pipeline, from mapping the repo to
+  validating each fix."
+
 **Rule of three.** Lists of exactly three parallel items, sentence after
 sentence, are a strong tell. In measured corpora, AI copy produces these
 at several times the human rate. Vary list length, or use fewer lists.
 
-**Anaphora chains.** "No client ID, no redirect URI, no developer
-dashboard." Three parallel negations in a row read as ad copy. One plain
-sentence saying what the reader skips is stronger.
+- Bad: "It is fast, simple, and reliable. Setup takes minutes, works
+  everywhere, and survives upgrades. You get speed, safety, and control."
+- Good: "It is fast and needs no setup. In three months of daily use it
+  has not broken once."
+
+**Anaphora chains.** Three or more parallel negations or repetitions in a
+row read as ad copy. One plain sentence saying the same thing is stronger.
+
+- Bad: "No client ID, no redirect URI, no developer dashboard."
+- Good: "You skip the developer-dashboard registration entirely."
 
 **Fragment rhythm.** AI copy alternates verbless two-to-four word punches
-("Actively developed.", "Two jobs, one binary.") with thirty-word feature
-enumerations. Human short sentences are full clauses with a subject and a
-verb. If a paragraph swings between fragments and freight trains, rewrite
-it into sentences of ordinary, varied length.
+with thirty-word feature enumerations. Human short sentences are full
+clauses with a subject and a verb. If a paragraph swings between
+fragments and freight trains, rewrite it into sentences of ordinary,
+varied length.
+
+- Bad: "Actively developed. Ships weekly."
+- Good: "Development is active, with releases most weeks."
 
 **Hedging boilerplate.** Cut "it's worth noting that", "it's important to
 remember", and similar throat-clearing.
 
+- Bad: "It's worth noting that the cache is process-local."
+- Good: "The cache is process-local."
+
 **Overwrought transitions.** Cut "moreover", "furthermore", "in
 conclusion", and summary paragraphs that restate what was just said.
 
-**Inflated vocabulary.** Use the plain word: "delve", "landscape",
+- Bad: "Moreover, the parser rejects unknown fields. In conclusion,
+  strict validation prevents drift."
+- Good: "The parser also rejects unknown fields."
+
+**Inflated vocabulary.** Use the plain word. "Delve", "landscape",
 "testament to", "tapestry", "crucial", and "leverage" as a verb all mark
 generated text.
+
+- Bad: "It leverages a robust caching landscape."
+- Good: "It uses a cache."
 
 ## Openings
 
@@ -118,24 +157,39 @@ Make headings labels, not sentences. A heading names the topic of its
 section as a noun phrase ("Capacity limit", "Crash testing", "Worked
 examples") so the reader can scan the structure. Specific heading tells:
 
-- **Slogan headings.** A full subject-verb heading ("Capacity Caps the
-  Batch") pre-empts the section and reads as a pitch.
-- **Comma couplets.** The parallel two-beat slogan ("Local loop, remote
-  box", "Two jobs, one binary", "Many providers, one loop") is among the
-  strongest title-level tells and appears almost exclusively in
-  generated copy.
-- **Imperative slogans.** "Pick your path", "Try it", "Reuse what's
-  warm". These sell the section instead of naming it.
-- **Rhetorical frames.** A run of "Why X" / "How Y" / "What you get"
-  headings down one outline is a smell, and so is any one template
-  stamped across siblings ("I want to try it / I want to wire up an
-  agent / I want the full reference").
+**Slogan headings.** A full subject-verb heading pre-empts the section
+and reads as a pitch.
 
-Use sentence case. Capitalize the first word, proper nouns, and coined
-terms; lowercase the rest ("Memory-fit batch", never "The Memory-Fit
-Batch"). Keep acronyms uppercase. Do not make "The" a reflexive prefix;
-drop it from noun-phrase labels ("The capacity limit" becomes "Capacity
-limit") and keep it only where a full clause needs it.
+- Bad: "Capacity Caps the Batch"
+- Good: "Capacity limit"
+
+**Comma couplets.** The parallel two-beat slogan is among the strongest
+title-level tells and appears almost exclusively in generated copy.
+
+- Bad: "Local loop, remote box" / "Two jobs, one binary" / "Many
+  providers, one loop"
+- Good: "Remote execution model" / "Scope" / "Supported providers"
+
+**Imperative slogans.** These sell the section instead of naming it.
+
+- Bad: "Pick your path" / "Try it" / "Reuse what's warm"
+- Good: "Reading guide" / "First run" / "Warm-box reuse"
+
+**Rhetorical frames.** A run of "Why X" / "How Y" / "What you get"
+headings down one outline is a smell, and so is any one template stamped
+across siblings ("I want to try it / I want to wire up an agent / I want
+the full reference").
+
+- Bad: "Why spogo" / "What you get" / "Where to next"
+- Good: "Design rationale" / "Feature overview" / "Further reading"
+
+**Casing and articles.** Use sentence case. Capitalize the first word,
+proper nouns, and coined terms; lowercase the rest. Keep acronyms
+uppercase. Do not make "The" a reflexive prefix; drop it from noun-phrase
+labels and keep it only where a full clause needs it.
+
+- Bad: "The Memory-Fit Batch"
+- Good: "Memory-fit batch"
 
 The exception is a deliberate major statement. A heading may be a full
 sentence when that sentence is a load-bearing claim the section exists to
@@ -149,12 +203,18 @@ the same kind of thing: labels with labels, one register, one casing.
 ## Page structure
 
 **Subtitles where intros belong.** A section that opens with compressed
-context fragments ("Six pages against three baselines. Code blocks
-stripped; rates per 1,000 words.") has skipped the introduction. The
-reader gets metadata before they know what the document is about. Write
-an intro in full sentences that says what this is, what was done, and
-what the reader will find, in that order. Details the reader cannot use
-yet belong later, next to where they matter.
+context fragments has skipped the introduction. The reader gets metadata
+before they know what the document is about. Write an intro in full
+sentences that says what this is, what was done, and what the reader will
+find, in that order. Details the reader cannot use yet belong later, next
+to where they matter.
+
+- Bad: "Six pages against three baselines. Code blocks stripped; rates
+  per 1,000 words."
+- Good: "This report compares six project pages against three
+  human-written baselines. Before measuring, the script strips code
+  blocks, and every rate is normalized per 1,000 words so the two groups
+  are comparable."
 
 **Labeled-bullet walls.** The bullet shaped "Label — one-sentence
 elaboration" (or "Label. Elaboration.") is the signature layout unit of
@@ -163,6 +223,13 @@ while human docs almost never use it. A run of them is a wall of parallel
 fragments, and none of them explains anything. Convert runs into prose
 paragraphs that connect the items, and keep bullets for genuinely
 enumerable things. Vary their shape when you do use them.
+
+- Bad: "- Zero-config discovery. Reads your editor config automatically.
+  - Typed clients. Emits interfaces for every tool.
+  - OAuth ergonomics. Caches and refreshes tokens."
+- Good: "It discovers servers from your editor config, so there is
+  nothing to set up. From that config it can emit typed interfaces for
+  every tool, and it handles OAuth caching and refresh on its own."
 
 **Formula and fact dumps.** No section may become a list of statements
 one after another, whether formulas, definitions, or feature claims.
@@ -187,9 +254,12 @@ wrong things is a tell of its own.
 most recognizable generated landing-page layout. Do not use emojis as
 section markers or bullets at all.
 
-**Manual heading numbers.** Do not number Markdown headings by hand
-("## 1. Overview"). Let the renderer or publication system number
-sections when numbering is needed.
+**Manual heading numbers.** Do not number Markdown headings by hand. Let
+the renderer or publication system number sections when numbering is
+needed.
+
+- Bad: "## 1. Overview"
+- Good: "## Overview"
 
 ## Repetition and word choice
 
@@ -199,6 +269,11 @@ writers repeat deliberately. They reuse the established term for a
 concept instead of rotating synonyms, and they repeat a phrase for
 emphasis when hammering a point. Keep one name per concept through a
 document, and let purposeful repetition stand.
+
+- Bad: "The tool syncs issues locally. The utility then clusters them,
+  and the binary ships a TUI for browsing."
+- Good: "The tool syncs issues locally, clusters them, and ships a TUI
+  for browsing them."
 
 The same applies to sentence shape in reverse: humans vary rhythm
 naturally, while generated text stamps one shape (or one bullet template)
