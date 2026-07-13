@@ -371,3 +371,33 @@ Before finishing any writing task, check the draft against this list:
 When editing existing text, fix a smell by restructuring the sentence or
 the section. Swapping one banned pattern for another (an em dash for a
 punchy colon, a triad for an anaphora chain) changes nothing.
+
+## Mechanical check
+
+This skill ships `check.py`, a stdlib-only script that runs the
+measurable subset of the rules above. Rewrites reintroduce the patterns,
+so run it on the draft after every revision:
+
+```
+python3 check.py draft.md
+```
+
+It prints findings with line numbers at two severities and exits nonzero
+when any violation remains:
+
+- A `VIOLATION` is a banned pattern or a rate over budget: em dashes
+  beyond one per thousand words, semicolon chains, "not just X",
+  hedging phrases, anaphora chains, exactly-three lists past the
+  detector threshold, labeled bullets past 30% of all bullets, and
+  manually numbered headings. Fix all of these by restructuring, then
+  rerun until the file is clean.
+- A `REVIEW` needs judgment. "X, not Y" is allowed when the negation is
+  the content; a colon before a list is fine; a heading with a comma may
+  be a legitimate title. Read each flagged line and decide; do not
+  mechanically rewrite them.
+
+The script cannot see paragraph shape, register, or aphorism closers,
+so a clean run does not replace the checklist above. Human baselines in
+the study corpus average under one violation per document while the AI
+pages average more than three. A draft that reports several violations
+needs restructured sections rather than patched sentences.
