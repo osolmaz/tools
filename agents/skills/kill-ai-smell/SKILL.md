@@ -22,7 +22,10 @@ rule below is a special case of this.
 
 Knowing these rules is no defense against violating them. The patterns
 are how models write by default, so they appear even in text about the
-patterns. Sweep your own output mechanically; do not trust your ear.
+patterns, including rewrites produced to fix an earlier sweep. Sweep
+your own output mechanically after every revision; do not trust your
+ear, and do not let a violation stand because you can articulate a
+stylistic justification for it after the fact.
 
 Most rules below carry a Bad/Good pair. Study the shape of the rewrite,
 not just the banned pattern: the fix is always restructuring, never
@@ -122,6 +125,70 @@ generated text.
 
 - Bad: "It leverages a robust caching landscape."
 - Good: "It uses a cache."
+
+## Paragraph and argument shape
+
+Sentence-level fixes are not enough. A paragraph can pass every rule
+above and still read as generated, because the tell is in its shape:
+generated prose argues completely and evenly, and human prose does not.
+
+**Cut content, not just words.** Do not fill every slot of an argument.
+A paragraph whose skeleton runs limitation, objection, fix, result,
+caveat, confidence, with one sentence per slot and every rebuttal
+pre-answered, smells no matter how good the sentences are. Merge points,
+drop the weakest one, and leave an inferential step to the reader. When
+a passage still smells after sentence-level fixes, the remaining fix is
+deletion. A detail that already appears elsewhere in the document (a
+date, a definition, a second supporting number) does not need to appear
+again.
+
+- Bad: a ten-sentence paragraph covering the limitation, the objection,
+  the fix, both results, the future test, and the final confidence.
+- Good: the same ground in six sentences, with the objection folded into
+  the fix and one number carrying the conclusion.
+
+**Ground abstractions in named things.** A paragraph written entirely in
+the document's own coinages, with no file, person, or number in it, runs
+at the concept layer where generated prose lives. Reach for the concrete
+instance.
+
+- Bad: "The structural gaps survived that control untouched."
+- Good: "Triads and labeled bullets kept separating the groups after the
+  READMEs went in."
+
+**No drama vocabulary for methodology.** Findings do not "survive",
+metrics do not "collapse", baselines are not "adversarial", and the next
+step is not an "escalation". Say what happened in plain verbs.
+
+- Bad: "Two metrics collapsed under the adversarial baseline."
+- Good: "Two metrics stopped separating the groups once the READMEs went
+  in."
+
+**No aphorism closers.** Do not end a paragraph by promoting its
+specific point into a universal principle. If the story implies the
+principle, the closing slogan adds nothing; delete it.
+
+- Bad: "That is the argument for keeping the baselines adversarial."
+- Good: (nothing; the previous sentence already made the point)
+
+**Keep the subject next to its verb.** Do not stuff a list or a chain of
+qualifications between a subject and its verb. Split the sentence.
+
+- Bad: "The sizes of the surviving gaps, three-fold at the closest edge
+  and roughly twenty-fold on average with no overlap, make me
+  confident."
+- Good: "The closest gap is three-fold and the average is around
+  twenty-fold. That margin is enough for me."
+
+**Hold one register.** Stiff formality and bolted-on casualness in the
+same passage is an uncanny mixture that neither a formal nor a casual
+human writer produces. Pick the register the venue calls for and hold
+it through the document.
+
+- Bad: "I would not call this a validated classifier. A stricter test
+  would need a pile of landing pages."
+- Good: "I wouldn't promise these thresholds hold beyond this corpus. A
+  stricter test would need human-written landing pages from after 2022."
 
 ## Openings
 
@@ -288,6 +355,11 @@ Before finishing any writing task, check the draft against this list:
 - No contrast rhetoric or "not just X" anywhere.
 - No run of exactly-three lists; no anaphora chains.
 - No verbless fragments doing a sentence's job.
+- No paragraph that fills every argumentative slot; something was cut.
+- Every paragraph contains at least one named thing (a file, a person,
+  a number), and no drama verbs narrate the methodology.
+- No aphorism closing a paragraph; no list wedged between a subject and
+  its verb; one register throughout.
 - The document says what its subject is before what it does.
 - Sections open with orienting sentences, never context-dump fragments.
 - Headings are sentence-case noun-phrase labels; no slogans, comma
