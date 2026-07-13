@@ -120,12 +120,28 @@ def check(path):
         findings.append(("REVIEW", None,
                          f"semicolons at {per_1k(semis)}/1k words (humans stay under 3)"))
 
+    # Mid-sentence prose colons. A colon that ends the line introduces a
+    # list or block quote and is fine; a colon with prose flowing on is
+    # usually the pivot crutch. Each one gets a REVIEW, and a streak of
+    # three consecutive paragraphs hinging on one is a VIOLATION.
+    pivot_lines = []
     for n, l in body:
-        for m in re.finditer(r"[a-z\"\u201d)]:\s+([^.!?]*[.!?]?)", l):
-            tail = m.group(1)
-            if len(tail) < 45 and "," not in tail and not tail.rstrip().endswith(":"):
-                findings.append(("REVIEW", n,
-                                 f'possible colon punch: "...: {tail.strip()[:40]}"'))
+        for m in re.finditer(r"[a-z\"\u201d)](?<!\d):(?!\d)\s+(\S[^.!?]{0,80})", l):
+            findings.append(("REVIEW", n,
+                             f'colon pivot: "...: {m.group(1).strip()[:60]}"'))
+            pivot_lines.append(n)
+    para_lines = [n for n, _ in body]
+    streak, prev = [], None
+    for n in para_lines:
+        if n in pivot_lines:
+            streak.append(n)
+            if len(streak) >= 3:
+                findings.append(("VIOLATION", n,
+                                 f"3+ consecutive paragraphs pivot on a colon "
+                                 f"(lines {streak[-3:]})"))
+                streak = []
+        else:
+            streak = []
 
     # --- sentence patterns ---
     for n, l in body:

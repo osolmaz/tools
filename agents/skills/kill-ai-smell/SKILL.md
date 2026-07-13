@@ -42,11 +42,23 @@ tell, and readers now flinch at a single one.
 - Good: "The data plane (SSH, rsync, and command execution) goes directly
   to the runner."
 
-**Colon punchiness.** Do not compensate for the em-dash rule with "X: Y"
-constructions. Colons are for genuine lists. Semicolons should be rare.
+**Colon pivots.** Do not compensate for the em-dash rule with "X: Y"
+constructions. Colons are for genuine lists and quoted examples. The
+short punch ("The fix is simple: stop guessing.") is the obvious case,
+but the longer pivot, a claim followed by a colon and its elaboration,
+is the same crutch, and stamping it into paragraph after paragraph is a
+tell even though each instance looks defensible alone. Human prose uses
+the occasional colon; it does not hinge every paragraph on one. If more
+than a couple of paragraphs in a row pivot on a colon, rewrite most of
+them as two sentences or fold the elaboration in with a comma.
+Semicolons should be rare.
 
 - Bad: "The fix is simple: stop guessing."
 - Good: "The fix is to stop guessing."
+- Bad: "The groups overlap: the Requests README out-fragments three of
+  the AI pages."
+- Good: "The groups overlap. The Requests README out-fragments three of
+  the AI pages."
 
 **Semicolon chains.** Do not string an enumeration across one sentence
 with semicolons. Break it into sentences, each of which says something
