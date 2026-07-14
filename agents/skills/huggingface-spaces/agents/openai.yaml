@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hugging Face Spaces"
+  short_description: "Operate and recover Hugging Face Spaces"
+  default_prompt: "Use $huggingface-spaces to diagnose and recover this Hugging Face Space."
