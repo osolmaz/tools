@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
 
 import numpy as np
@@ -27,6 +28,7 @@ class RenderResult:
     image: Image.Image
     placed_count: int
     prepared_count: int
+    source_counts: tuple[int, ...]
     metrics: dict[str, float]
     failures: tuple[str, ...]
 
@@ -336,6 +338,115 @@ def prepare_items_from_widths(
             items.append(prepared)
 
     return items
+
+
+def balanced_source_indices(  # noqa: C901 -- assignment scoring combines spatial constraints
+    placed: list[PlacedTile],
+    source_count: int,
+    preset: Preset,
+    canvas_size: CanvasSize,
+) -> list[int]:
+    """Assign equally represented sources while mixing neighbors and regions."""
+    if source_count <= 0:
+        raise ValueError("source count must be positive")
+    if source_count == 1 or len(placed) <= 1:
+        return [0] * len(placed)
+
+    total = len(placed)
+    quotas = np.full(source_count, total // source_count, dtype=int)
+    quotas[: total % source_count] += 1
+    points = np.array([(point.x, point.y) for point in placed], dtype=float)
+    widths = np.array([point.width for point in placed], dtype=float)
+    distances = np.hypot(
+        points[:, None, 0] - points[None, :, 0],
+        points[:, None, 1] - points[None, :, 1],
+    )
+    np.fill_diagonal(distances, np.inf)
+
+    edge_weights: dict[tuple[int, int], float] = {}
+    neighbor_count = min(6, total - 1)
+    for first in range(total):
+        for second_value in np.argsort(distances[first])[:neighbor_count]:
+            second = int(second_value)
+            edge = (min(first, second), max(first, second))
+            edge_weights[edge] = max(
+                edge_weights.get(edge, 0.0),
+                1.0 / (1.0 + distances[edge] / 300.0),
+            )
+    edge_first = np.array([edge[0] for edge in edge_weights], dtype=int)
+    edge_second = np.array([edge[1] for edge in edge_weights], dtype=int)
+    weights = np.array(list(edge_weights.values()), dtype=float)
+
+    columns = np.clip((points[:, 0] / (canvas_size.width / 5)).astype(int), 0, 4)
+    rows = np.clip((points[:, 1] / (canvas_size.height / 2)).astype(int), 0, 1)
+    zones = rows * 5 + columns
+    overall_width = float(widths.mean())
+
+    def assignment_cost(labels: np.ndarray) -> float:
+        neighbor_cost = float(weights[labels[edge_first] == labels[edge_second]].sum())
+        regional_cost = 0.0
+        for zone in range(10):
+            zone_labels = labels[zones == zone]
+            if len(zone_labels) == 0:
+                continue
+            counts = np.bincount(zone_labels, minlength=source_count)
+            expected = len(zone_labels) * quotas / total
+            regional_cost += float(np.square(counts - expected).sum())
+
+        width_cost = 0.0
+        for source_index in range(source_count):
+            source_widths = widths[labels == source_index]
+            if len(source_widths):
+                width_cost += ((float(source_widths.mean()) - overall_width) / 100.0) ** 2
+        return neighbor_cost + regional_cost * 1.8 + width_cost * 0.5
+
+    rng = random.Random(preset.seed + 211)
+    seed_labels = [
+        source_index for source_index, quota in enumerate(quotas) for _ in range(int(quota))
+    ]
+    best_labels: np.ndarray | None = None
+    best_cost = math.inf
+    for _ in range(12):
+        rng.shuffle(seed_labels)
+        labels = np.array(seed_labels, dtype=int)
+        current_cost = assignment_cost(labels)
+        for _ in range(max(1200, total * 45)):
+            first = rng.randrange(total)
+            second = rng.randrange(total)
+            if labels[first] == labels[second]:
+                continue
+            labels[first], labels[second] = labels[second], labels[first]
+            candidate_cost = assignment_cost(labels)
+            if candidate_cost <= current_cost:
+                current_cost = candidate_cost
+            else:
+                labels[first], labels[second] = labels[second], labels[first]
+        if current_cost < best_cost:
+            best_cost = current_cost
+            best_labels = labels.copy()
+
+    if best_labels is None:
+        raise RuntimeError("unable to assign tile sources")
+    return [int(value) for value in best_labels]
+
+
+def replace_tile_sources(
+    placed: list[PlacedTile],
+    tiles: Sequence[Image.Image],
+    source_indices: Sequence[int],
+    preset: Preset,
+) -> None:
+    for point, source_index in zip(placed, source_indices, strict=True):
+        replacement = prepare_tile(
+            tiles[source_index],
+            point.width,
+            point.angle,
+            preset.radius_padding,
+        )
+        if replacement is None:
+            raise ValueError("input image has no visible pixels")
+        point.image = replacement.image
+        point.radius = replacement.radius
 
 
 def place_items(  # noqa: C901 -- candidate scoring intentionally combines layout constraints
@@ -848,26 +959,38 @@ def metric_failures(metrics: dict[str, float], preset: Preset) -> list[str]:
 
 
 def render_tiles(
-    tile: Image.Image,
+    tiles: Image.Image | Sequence[Image.Image],
     preset: Preset,
     canvas_size: CanvasSize,
 ) -> RenderResult:
+    sources = (tiles,) if isinstance(tiles, Image.Image) else tuple(tiles)
+    if not sources:
+        raise ValueError("at least one input image is required")
+
     scaled_preset = scale_preset(preset, canvas_size)
     rng = random.Random(scaled_preset.seed)
     canvas = build_background(canvas_size)
-    items = prepare_items(tile, scaled_preset, rng, canvas_size)
+    layout_tile = max(sources, key=lambda source: max(source.width, source.height) / source.width)
+    items = prepare_items(layout_tile, scaled_preset, rng, canvas_size)
     placed = place_items(items, scaled_preset, rng, canvas_size)
     filler_count = 14 if scaled_preset.name == "denser-even" else 0
     if filler_count:
         filler_rng = random.Random(scaled_preset.seed + 3)
         placed = fill_voids_with_small_items(
             placed,
-            tile,
+            layout_tile,
             scaled_preset,
             filler_rng,
             filler_count,
             canvas_size,
         )
+    source_indices = balanced_source_indices(
+        placed,
+        len(sources),
+        scaled_preset,
+        canvas_size,
+    )
+    replace_tile_sources(placed, sources, source_indices, scaled_preset)
     resolve_alpha_overlaps(placed, scaled_preset, canvas_size)
     composite(canvas, placed, canvas_size)
 
@@ -877,6 +1000,7 @@ def render_tiles(
         image=canvas,
         placed_count=len(placed),
         prepared_count=len(items) + filler_count,
+        source_counts=tuple(source_indices.count(index) for index in range(len(sources))),
         metrics=metrics,
         failures=failures,
     )

@@ -4,7 +4,15 @@ import pytest
 from PIL import Image
 
 from tilekit.cli import main
-from tilekit.core import PRESETS, CanvasSize, build_shadow, scale_preset
+from tilekit.core import (
+    PRESETS,
+    CanvasSize,
+    PlacedTile,
+    balanced_source_indices,
+    build_shadow,
+    render_tiles,
+    scale_preset,
+)
 from tilekit.images import load_tile
 
 
@@ -95,14 +103,55 @@ def test_shadow_uses_rotated_tile_silhouette() -> None:
     assert shadow.height > shadow.width
 
 
-def test_cli_renders_a_custom_canvas(tmp_path: Path) -> None:
-    source = tmp_path / "tile.png"
+def test_multiple_sources_are_equal_in_each_canvas_region() -> None:
+    image = Image.new("RGBA", (20, 20), (255, 255, 255, 255))
+    placed = [
+        PlacedTile(
+            width=20,
+            angle=0,
+            image=image,
+            radius=10,
+            target_x=None,
+            target_y=None,
+            x=(column + 0.5) * 80,
+            y=(row + 0.5) * 200,
+        )
+        for row in range(2)
+        for column in range(5)
+        for _ in range(2)
+    ]
+
+    indices = balanced_source_indices(
+        placed,
+        source_count=2,
+        preset=PRESETS["denser-even"],
+        canvas_size=CanvasSize(width=400, height=400),
+    )
+
+    assert indices.count(0) == indices.count(1) == 10
+    for start in range(0, len(indices), 2):
+        assert set(indices[start : start + 2]) == {0, 1}
+
+
+def test_render_tiles_rejects_empty_source_list() -> None:
+    with pytest.raises(ValueError, match="^at least one input image is required$"):
+        render_tiles([], PRESETS["denser-even"], CanvasSize(width=640, height=360))
+
+
+def test_cli_renders_multiple_sources_on_a_custom_canvas(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    first_source = tmp_path / "first.png"
+    second_source = tmp_path / "second.png"
     output = tmp_path / "pattern.png"
-    Image.new("RGBA", (64, 64), (255, 200, 0, 255)).save(source)
+    Image.new("RGBA", (64, 64), (255, 200, 0, 255)).save(first_source)
+    Image.new("RGBA", (64, 64), (255, 0, 100, 255)).save(second_source)
 
     main(
         [
-            str(source),
+            str(first_source),
+            str(second_source),
             "--preset",
             "denser-even",
             "--width",
@@ -114,5 +163,6 @@ def test_cli_renders_a_custom_canvas(tmp_path: Path) -> None:
         ]
     )
 
+    assert "source_counts: [44, 44]" in capsys.readouterr().out
     with Image.open(output) as rendered:
         assert rendered.size == (640, 360)
