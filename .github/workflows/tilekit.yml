@@ -1,0 +1,41 @@
+name: TileKit
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/tilekit.yml"
+      - "tilekit/**"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/tilekit.yml"
+      - "tilekit/**"
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tilekit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --dev
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest --cov=tilekit --cov-fail-under=85
+      - run: uv run pip-audit
+      - run: uv run python scripts/check-mutation.py --min-kill-rate 95
+      - run: uvx slophammer-py@0.4.0 dry .
+      - name: Stage monorepo CI evidence for Slophammer
+        run: |
+          mkdir -p .github/workflows
+          cp ../.github/workflows/tilekit.yml .github/workflows/tilekit.yml
+      - name: Run Slophammer
+        run: uvx slophammer-py@0.4.0 check . --execute

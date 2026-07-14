@@ -1,0 +1,26 @@
+python:
+  coverage:
+    threshold: 85
+    paths:
+      - src
+  complexity:
+    max: 8
+  dry:
+    max_findings: 0
+    paths:
+      - src/tilekit
+    copied_blocks:
+      enabled: true
+      min_tokens: 100
+  mutation:
+    targets:
+      - src/tilekit/images.py
+  dependency_boundaries:
+    - from: src/tilekit/cli
+      allow:
+        - src/tilekit/core
+        - src/tilekit/images
+    - from: src/tilekit/core
+      allow: []
+    - from: src/tilekit/images
+      allow: []
