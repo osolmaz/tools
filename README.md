@@ -17,6 +17,7 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [`agents/prompts/`](agents/prompts/) — reusable prompts for plan-driven implementation, PR triage, and autonomous landing.
 - [`rmdbg/`](rmdbg/) — CLI for removing debugger statements from Python source code.
 - [`spawn/`](spawn/) — little CLI coding agent orchestrator
+- [`tilekit/`](tilekit/) — generate balanced, non-overlapping image tile patterns.
 - [`transcribe/`](transcribe/) — CLIs for converting voice messages into text.
 - [`agents/workflows/`](agents/workflows/) — orchestration docs for prompt-driven PR automation.
 
