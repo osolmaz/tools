@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use Fable"
+  short_description: "Delegate work to Claude Fable through ACPX Cursor"
+  default_prompt: "Use Claude Fable through the ACPX Cursor adapter with the explicit Fable model and an appropriately long timeout, then verify its result locally."
