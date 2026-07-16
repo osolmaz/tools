@@ -9,8 +9,9 @@ theme = "iTerm2 Solarized Dark"
 cursor-style = block
 cursor-style-blink = false
 
-background-opacity = 1
-background-blur = false
+background-opacity = 0.9
+background-blur = 20
+keybind = cmd+shift+o=toggle_background_opacity
 
 window-width = 80
 window-height = 25

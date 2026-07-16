@@ -9,12 +9,13 @@ theme = "iTerm2 Solarized Dark"
 cursor-style = block
 cursor-style-blink = false
 
-background-opacity = 1
-background-blur = false
+background-opacity = 0.9
+background-blur = 20
+keybind = cmd+shift+o=toggle_background_opacity
 
 window-width = 80
 window-height = 25
-window-padding-x = 0
+window-padding-x = 8
 window-padding-y = 0
 working-directory = home
 confirm-close-surface = false
@@ -34,5 +35,5 @@ quick-terminal-animation-duration = 0
 quick-terminal-autohide = true
 quick-terminal-space-behavior = move
 
-auto-update = download
+auto-update = check
 auto-update-channel = tip

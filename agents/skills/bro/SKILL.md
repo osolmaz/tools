@@ -1,9 +1,9 @@
 ---
-name: plain-language
+name: bro
 description: Use when the user asks for a plainer, simpler, shorter, or more direct explanation. Produces concrete, full-sentence explanations that lead with the main point, avoid jargon, and use exact numbers when they matter.
 ---
 
-# Plain Language
+# Bro
 
 When this skill is invoked, explain the idea in the simplest correct way you can.
 
@@ -19,7 +19,7 @@ Write like a strong engineer speaking plainly:
 - prefer 2 sentences
 - put each sentence on its own line
 - do not mention the skill by name in the answer
-- do not add meta lead-ins like `Using plain-language...`, `Using the plain-language skill...`, or similar
+- do not add meta lead-ins like `Using bro...`, `Using the bro skill...`, or similar
 
 If the user says `plainer`, `shorter`, `full sentences`, or `plain language`, remove another layer of abstraction.
 
