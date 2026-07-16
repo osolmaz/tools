@@ -14,6 +14,7 @@
 - When creating a pull request, you MUST use the `pr-description` skill for the PR description.
 - When opening a pull request that is related to an issue, cite the related issue in the pull request body.
 - Do not run Codex review for documentation-only changes.
+- When asked to review, perform the review yourself. Do not delegate, defer, or ask another agent to review unless the human explicitly instructs you to call another agent for that review.
 - When a pull request is documentation-only or similarly trivial, relevant local checks such as SimpleDoc provide enough confidence, and the user has authorized merging, merge it opportunistically without waiting for CI/CD.
 - This workflow guidance does not grant merge authorization. Do not merge a pull request unless the user explicitly requested it or provided an applicable standing instruction to merge.
 - When prompting or coordinating other agents from Herdr, do not break the fourth wall by telling those agents about other Herdr panes, sidecars, or UI layout unless the user explicitly asks you to do so.
