@@ -21,7 +21,6 @@ working-directory = home
 confirm-close-surface = false
 
 scrollback-limit = 1000000
-scrollbar = never
 mouse-reporting = true
 copy-on-select = false
 bell-features = no-system,no-audio,attention,title
