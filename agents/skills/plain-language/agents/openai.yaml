@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plain Language"
+  short_description: "Explain technical ideas plainly and directly"
+  default_prompt: "Use $plain-language to explain this more simply and directly."
