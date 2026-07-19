@@ -29,7 +29,11 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run mutate
-      - run: npx --no-install slophammer-ts check . --execute
+      - name: Check workspace with Slophammer
+        run: |
+          trap 'rm -rf .github' EXIT
+          sh scripts/run-slophammer.sh --stage-only
+          npx --no-install slophammer-ts check . --execute
       - name: Check pi-turn-fold package
         working-directory: agents/pi-extensions/packages/pi-turn-fold
         run: npm run check
