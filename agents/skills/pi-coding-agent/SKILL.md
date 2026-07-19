@@ -129,10 +129,10 @@ Only install, update, remove, or enable packages when the user asks for that
 state change. Choose global versus project-local scope deliberately.
 
 For small extensions with little adoption or operational history, default to
-vendoring and auditing the source before installation. In the tools repository,
-put the reviewed copy under `agents/onurpi/packages/`, record the upstream
-URL, immutable commit, retrieval date, license, and local changes, then install
-the local package path. Strip unrelated code and dependencies. A mature package
+vendoring and auditing the source before installation. In the OnurPi repository,
+put the reviewed copy under `packages/`, record the upstream URL, immutable
+commit, retrieval date, license, and local changes, then install the local
+package path. Strip unrelated code and dependencies. A mature package
 with established maintainers, releases, and meaningful usage may be installed
 from a pinned registry version or Git commit after the same source review. An
 explicit user request for a direct remote install overrides this preference.
