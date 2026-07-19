@@ -169,6 +169,15 @@ Default to a sibling pane in the current tab and current working directory. Do
 not create a workspace, tab, worktree, or different cwd unless the user
 explicitly requests that topology or location.
 
+When the user names a workspace, treat that name as an explicit target. List
+workspaces, resolve the exact workspace by label and relevant repository path,
+then list its panes and target one by explicit pane ID. Never use `--current`,
+UI focus, or launch-time environment IDs for a named workspace. If more than
+one workspace could match, inspect their panes and working directories before
+choosing. After every split, move, or create operation, verify that the returned
+`workspace_id` equals the requested workspace. If it does not, immediately
+close only the newly created pane and retry with the verified explicit pane ID.
+
 Honor a direction requested by the user. Otherwise inspect the caller pane's
 current rectangle:
 
