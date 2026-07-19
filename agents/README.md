@@ -10,8 +10,9 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
   Repo-local agent instructions that should also be mirrored into Codex, Claude Code, and Pi homes, and into a Cursor workspace root.
 - `sync-skills.py`
   Synchronizes repo-local skills into the Codex, Claude Code, Cursor, and Pi skills directories as real copied files, with no symlinks, and mirrors `agents/AGENTS.md` into Codex home (as `AGENTS.md`), Claude Code home (as `CLAUDE.md`), a Cursor workspace root (as `AGENTS.md`), and Pi home (as `AGENTS.md`).
-- `pi-extensions/`
-  TypeScript workspace for locally developed Pi extension packages, beginning with `pi-turn-fold`.
+- `onurpi/`
+  OnurPi TypeScript extension workspace and source-controlled global Pi settings, including
+  `@onurpi/turn-fold`.
 - `prompts/`
   Single-agent prompt files.
 - `workflows/`

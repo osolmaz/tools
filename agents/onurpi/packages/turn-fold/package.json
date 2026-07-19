@@ -1,5 +1,5 @@
 {
-  "name": "pi-turn-fold",
+  "name": "@onurpi/turn-fold",
   "version": "0.1.0",
   "private": true,
   "description": "Turn-level transcript folding for the Pi coding agent",

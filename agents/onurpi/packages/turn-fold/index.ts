@@ -4,7 +4,7 @@ import { installRenderPatches } from "./render-patches.ts";
 import { isTurnFoldMode, type TurnFoldMode } from "./mode.ts";
 import { TurnFoldState } from "./turn-state.ts";
 
-const CONFIG_ENTRY_TYPE = "pi-turn-fold-config";
+const CONFIG_ENTRY_TYPE = "onurpi-turn-fold-config";
 const TOGGLE_SHORTCUT = "ctrl+shift+o";
 
 const MODE_LABELS: readonly { label: string; mode: TurnFoldMode }[] = [

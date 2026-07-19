@@ -40,7 +40,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["packages/pi-turn-fold/render-patches.ts"],
+    files: ["packages/turn-fold/render-patches.ts"],
     rules: {
       "@typescript-eslint/unbound-method": "off",
     },

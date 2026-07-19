@@ -2,8 +2,8 @@ export default {
   checkers: ["typescript"],
   coverageAnalysis: "perTest",
   mutate: [
-    "packages/pi-turn-fold/fold-policy.ts",
-    "packages/pi-turn-fold/mode.ts",
+    "packages/turn-fold/fold-policy.ts",
+    "packages/turn-fold/mode.ts",
     "packages/pi-tui-history-replay/history-replay.ts",
   ],
   reporters: ["clear-text", "progress"],

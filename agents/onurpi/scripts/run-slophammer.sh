@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-workflow=".github/workflows/pi-extensions.yml"
+workflow=".github/workflows/onurpi.yml"
 cleanup() {
   rm -f "$workflow"
   rmdir .github/workflows .github 2>/dev/null || true
@@ -9,9 +9,9 @@ cleanup() {
 stage_workflow() {
   mkdir -p .github/workflows
   sed \
-    -e 's#agents/pi-extensions/packages/#packages/#g' \
-    -e 's#working-directory: agents/pi-extensions#working-directory: .#g' \
-    ../../.github/workflows/pi-extensions.yml >"$workflow"
+    -e 's#agents/onurpi/packages/#packages/#g' \
+    -e 's#working-directory: agents/onurpi#working-directory: .#g' \
+    ../../.github/workflows/onurpi.yml >"$workflow"
 }
 
 if [ "${1:-}" = "--stage-only" ]; then

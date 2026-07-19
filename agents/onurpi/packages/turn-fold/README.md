@@ -1,8 +1,8 @@
-# pi-turn-fold
+# @onurpi/turn-fold
 
 Turn-level transcript folding for the Pi coding agent.
 
-`pi-turn-fold` keeps the final assistant response visible while replacing the intermediate assistant
+`@onurpi/turn-fold` keeps the final assistant response visible while replacing the intermediate assistant
 messages and tool rows from a completed turn with one compact summary. The underlying session
 messages are not changed and remain in model context.
 
@@ -24,11 +24,11 @@ A folded row looks like:
 
 ## Use during development
 
-From `agents/pi-extensions`:
+From `agents/onurpi`:
 
 ```bash
 npm install
-pi -e ./packages/pi-turn-fold/index.ts
+pi -e ./packages/turn-fold/index.ts
 ```
 
 The package is private and is not published yet.

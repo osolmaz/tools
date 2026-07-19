@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-workflow=".github/workflows/pi-extensions.yml"
+workflow=".github/workflows/onurpi.yml"
 cleanup() {
   rm -f "$workflow"
   rmdir .github/workflows .github 2>/dev/null || true
@@ -9,5 +9,5 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 mkdir -p .github/workflows
-cp ../../../../.github/workflows/pi-extensions.yml "$workflow"
+cp ../../../../.github/workflows/onurpi.yml "$workflow"
 slophammer-ts check . --execute

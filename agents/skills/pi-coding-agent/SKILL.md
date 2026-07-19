@@ -130,7 +130,7 @@ state change. Choose global versus project-local scope deliberately.
 
 For small extensions with little adoption or operational history, default to
 vendoring and auditing the source before installation. In the tools repository,
-put the reviewed copy under `agents/pi-extensions/packages/`, record the upstream
+put the reviewed copy under `agents/onurpi/packages/`, record the upstream
 URL, immutable commit, retrieval date, license, and local changes, then install
 the local package path. Strip unrelated code and dependencies. A mature package
 with established maintainers, releases, and meaningful usage may be installed

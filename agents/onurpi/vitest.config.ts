@@ -4,9 +4,9 @@ export default defineConfig({
   test: {
     coverage: {
       include: [
-        "packages/pi-turn-fold/fold-policy.ts",
-        "packages/pi-turn-fold/mode.ts",
-        "packages/pi-turn-fold/turn-state.ts",
+        "packages/turn-fold/fold-policy.ts",
+        "packages/turn-fold/mode.ts",
+        "packages/turn-fold/turn-state.ts",
         "packages/pi-tui-history-replay/history-replay.ts",
       ],
       provider: "v8",

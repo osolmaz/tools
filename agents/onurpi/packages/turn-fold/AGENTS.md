@@ -1,4 +1,4 @@
-# pi-turn-fold
+# @onurpi/turn-fold
 
 - Preserve Pi's underlying session messages and model context; folding is display-only.
 - Keep folding policy and turn state separate from Pi component patching.

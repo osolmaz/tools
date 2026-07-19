@@ -9,7 +9,7 @@ Pi continues to send its compacted context to the model. This package changes th
 Install the local package, then reload Pi:
 
 ```bash
-pi install /absolute/path/to/agents/pi-extensions/packages/pi-tui-history-replay
+pi install /absolute/path/to/agents/onurpi/packages/pi-tui-history-replay
 ```
 
 ```text

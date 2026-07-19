@@ -1,9 +1,11 @@
-# Pi Extensions
+# OnurPi
 
 - Read the installed Pi documentation and relevant examples completely before changing an extension.
-- Keep each extension independent under `packages/pi-<name>/` with a Pi manifest, entry point,
-  tests, and README; also register development entry points in the root Pi manifest.
+- Keep each extension independent under `packages/<name>/` with a Pi manifest, entry point, tests,
+  and README; also register development entry points in the root Pi manifest.
 - Use strict TypeScript. Do not use explicit `any`, unsafe casts, or unchecked external input.
+- Keep only reviewed global settings in `settings.json`. Never copy Pi authentication, sessions,
+  trust decisions, or provider state into this repository.
 - Keep transcript selection and folding policy separate from Pi TUI patching and other runtime
   integration.
 - Add or update tests for every behavior change.
