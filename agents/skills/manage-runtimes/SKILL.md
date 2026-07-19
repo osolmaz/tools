@@ -127,6 +127,21 @@ Benchmark specs should describe workload shape: prompt length, output length, re
 7. Mark superseded runtimes as `archived` or `broken` in their manifest.
 8. Delete old runtimes only when the user explicitly asks or confirms cleanup.
 
+Before starting any local inference server, compiler-heavy model load, or
+benchmark traffic, also use `$safe-inference-launch`. Do not launch vLLM,
+llama.cpp, SGLang, TensorRT-LLM, FlashInfer/modelopt, Ollama, or similar local
+serving processes directly.
+
+When promoting a local runtime, install automatic guarded shims for the runtime
+entrypoint if possible. For vLLM this means wrapping the promoted executable:
+
+```bash
+~/.codex/skills/safe-inference-launch/scripts/install-shims.sh \
+  --wrap ~/runtimes/vllm/current/.venv/bin/vllm
+```
+
+This protects benchmark scripts that call the runtime by absolute path.
+
 ## Smoke Tests
 
 Use the smallest test that proves the runtime can start, serve, and return output without exceeding safety limits.
@@ -144,6 +159,12 @@ Do not promote a runtime based only on successful package installation.
 ## Safety
 
 - Do not lower memory guards just to get a smoke test to pass.
+- Do not start local inference as a fallback when the intended target is a
+  remote endpoint or hosted API. Verify the remote target first and report auth
+  or availability failures.
+- Use a process-group watchdog plus active earlyoom for local large-model
+  launches. If those guards are unavailable, refuse the launch or ask before
+  continuing.
 - Do not create system or user services unless the user explicitly asks for a service.
 - Do not treat `~/services` as a runtime location.
 - Do not mutate an existing working runtime in place. Create a new versioned runtime and promote it after testing.

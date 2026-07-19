@@ -38,6 +38,10 @@ Options:
 
 ## Skills
 
+- `skills/acpx/`
+  Use this when delegating work to another coding agent through ACPX, including
+  Claude Fable through Cursor.
+
 - `skills/agent-blurb/`
   Use this when writing or reviewing copy-paste README blurbs that tell a
   coding agent how to install, configure, verify, or adopt a project workflow.
@@ -69,6 +73,10 @@ Options:
 - `skills/manage-repos/`
   Use this when creating, onboarding, auditing, or tightening GitHub repositories with sane defaults and stricter merge-review rules.
 
+- `skills/manage-runtimes/`
+  Use this when creating, promoting, auditing, or deleting local inference
+  runtimes under `~/runtimes/`.
+
 - `skills/name-claim/`
   Use this when checking whether project names, domains, packages, code-host
   namespaces, social handles, app-store names, or AI/developer platform accounts
@@ -88,6 +96,10 @@ Options:
 - `skills/pi-coding-agent/`
   Use this for any Pi coding agent task, including browsing packages, creating
   extensions, and working with Pi configuration, APIs, resources, or local state.
+
+- `skills/safe-inference-launch/`
+  Use this before starting local LLM inference so memory guards, watchdogs, and
+  staged smoke tests protect the machine from OOM failures.
 
 - `skills/semver/`
   Use this while deciding how to choose the next major, minor, patch, or
