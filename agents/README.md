@@ -83,6 +83,10 @@ Options:
   Use this when clustering related issues or PRs and starting decision-focused
   agent sessions for each shared bug or fix-shape group.
 
+- `skills/pi-coding-agent/`
+  Use this for any Pi coding agent task, including browsing packages, creating
+  extensions, and working with Pi configuration, APIs, resources, or local state.
+
 - `skills/semver/`
   Use this while deciding how to choose the next major, minor, patch, or
   pre-1.0 version during release.
