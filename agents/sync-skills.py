@@ -67,6 +67,17 @@ def default_cursor_agents_dest() -> Path:
     return Path.home() / "AGENTS.md"
 
 
+def default_pi_config_root() -> Path:
+    pi_config_root = os.environ.get("PI_CODING_AGENT_DIR")
+    if pi_config_root:
+        return Path(pi_config_root).expanduser()
+    return Path.home() / ".pi" / "agent"
+
+
+def default_pi_dest_root() -> Path:
+    return default_pi_config_root() / "skills"
+
+
 def default_agents_source() -> Path:
     return Path(__file__).resolve().parent / "AGENTS.md"
 
@@ -186,8 +197,8 @@ def sync_skill(skill: Skill, dest_root: Path, *, dry_run: bool) -> None:
     source_path = skill.source_path.resolve()
 
     def ignore_nested_skill_files(directory: str, names: list[str]) -> set[str]:
-        # Codex discovers SKILL.md files recursively; nested reference copies
-        # should not register as additional local skills.
+        # Agent harnesses discover SKILL.md files recursively; nested reference
+        # copies should not register as additional local skills.
         if Path(directory).resolve() != source_path and "SKILL.md" in names:
             return {"SKILL.md"}
         return set()
@@ -273,7 +284,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Synchronize repo-local skills and AGENTS.md into Codex, "
-            "Claude Code, and Cursor destinations."
+            "Claude Code, Cursor, and Pi destinations."
         )
     )
     parser.add_argument(
@@ -317,6 +328,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--pi-dest",
+        default=default_pi_dest_root(),
+        type=Path,
+        help=(
+            "Destination Pi skills root. Also syncs agents/AGENTS.md to the Pi "
+            "config root. Defaults to $PI_CODING_AGENT_DIR/skills or "
+            "~/.pi/agent/skills."
+        ),
+    )
+    parser.add_argument(
         "--skip-codex",
         action="store_true",
         help="Do not sync to the Codex destination.",
@@ -330,6 +351,11 @@ def parse_args() -> argparse.Namespace:
         "--skip-cursor",
         action="store_true",
         help="Do not sync to the Cursor destination.",
+    )
+    parser.add_argument(
+        "--skip-pi",
+        action="store_true",
+        help="Do not sync to the Pi destination.",
     )
     prune = parser.add_mutually_exclusive_group()
     prune.add_argument(
@@ -352,9 +378,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    if args.skip_codex and args.skip_claude and args.skip_cursor:
+    if args.skip_codex and args.skip_claude and args.skip_cursor and args.skip_pi:
         raise ValueError(
-            "nothing to do: --skip-codex, --skip-claude, and --skip-cursor given"
+            "nothing to do: --skip-codex, --skip-claude, --skip-cursor, and "
+            "--skip-pi given"
         )
 
     source_root = args.source_root.expanduser().resolve()
@@ -393,6 +420,19 @@ def main() -> int:
                     "Start a new Cursor session in the workspace containing "
                     f"{cursor_agents_dest} to pick up synced AGENTS.md; restart "
                     "Cursor to refresh synced personal skills."
+                ),
+            )
+        )
+    if not args.skip_pi:
+        pi_skills_root = args.pi_dest.expanduser().resolve()
+        destinations.append(
+            Destination(
+                name="Pi",
+                skills_root=pi_skills_root,
+                agents_dest=pi_skills_root.parent / "AGENTS.md",
+                restart_hint=(
+                    "Run /reload in Pi or start a new Pi session to pick up synced "
+                    "skills and AGENTS.md."
                 ),
             )
         )

@@ -7,9 +7,9 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
 - `skills/`
   Repo-local skills that package the prompts and workflow docs into reusable execution guides.
 - `AGENTS.md`
-  Repo-local agent instructions that should also be mirrored into Codex and Claude Code homes, and into a Cursor workspace root.
+  Repo-local agent instructions that should also be mirrored into Codex, Claude Code, and Pi homes, and into a Cursor workspace root.
 - `sync-skills.py`
-  Synchronizes repo-local skills into the Codex, Claude Code, and Cursor skills directories as real copied files, with no symlinks, and mirrors `agents/AGENTS.md` into Codex home (as `AGENTS.md`), Claude Code home (as `CLAUDE.md`), and a Cursor workspace root (as `AGENTS.md`).
+  Synchronizes repo-local skills into the Codex, Claude Code, Cursor, and Pi skills directories as real copied files, with no symlinks, and mirrors `agents/AGENTS.md` into Codex home (as `AGENTS.md`), Claude Code home (as `CLAUDE.md`), a Cursor workspace root (as `AGENTS.md`), and Pi home (as `AGENTS.md`).
 - `prompts/`
   Single-agent prompt files.
 - `workflows/`
@@ -22,12 +22,14 @@ Run `python3 agents/sync-skills.py` to mirror all repo-local skills into support
 - Codex: skills go to `$CODEX_HOME/skills` or `~/.codex/skills`, and `agents/AGENTS.md` is mirrored to `$CODEX_HOME/AGENTS.md` or `~/.codex/AGENTS.md`.
 - Claude Code: skills go to `$CLAUDE_CONFIG_DIR/skills` or `~/.claude/skills`, where they load as personal skills, and `agents/AGENTS.md` is mirrored to `~/.claude/CLAUDE.md` (global user instructions).
 - Cursor: skills go to `$CURSOR_CONFIG_DIR/skills` or `~/.cursor/skills`, where they load as personal skills. Cursor does not load a global `~/.cursor/AGENTS.md`; instead, `agents/AGENTS.md` is mirrored to `$CURSOR_AGENTS_DEST`, `$CURSOR_WORKSPACE_ROOT/AGENTS.md`, or `~/AGENTS.md` by default so Cursor can load it from that workspace root.
+- Pi: skills go to `$PI_CODING_AGENT_DIR/skills` or `~/.pi/agent/skills`, and `agents/AGENTS.md` is mirrored to `$PI_CODING_AGENT_DIR/AGENTS.md` or `~/.pi/agent/AGENTS.md`.
 
 Options:
 
 - Use `--dry-run` to preview changes.
-- Use `--skip-codex`, `--skip-claude`, or `--skip-cursor` to skip a destination.
+- Use `--skip-codex`, `--skip-claude`, `--skip-cursor`, or `--skip-pi` to skip a destination.
 - Use `--cursor-agents-dest /path/to/project/AGENTS.md` to sync Cursor instructions to a specific workspace.
+- Use `--pi-dest /path/to/pi/skills` to override the Pi skills directory; `AGENTS.md` is synced to its parent.
 - Use `--no-prune` to keep previously synced repo-managed skills that are not in the current selection.
 - Pass one or more skill ids or source directory names to sync only a subset.
 - Each destination keeps its own `.tools-agents-skill-sync.json` state file, so pruning is tracked per destination.
