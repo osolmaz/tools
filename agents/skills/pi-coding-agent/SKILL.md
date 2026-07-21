@@ -154,6 +154,38 @@ resource change, use `/reload` when supported or start a new Pi session, then
 verify the extension commands, tools, skills, prompts, or themes that should
 have appeared.
 
+## Preserve Pi Contracts by Default
+
+When designing, planning, implementing, or reviewing a Pi extension, treat Pi's
+state and contracts as immutable unless the user explicitly instructs you to
+change them.
+
+Do not propose, plan, or implement any of the following by default:
+
+- Writes to session history, including custom entries, custom messages, labels,
+  compaction metadata, tool-result persistence, or rewritten parent links.
+- New or changed session fields, settings fields, schemas, migrations, sidecar
+  state, or other persistent data models.
+- Changes to Pi source, private APIs, internal classes, component prototypes, or
+  undocumented runtime behavior.
+- Hidden compatibility paths or inferred migrations that alter existing Pi
+  data.
+
+A request for a feature, reliability across reloads, or branch support is not
+permission to persist data or change Pi internals. Reading Pi state is not
+permission to write it.
+
+Prefer documented public hooks, renderers, event payloads, and ephemeral
+in-memory state. If an exact behavior cannot survive reloads or restarts without
+persistence, explain that limitation and the available trade-offs. Ask for
+explicit authorization before introducing storage or internal changes. Do not
+quietly choose persistence as an implementation detail.
+
+Every proposed implementation plan for Pi work must state whether it changes
+session state, another persistent data model, or Pi internals. The default
+answer must be no. If the public API is insufficient, stop at the limitation
+instead of proposing an internal Pi change unless the user requested one.
+
 ## Create or Modify Pi Resources
 
 - Put global extensions in `~/.pi/agent/extensions/` and project extensions in
@@ -168,8 +200,9 @@ have appeared.
 - Use `StringEnum` for string enums exposed to model tools, truncate large tool
   output, and use Pi's file-mutation queue for custom tools that modify files.
 - Guard TUI-only behavior with the documented mode checks.
-- Preserve session branching semantics by storing extension state in documented
-  session entries or tool-result details.
+- When the user explicitly authorizes persistent extension state, preserve
+  session branching semantics with Pi's documented mechanisms and confirm the
+  data model before implementation.
 
 Before considering work complete:
 
