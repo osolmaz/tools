@@ -40,6 +40,7 @@
 - `agents/sync-skills.py` mirrors repo-local skills into Codex, Claude Code, Cursor, and Pi skills directories as copied files.
 - To update local agent instructions or repo-local skills, pull the latest version of this repo, then run `agents/sync-skills.py`.
 - Use the `pi-coding-agent` skill for any task involving Pi, including its extensions, packages, skills, themes, TUI, SDK, models, providers, configuration, or local state.
+- Use the `extending-pi` skill alongside `pi-coding-agent` before proposing, designing, implementing, reviewing, or debugging any change to Pi behavior. This includes deciding between an extension and Pi core, and requests for elegant, long-term, production-ready, ideal, or holy-grail Pi solutions.
 - If a skill is referred to but is not installed in the active Codex skill list, check `agents/skills/` before treating it as missing; it may already exist in this repo and simply need to be synced.
 - If an installed skill came from this tools repo, edit the source under `agents/skills/` first. Do not hand-edit the copied installation under `$CODEX_HOME/skills`, `~/.codex/skills`, `~/.claude/skills`, `~/.cursor/skills`, `~/.pi/agent/skills`, or OpenClaw agent runtime mirrors except via the sync script.
 - Use the `manage-runtimes` skill before creating, updating, promoting, auditing, or deleting local inference runtimes.

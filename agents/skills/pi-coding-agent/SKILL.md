@@ -8,6 +8,18 @@ description: Use for any task involving the Pi coding agent, including browsing 
 Use the installed Pi documentation and examples as the authoritative reference.
 Do not rely on remembered APIs when the current installation can be inspected.
 
+## Required Companion Skill For Behavior Changes
+
+Load and follow the `extending-pi` skill alongside this skill whenever a task
+proposes, designs, implements, reviews, or debugs a change to Pi behavior. This
+includes deciding between an extension and Pi core, and requests for an
+"elegant," "long-term," "production-ready," "ideal," or "holy grail"
+solution.
+
+Do not produce an architecture proposal for changing Pi behavior until
+`extending-pi` has been read. A request to change behavior does not authorize a
+Pi source or internal change.
+
 ## Locate the Installed Documentation
 
 Resolve the package from the active `pi` executable instead of hardcoding a

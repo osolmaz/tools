@@ -95,6 +95,10 @@ Options:
   Use this for any Pi coding agent task, including browsing packages, creating
   extensions, and working with Pi configuration, APIs, resources, or local state.
 
+- `skills/extending-pi/`
+  Use this alongside `pi-coding-agent` when designing or reviewing changes to
+  Pi behavior so public extensions and packages remain the default boundary.
+
 - `skills/safe-inference-launch/`
   Use this before starting local LLM inference so memory guards, watchdogs, and
   staged smoke tests protect the machine from OOM failures.
