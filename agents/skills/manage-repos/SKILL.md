@@ -78,7 +78,7 @@ Supported checker selection:
 Start from the Slophammer agent entrypoint:
 
 ```text
-https://github.com/dutifuldev/slophammer/blob/main/docs/AGENT_ENTRYPOINT.md
+https://github.com/osolmaz/slophammer/blob/main/docs/AGENT_ENTRYPOINT.md
 ```
 
 Typical new-repo tasks:

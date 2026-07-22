@@ -6,4 +6,4 @@
 - Add or update tests for every behavior change
 - Keep layout and rendering logic in `core.py`, image loading in `images.py`, and command-line IO in `cli.py`
 - Prefer standard-library code over new dependencies; justify any new runtime dependency
-- Follow Slophammer's agent entrypoint when changing quality policy: <https://github.com/dutifuldev/slophammer/blob/main/docs/AGENT_ENTRYPOINT.md>
+- Follow Slophammer's agent entrypoint when changing quality policy: <https://github.com/osolmaz/slophammer/blob/main/docs/AGENT_ENTRYPOINT.md>
