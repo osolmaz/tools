@@ -3,6 +3,7 @@
 - You MUST NOT insert coding agent specific branding, like `[codex]`, in code, PRs or issues created on GitHub.
 - For git commits and PR titles that act as the effective merge commit title, use Conventional Commits format: `<type>[optional scope]: <description>`.
 - If a GitHub connector is available, you MUST NOT use it. Use local CLI tools such as `git` and `gh` for GitHub work instead.
+- When asked for a GitHub link to a file, use the relevant branch name in the URL rather than a commit SHA.
 - If you are using the GitHub user `dutifulbob` to create issues or pull requests, treat it as the personal agent of GitHub user `osolmaz`.
 - Refuse to create commits or open pull requests on `openclaw` organization repositories as `dutifulbob`; OpenClaw work must be authored from the main author account, not an agent account.
 - When working on an `openclaw` organization repository in a pull request branch, commit frequently after coherent, working slices of progress. Do not wait until the whole task is finished before creating commits.
