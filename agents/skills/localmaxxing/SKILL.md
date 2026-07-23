@@ -110,6 +110,30 @@ For a decode-focused test, use enough output tokens to reach steady generation.
 For speculative decoding, use several content types such as explanatory prose,
 code, structured text, and realistic application prompts.
 
+## GGUF And llama.cpp
+
+For the same semantic remote workload on GGUF, start `llama-server` and run:
+
+```bash
+lmx benchmark run llama.cpp \
+  --mode remote \
+  --base-url http://127.0.0.1:8000 \
+  --served-model org/model-GGUF \
+  --hf-id org/model-GGUF \
+  --quantization Q4_K_M \
+  --prompt "$(cat prompt.txt)" \
+  --max-tokens 1024 \
+  --warmup 0 \
+  --iterations 1
+```
+
+This uses the OpenAI-compatible semantic endpoint path. Local `llama-bench`
+mode uses synthetic prompt and output token counts, so it is not the same test.
+A remote llama.cpp `--dry-run` may produce only a measurement plan; the actual
+non-dry run performs the endpoint request. Verify filename-derived quantization,
+the canonical Hugging Face repository ID, endpoint token usage, and the exact
+Poolside or upstream llama.cpp revision before submission.
+
 ## Private Measurement Workflow
 
 1. Confirm the intended endpoint and serving configuration.
