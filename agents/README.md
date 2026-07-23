@@ -61,6 +61,11 @@ Options:
   Use this when deploying, inspecting, profiling, benchmarking, or shutting
   down Hugging Face Inference Endpoints with mandatory unused-endpoint cleanup.
 
+- `skills/localmaxxing/`
+  Use this when measuring, reviewing, or submitting Localmaxxing benchmarks so
+  results stay objective, representative, uncached when labeled fresh, and
+  backed by enough generated tokens and complete raw evidence.
+
 - `skills/serving-configuration-selection/`
   Use this when choosing an LLM serving configuration from measured context,
   concurrency, throughput, latency, stability, and memory tradeoffs.
