@@ -1,6 +1,6 @@
 ---
 name: acpx
-description: Use when calling, reviewing with, or delegating work to another coding agent through the ACPX CLI, including Claude Fable through Cursor, one-shot and persistent sessions, model selection, permissions, timeouts, output collection, and recovery after interrupted calls.
+description: Use when calling, reviewing with, or delegating work to another coding agent through the ACPX CLI, including explicitly human-requested Claude Fable through the local Claude adapter, one-shot and persistent sessions, model selection, permissions, timeouts, output collection, and recovery after interrupted calls.
 ---
 
 # ACPX
@@ -27,41 +27,48 @@ Use a one-shot temporary session only when no follow-up or recovery is likely:
 ```bash
 acpx --cwd "$REPO" --timeout 1800 \
   --approve-reads --non-interactive-permissions deny \
-  cursor exec "$PROMPT"
+  claude exec "$PROMPT"
 ```
 
 Use a named persistent session for deep reviews, implementation, long reports,
 or any task likely to need clarification or continuation:
 
 ```bash
-acpx --cwd "$REPO" --timeout 1800 cursor sessions ensure --name fable-review
+acpx --cwd "$REPO" --timeout 1800 claude sessions ensure --name fable-review
 acpx --cwd "$REPO" --timeout 1800 \
   --approve-reads --non-interactive-permissions deny \
-  cursor -s fable-review "$PROMPT"
+  claude -s fable-review "$PROMPT"
 ```
 
 Persistent sessions make interrupted output recoverable. Inspect them with:
 
 ```bash
-acpx --cwd "$REPO" cursor status -s fable-review
-acpx --cwd "$REPO" cursor sessions show fable-review
-acpx --cwd "$REPO" cursor sessions history fable-review --limit 20
+acpx --cwd "$REPO" claude status -s fable-review
+acpx --cwd "$REPO" claude sessions show fable-review
+acpx --cwd "$REPO" claude sessions history fable-review --limit 20
 ```
 
-## Claude Fable through Cursor
+## Claude Fable through local Claude
 
-Use the Cursor adapter and request Fable explicitly:
+Call Fable only when the human explicitly asks to use or call Fable. Fable is
+very expensive, so use it sparingly even when authorized. Never infer permission
+from task difficulty or failed attempts, and never launch parallel Fable calls
+unless the human explicitly requests them.
+
+Use ACPX's `claude` adapter, which invokes the locally installed Claude Code CLI,
+and request Fable explicitly. Never use Cursor for Fable:
 
 ```bash
 acpx --cwd "$REPO" --timeout 1800 \
   --model claude-fable-5 \
   --approve-reads --non-interactive-permissions deny \
-  cursor exec "$PROMPT"
+  claude exec "$PROMPT"
 ```
 
-Model identifiers are adapter-defined. Read the model advertised by ACPX. If
-the adapter reports a more exact bracketed identifier, use that exact identifier
-when the bare name is ambiguous. Do not silently substitute a different model.
+Model identifiers are adapter-defined. Read the model advertised by the local
+Claude adapter. If it reports a more exact identifier, use that exact identifier
+when the bare name is ambiguous. Do not silently substitute a different model
+or adapter.
 
 ## Permissions
 

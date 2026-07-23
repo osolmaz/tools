@@ -38,7 +38,7 @@ Options:
 
 - `skills/acpx/`
   Use this when delegating work to another coding agent through ACPX, including
-  Claude Fable through Cursor.
+  explicitly human-requested Claude Fable through the local Claude adapter.
 
 - `skills/agent-blurb/`
   Use this when writing or reviewing copy-paste README blurbs that tell a

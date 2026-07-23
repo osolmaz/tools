@@ -1,4 +1,4 @@
 interface:
   display_name: "Use Fable"
-  short_description: "Delegate work to Claude Fable through ACPX Cursor"
-  default_prompt: "Use Claude Fable through the ACPX Cursor adapter with the explicit Fable model and an appropriately long timeout, then verify its result locally."
+  short_description: "Explicitly requested, costly Fable calls via local Claude"
+  default_prompt: "Use Claude Fable only because the human explicitly requested it. Fable is very expensive, so make the fewest narrowly scoped calls needed. Invoke it through ACPX's local Claude adapter, never Cursor, with the explicit Fable model and an appropriately long timeout, then verify its result locally."
