@@ -25,12 +25,12 @@
 
 - Default to a hard cutover. Do not add or retain legacy shims, compatibility aliases, fallback readers, dual-read or dual-write paths, transitional adapters, or indefinite deprecation paths unless the repository is covered by an exception below or the user explicitly requests compatibility.
 - Use `cutover` only to describe replacement behavior in prose. Do not use `cutover` or `cutover plan` in filenames, document titles, headings, plan names, issue titles, pull request titles, commit subjects, test names, or other identifiers. Name the target capability directly, adding `implementation plan` only when a plan suffix is useful.
-- For repositories owned by `osolmaz`, `dutifulbob`, or `dutifuldev`, always replace the existing contract in place and remove the superseded path. Do not introduce a parallel `v2` or similar version solely to preserve old behavior; keep the existing version identifier, such as `v1`, and change it in place. This remains the rule until the repository is explicitly added to the exception list.
+- For repositories owned by `osolmaz`, always replace the existing contract in place and remove the superseded path. Do not introduce a parallel `v2` or similar version solely to preserve old behavior; keep the existing version identifier, such as `v1`, and change it in place. This remains the rule until the repository is explicitly added to the exception list.
 - A deprecation period in an owned repository must be bounded and end in removal. It must not leave runtime compatibility code after the cutover.
 - Exception list:
   - `openclaw/*`.
-  - Important repositories not owned by `osolmaz`, `dutifulbob`, or `dutifuldev`; follow upstream compatibility and maintainer requirements.
-- A repository owned by one of the three accounts is not exempt merely because it is important. Add an owned repository to the exception list only when the user explicitly says so.
+  - Important repositories not owned by `osolmaz`; follow upstream compatibility and maintainer requirements.
+- A repository owned by `osolmaz` is not exempt merely because it is important. Add an owned repository to the exception list only when the user explicitly says so.
 - Explicit user instructions for a task override this default.
 
 ## Tools repo agent context
