@@ -1,6 +1,6 @@
 ---
 name: hf-job-control
-description: Use when designing, provisioning, integrating, or operating cooperative control for detached Hugging Face Jobs. Covers sortable petname run IDs, versioned lifecycle commands, bounded epoch changes, exact checkpoint resume, a private control dataset, content-addressed large payloads in an HF Bucket, and immutable applied-control receipts.
+description: Use when designing, provisioning, integrating, or operating cooperative control for detached Hugging Face Jobs. Covers sortable petname run IDs, bounded and open-ended training horizons, versioned lifecycle commands, exact checkpoint resume, a private control dataset, content-addressed large payloads in an HF Bucket, and immutable applied-control receipts.
 ---
 
 # HF Job Control
@@ -74,10 +74,12 @@ new petname only for a new logical run. Do not rename historical runs.
 
 ## Control boundary
 
-A submitted Job has immutable hard limits in its checksummed script. A control
-document may lower or restore a mutable limit within those bounds. It cannot
-raise a hard limit, change a scientific selection rule, swap data, or change the
-model.
+A submitted Job has immutable scientific settings and safety limits in its
+checksummed script. Its training horizon may be fixed, bounded by a hard limit,
+or intentionally open-ended when the registered plan authorizes control-based
+stopping. A control document may lower or restore a mutable limit within any
+declared bound. It cannot change a scientific selection rule, swap data, or
+change the model.
 
 Use these actions:
 
@@ -89,9 +91,13 @@ Use these actions:
 - `abort` saves diagnostic state when possible, records failure, and exits with
   an error.
 
-Prefer algorithmic early stopping for model selection. Human controls are for
-operations. If a manual command changes the scientific outcome, update the plan
-before issuing it and record that plan revision with the command.
+Prefer algorithmic early stopping for model selection. A registered plan may
+instead make the operator responsible for ending an open-ended observation
+horizon after reviewing published training-only metrics. In that protocol, the
+control chooses when observation ends while the frozen scoring rule chooses the
+best checkpoint. If a manual command changes the scientific outcome without
+such prior authorization, update the plan before issuing it and record that
+plan revision with the command.
 
 ## Control documents
 
@@ -114,8 +120,10 @@ A minimal document is:
 ```
 
 `generation` increases by one on every update. The optional `max_epochs` is a
-soft runtime limit and must stay within the script's hard maximum. The optional
-`resume_from` points to a content-addressed Bucket object.
+soft runtime limit and must stay within the script's hard maximum when one
+exists. Omit `max_epochs` for an open-ended run that continues until `stop`,
+`pause`, or `abort`. The optional `resume_from` points to a content-addressed
+Bucket object.
 
 Use the bundled publisher. Do not hand-edit the dataset:
 
@@ -166,7 +174,7 @@ Reject a control when any of these conditions holds:
 - Its `run_id` differs from the active run.
 - Its generation is older than the last applied generation.
 - It contains unknown fields or an unsupported schema version.
-- A mutable limit exceeds the hard limit in the submitted script.
+- A mutable limit exceeds a hard limit declared by the submitted script.
 - A resume payload is missing, mutable, malformed, or fails size or SHA-256
   verification.
 
@@ -220,17 +228,32 @@ listed above.
 Use `hf jobs cancel` only for emergencies. Cancellation may prevent a final
 checkpoint and receipt from being written.
 
+## Open-ended monitored runs
+
+For a plan-authorized open-ended search, publish the registered development
+metrics at every safe boundary and omit both `max_epochs` and an epoch ceiling
+from the script. The launcher should not use an HF Job timeout as a scientific
+training horizon. If the platform imposes an external lifetime, treat expiry as
+an interruption and resume the same logical run from exact state.
+
+The operator issues `stop` only from the published training-only curve. The Job
+must checkpoint, publish status, record the applied-control receipt, and exit
+cleanly at the next safe boundary. The stop point limits the observation window.
+Checkpoint selection still follows the objective and tiebreak frozen in the
+plan.
+
 ## Scheduler rules
 
-A mutable search horizon requires a horizon-independent scheduler such as
-ReduceLROnPlateau. Do not change the endpoint of a cosine or linear schedule
-while it is running. A fixed-duration refit keeps its selected step count and
-learning-rate trace immutable.
+A mutable or open-ended search horizon requires a horizon-independent scheduler
+such as ReduceLROnPlateau. Do not change the endpoint of a cosine or linear
+schedule while it is running. A fixed-duration refit keeps its selected step
+count and learning-rate trace immutable.
 
 ## Verification
 
 Before launch, verify the control schema, initial control generation, private
-resource settings, hard limits, safe polling boundary, and exact-resume test.
+resource settings, declared safety limits, training-horizon mode, safe polling
+boundary, and exact-resume test.
 After each control action, verify the dataset commit, control hash, project
 receipt, checkpoint hash, Job terminal state when applicable, and absence of
 unintended changes to unrelated Jobs.
