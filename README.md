@@ -12,6 +12,7 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [`claude-code-data/`](claude-code-data/) — library for parsing and analyzing Claude Code conversation files.
 - [`codex-tools/`](codex-tools/) — inspect and repair local Codex session metadata.
 - [`padify/`](padify/) — add padding to images (handy for terminal screenshots).
+- [`pngscrub/`](pngscrub/) — inspect and remove private PNG metadata without changing image data.
 - [`prooompter/`](prooompter/) — CLI for constructing prompts from files that fit the context window.
 - [`agents/skills/`](agents/skills/) — repo-local skills for autonomous implementation and PR follow-through.
 - [`agents/prompts/`](agents/prompts/) — reusable prompts for plan-driven implementation, PR triage, and autonomous landing.

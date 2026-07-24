@@ -1,0 +1,32 @@
+name: PNGScrub
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/pngscrub.yml"
+      - "pngscrub/**"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/pngscrub.yml"
+      - "pngscrub/**"
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pngscrub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - run: cargo build --release --locked
+
