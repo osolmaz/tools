@@ -1,4 +1,4 @@
 interface:
   display_name: "HF Job Control"
-  short_description: "Control detached HF Jobs safely"
-  default_prompt: "Use $hf-job-control to provision or operate versioned cooperative controls for a detached Hugging Face Job."
+  short_description: "Operate and integrate controlled HF Jobs"
+  default_prompt: "Use $hf-job-control to create, launch, monitor, pause, resume, stop, abort, integrate, recover, or audit a cooperatively controlled Hugging Face Job with immutable launch specifications, verified checkpoints, durable status, and receipts."
