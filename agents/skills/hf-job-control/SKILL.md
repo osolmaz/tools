@@ -38,6 +38,20 @@ For any task that changes live compute, read both the operator workflow and the
 relevant verification checklist. For an incident, read the operations runbook
 before issuing a new control generation or canceling a Job.
 
+## Skill distribution
+
+The Python package bundles this complete skill directory. An installed CLI can
+list, display, or export it through Skillflag:
+
+```bash
+hf-job-control --skill list
+hf-job-control --skill show hf-job-control
+hf-job-control --skill export hf-job-control > hf-job-control-skill.tar
+```
+
+The exported tar stream includes every linked reference, schema, asset, and
+agent metadata file in this directory.
+
 ## Operating boundary
 
 The package controls cooperative application behavior. Hugging Face still owns

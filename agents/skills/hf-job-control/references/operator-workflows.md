@@ -20,14 +20,20 @@ hf version --format json
 
 ## Installation and authentication
 
-Install an immutable release tag or commit. Use the same package revision in
-workers and operator tests.
+Install an exact release version. Use the same package version in workers and
+operator tests, and record the published wheel digest with the run evidence.
+
+```bash
+uv tool install hf-job-control==<version>
+hf-job-control --skill list
+hf auth whoami --format json
+```
+
+A Git commit can be used while testing an unreleased change:
 
 ```bash
 uv tool install \
-  "hf-job-control @ git+https://github.com/osolmaz/hf-job-control@<tag-or-commit>"
-
-hf auth whoami --format json
+  "hf-job-control @ git+https://github.com/osolmaz/hf-job-control@<commit>"
 ```
 
 Automatic run-ID generation invokes `npx --yes @osolmaz/petname`. Install
