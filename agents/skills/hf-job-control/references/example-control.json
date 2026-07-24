@@ -1,0 +1,8 @@
+{
+  "action": "run",
+  "generation": 1,
+  "max_epochs": 10,
+  "reason": "Start the registered convergence search",
+  "run_id": "teacher-base-search-v1",
+  "schema_version": 1
+}
