@@ -125,6 +125,10 @@ Options:
 - `skills/write-readme/`
   Use this when creating, rewriting, or reviewing README files so they stay focused on users, not maintainer process details.
 
+- `skills/wiki/`
+  Use this when creating or updating durable workspace wiki pages with simple,
+  all-caps SimpleDoc-style names and stable topic indexes.
+
 ## Prompts
 
 - `prompts/implement-plan.md`
