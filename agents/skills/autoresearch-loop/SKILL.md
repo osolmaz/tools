@@ -6,7 +6,11 @@ description: Run an iterative feature-search loop in the style of karpathy/autor
 # Autoresearch loop
 
 This skill runs a disciplined search for a feature that separates two
-groups in a fixed dataset. The discipline comes from three artifacts
+groups in a fixed dataset. For model training, refits, checkpoint selection,
+or accelerator experiments, also use `ml-experiment-design` before launching
+compute.
+
+The discipline comes from three artifacts
 kept in one directory: a harness that never changes during the search,
 a single feature file that changes every experiment, and a journal that
 records every run whether it worked or not. No external repo is needed;

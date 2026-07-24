@@ -1,0 +1,4 @@
+interface:
+  display_name: "ML Experiment Design"
+  short_description: "Design valid, compute-aware ML experiments"
+  default_prompt: "Use $ml-experiment-design to review this ML plan, compare checkpoint reuse against fresh training, and identify the cheapest valid experiment before launching compute."

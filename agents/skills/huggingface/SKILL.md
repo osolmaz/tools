@@ -25,6 +25,11 @@ Spaces, datasets, Gradio, papers, local models, training, evaluations, Trackio,
 ZeroGPU, tool building, and cloud deployment. The marketplace is the source of
 truth when names or coverage change.
 
+For training plans, data splits, checkpoint reuse, refits, ablations,
+distillation, or model-selection decisions, also use `ml-experiment-design`.
+Official training skills explain how to run Jobs. They do not replace the
+compute and experiment-design review required before launching them.
+
 If a matching official skill is unavailable locally, install or update the
 published copy through `hf skills`; do not duplicate its contents here:
 
