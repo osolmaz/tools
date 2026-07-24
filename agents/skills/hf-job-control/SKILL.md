@@ -1,6 +1,6 @@
 ---
 name: hf-job-control
-description: Use when designing, provisioning, integrating, or operating cooperative control for detached Hugging Face Jobs. Covers versioned lifecycle commands, bounded epoch changes, exact checkpoint resume, a private control dataset, content-addressed large payloads in an HF Bucket, and immutable applied-control receipts.
+description: Use when designing, provisioning, integrating, or operating cooperative control for detached Hugging Face Jobs. Covers sortable petname run IDs, versioned lifecycle commands, bounded epoch changes, exact checkpoint resume, a private control dataset, content-addressed large payloads in an HF Bucket, and immutable applied-control receipts.
 ---
 
 # HF Job Control
@@ -44,6 +44,34 @@ hf repos create osolmaz/jobs-control --type dataset --private --exist-ok
 hf buckets create osolmaz/jobs-artifacts --private --exist-ok
 ```
 
+## Run IDs
+
+Generate every new logical run ID with the published `@osolmaz/petname`
+package. Its default is a UTC minute followed by an adjective and an animal:
+
+```bash
+RUN_ID="$(npx --yes @osolmaz/petname)"
+printf '%s\n' "$RUN_ID"
+# 202607241430-calm-otter
+```
+
+Generate the ID once before publishing control state or launching compute. Use
+that exact value for `controls/<run_id>.json`, project status, artifact paths,
+and the Job's `run_id` label and environment variable:
+
+```bash
+hf jobs run \
+  --detach \
+  --label "run_id=$RUN_ID" \
+  --env "RUN_ID=$RUN_ID" \
+  IMAGE COMMAND
+```
+
+Hugging Face assigns a separate immutable Job ID. Keep it in status as the
+physical execution identifier. A pause or infrastructure retry starts a new Job
+with the same logical `RUN_ID`; it must not generate another petname. Generate a
+new petname only for a new logical run. Do not rename historical runs.
+
 ## Control boundary
 
 A submitted Job has immutable hard limits in its checksummed script. A control
@@ -79,7 +107,7 @@ A minimal document is:
 ```json
 {
   "schema_version": 1,
-  "run_id": "teacher-base-search-v1",
+  "run_id": "202607241430-calm-otter",
   "generation": 1,
   "action": "run"
 }
@@ -94,7 +122,7 @@ Use the bundled publisher. Do not hand-edit the dataset:
 ```bash
 uv run agents/skills/hf-job-control/scripts/job_control.py publish \
   --repo osolmaz/jobs-control \
-  --run-id teacher-base-search-v1 \
+  --run-id 202607241430-calm-otter \
   --action pause \
   --reason "Pause after the next safe checkpoint"
 ```
@@ -108,7 +136,7 @@ Inspect the exact current document with:
 ```bash
 uv run agents/skills/hf-job-control/scripts/job_control.py show \
   --repo osolmaz/jobs-control \
-  --run-id teacher-base-search-v1
+  --run-id 202607241430-calm-otter
 ```
 
 The output includes the dataset revision and the control-file SHA-256. Never
