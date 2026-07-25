@@ -55,6 +55,19 @@ a locally modified skill with `--force`.
 
 ## Personal tips and tricks
 
+### Prefer greedy decoding for T5 generation
+
+Use greedy decoding as the default for T5-family translation, distillation, and
+large batch generation. Do not select beam search merely because it is common
+in machine translation. Beam search needs paired evidence of a stable,
+practically meaningful quality gain that justifies its measured time and cost.
+Changing from greedy still requires Onur's explicit approval.
+
+The Alman ByT5 Base pilot illustrates the threshold. Beam-4 improved student
+exact match by only 12 of 2,953 development cases, or 0.41 percentage points.
+Greedy had better chrF and generation was about 41% faster. That result does not
+justify beam-4 as the default.
+
 ### Recover a Space deployment that is not picked up
 
 Before changing state, inspect the Space and both log streams:
