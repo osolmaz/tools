@@ -59,8 +59,9 @@ a locally modified skill with `--force`.
 
 Use greedy decoding as the default for T5-family translation, distillation, and
 large batch generation. Do not select beam search merely because it is common
-in machine translation. Beam search needs paired evidence of a stable,
-practically meaningful quality gain that justifies its measured time and cost.
+in machine translation. Apply `practical-significance` to the comparison. Beam
+search needs paired evidence of a stable, practically meaningful quality gain
+that justifies its measured time and cost.
 Changing from greedy still requires Onur's explicit approval.
 
 The Alman ByT5 Base pilot illustrates the threshold. Beam-4 improved student

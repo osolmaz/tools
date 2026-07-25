@@ -9,8 +9,9 @@ Make paid compute an explicit decision rather than the automatic next step in a
 plan. The user should know the likely cost, the useful state at risk, and the
 recovery behavior before a Job starts.
 
-Use this skill with `ml-experiment-design` when scientific choices are involved.
-For Hugging Face Jobs, also use the official `hf-cli` skill, the personal
+Use `practical-significance` first when experiment or benchmark results choose
+what to fund. Use this skill with `ml-experiment-design` when scientific choices
+are involved. For Hugging Face Jobs, also use the official `hf-cli` skill, the personal
 `huggingface` skill, and `hf-job-control`. For local inference launches, also use
 `safe-inference-launch`.
 
@@ -50,6 +51,8 @@ State the practical decision and include:
 - Durable checkpoint or output interval and maximum work that can be lost.
 - Pause and resume behavior plus failure-containment and completion evidence.
 - The exact choice for which approval is requested.
+- The measured effect, its uncertainty, and the minimum worthwhile effect when a comparison selected the method.
+- The cheaper-option tie rule when the measured winner is uncertain or immaterial.
 
 Keep wall time separate from accelerator-hours. Eight one-hour workers mean one
 hour of wall time and eight accelerator-hours. Calculate fleet cost as the sum
@@ -215,6 +218,7 @@ failure containment must precede the full launch.
 Do not launch until every applicable statement is true:
 
 - The launch review uses measured evidence and exact row counts.
+- Any comparison-selected method passed the `practical-significance` gate.
 - The user approved the current hardware and method plus concurrency and cost ceiling.
 - Cheaper credible alternatives were measured or explicitly ruled out.
 - Existing checkpoints and partial outputs are preserved or their removal is

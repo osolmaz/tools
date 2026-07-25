@@ -22,6 +22,13 @@
 - When running inside Herdr (`HERDR_ENV=1`), if the current Herdr workspace/window or current tab has no title/label, set one automatically once the conversation topic is clear. The title must be at most 25 characters and at most 5 words, and should be based on the topic of the conversation.
 - Do not create, install, start, or convert anything into a system or user service (including systemd units) unless the user explicitly asks for a service. A request to "serve" something means use a temporary process, not a persistent service.
 
+## Consequential comparison policy
+
+- Use the `practical-significance` skill before a measured difference determines spending, scaling, shipping, architecture, or operational complexity.
+- Report the absolute effect and raw counts, then account for uncertainty and compare the result with a minimum worthwhile effect.
+- Treat uncertain or immaterial differences as ties. Prefer the cheaper, faster, simpler, safer option unless the user explicitly chooses another tradeoff.
+- Do not let an automatic metric winner or `argmax` cross a spending or shipping boundary.
+
 ## Paid compute policy
 
 - Use the `paid-compute-launch` skill before launching, scaling, retrying, or automatically continuing paid accelerator work.

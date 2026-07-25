@@ -108,6 +108,10 @@ Options:
   Use this before paid accelerator work so cost approval, durable partial
   outputs, tested pause and resume, and fleet failure containment are in place.
 
+- `skills/practical-significance/`
+  Use this to decide whether measured gains are reliable and large enough to
+  justify their cost, speed, complexity, and operational tradeoffs.
+
 - `skills/safe-inference-launch/`
   Use this before starting local LLM inference so memory guards, watchdogs, and
   staged smoke tests protect the machine from OOM failures.

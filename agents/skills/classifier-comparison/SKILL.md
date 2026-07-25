@@ -10,6 +10,11 @@ description: Format classifier comparisons as aligned plain text with alternativ
 Render quantitative results in a compact format that is easy to scan in terminal-style clients.
 Prefer aligned plain text blocks over Markdown tables unless the user explicitly asks for Markdown tables.
 
+This skill formats evidence. It does not decide whether a difference matters.
+Use `practical-significance` before a comparison selects a model, changes a
+product, or justifies additional cost. The star thresholds below are visual
+impact markers, not statistical tests or minimum worthwhile effects.
+
 ## Core Rules
 
 - Use aligned plain-text rows for comparisons; do not use Markdown tables.

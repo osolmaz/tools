@@ -8,10 +8,12 @@ description: Use for ML experiment and training decisions involving data splits,
 Design ML work to answer the actual question with the least waste that preserves
 validity. Experimental neatness is not automatically worth a full training run.
 Use this skill alongside task-specific training, Hugging Face, evaluation, or
-inference skills. Before paid accelerator work, also use
-`paid-compute-launch`. This skill decides whether an experiment is worth doing;
-`paid-compute-launch` owns spending and hardware choices. It also owns the
-durability and approval gate.
+inference skills. Use `practical-significance` whenever a measured difference
+chooses an arm, checkpoint, decoding method, architecture, or production model.
+Before paid accelerator work, also use `paid-compute-launch`. This skill decides
+whether an experiment is valid and useful. `practical-significance` decides
+whether its result matters, while `paid-compute-launch` owns spending, hardware,
+durability, and approval.
 
 ## Start with the practical decision
 
@@ -127,7 +129,12 @@ Do not apply the rules of one category to another without explanation.
 
 ## Challenge low-value experiments
 
-Estimate marginal value before scaling. Ask:
+Estimate marginal value before scaling. Define the minimum worthwhile effect in
+the metric's real units. If the observed difference is smaller or unresolved,
+treat the arms as tied and prefer the cheaper one. Use `practical-significance`
+for uncertainty, paired evidence, repeated seeds, and conflicting metrics.
+
+Ask:
 
 - What uncertainty remains after the completed run?
 - Could the proposed run change the decision?
@@ -248,6 +255,8 @@ Before approving the plan, verify:
 - recovery resumes useful state.
 - large generation publishes durable outputs throughout the run.
 - decoding quality is presented with measured speed and full-run cost.
+- measured winners clear a stated minimum worthwhile effect.
+- uncertain or immaterial results use the cheaper-option tie rule.
 - shared worker defects pause the affected fleet.
 - report-only and sealed data cannot influence training choices.
 

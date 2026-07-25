@@ -5,6 +5,10 @@ description: Convert experiment metrics into public-facing updates with concrete
 
 # Experiment Results Reporting
 
+Use `practical-significance` before calling a measured difference meaningful or
+presenting a candidate as the decision winner. This skill communicates a result.
+It does not establish that the effect is reliable or worth its cost.
+
 ## Workflow
 
 1. Define the comparison window.
@@ -53,6 +57,7 @@ description: Convert experiment metrics into public-facing updates with concrete
 
 - Always include absolute context with rates when available (example: `18 false alarms out of 1,000 posts`).
 - Never hide tradeoffs. If recall drops while false alarms improve, state both.
+- Report practical ties and unresolved comparisons plainly.
 - Do not report only relative percentages without raw before/after values.
 - When sources conflict, call out the mismatch and ask which artifact is canonical.
 
