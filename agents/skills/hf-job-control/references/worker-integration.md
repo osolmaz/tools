@@ -229,7 +229,7 @@ outputs describe one consistent position. Examples include:
 
 - The end of an optimizer step after gradient accumulation is complete.
 - The end of an evaluation interval after metrics and predictions are durable.
-- A fully written generation shard with an atomic manifest.
+- A fully written generation chunk with an atomic durable manifest.
 - A committed data partition with its output checksum.
 - A completed transactional import batch.
 
@@ -244,6 +244,29 @@ integration should enforce it and reject checkpoint rollback.
 Keep boundary metadata small and JSON-safe. Useful metadata includes epoch,
 global step, shard ID, row offset, partition, source revision, or output digest.
 Do not include secrets, large arrays, NaN, infinity, or mutable URLs.
+
+### Output-producing boundaries
+
+A cursor alone is not recoverable progress for generation, inference, or ETL.
+Before calling `boundary()`, upload the completed output unit and publish an
+immutable manifest that records its input range, record count, input digest,
+output key, byte count, output SHA-256, and producer contract digest. The
+producer contract must bind code and model revisions to decoding, precision,
+batch size, normalization, and serialization.
+
+The adapter payload should contain the ordered unit manifests or the digest of a
+durable manifest index. On restore, verify all referenced outputs, reconstruct
+the completed input set, and begin with the next missing unit. Reject gaps,
+overlaps, duplicate units, mixed producer contracts, and checksum failures.
+
+Commit output bytes first, then the unit manifest, and then the controller
+checkpoint. Only after those writes succeed may observed status describe the
+unit as recoverable. Logging a row count or uploading a status file without the
+output bytes does not create a safe boundary.
+
+Choose units small enough to satisfy the loss window in
+`paid-compute-launch`. Prove pause and boundary resume on the real worker before
+a large fleet launch.
 
 ## Boundary call behavior
 

@@ -104,6 +104,10 @@ Options:
   Use this alongside `pi-coding-agent` when designing or reviewing changes to
   Pi behavior so public extensions and packages remain the default boundary.
 
+- `skills/paid-compute-launch/`
+  Use this before paid accelerator work so cost approval, durable partial
+  outputs, tested pause and resume, and fleet failure containment are in place.
+
 - `skills/safe-inference-launch/`
   Use this before starting local LLM inference so memory guards, watchdogs, and
   staged smoke tests protect the machine from OOM failures.

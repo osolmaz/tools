@@ -8,7 +8,10 @@ description: Use for ML experiment and training decisions involving data splits,
 Design ML work to answer the actual question with the least waste that preserves
 validity. Experimental neatness is not automatically worth a full training run.
 Use this skill alongside task-specific training, Hugging Face, evaluation, or
-inference skills.
+inference skills. Before paid accelerator work, also use
+`paid-compute-launch`. This skill decides whether an experiment is worth doing;
+`paid-compute-launch` owns spending and hardware choices. It also owns the
+durability and approval gate.
 
 ## Start with the practical decision
 
@@ -178,6 +181,30 @@ revisions, exact checkpoints, output checksums, and physical Job identities.
 Use operational timeouts as safety limits, not hidden scientific horizons.
 Resume a valid run rather than restart it after an infrastructure failure.
 
+## Treat large generation as an experiment
+
+Synthetic-data and teacher-target generation can cost more than training. Apply
+the same decision discipline before scaling them. Compare decoding methods on
+both the allowed quality surface and measured full-run cost. A small quality
+gain does not automatically justify a large throughput penalty.
+
+Freeze the teacher and model revision before full generation. Freeze decoding
+and precision at the same point. Batch size and normalization become fixed
+there too, together with the implementation contract. Benchmark
+credible hardware with the real producer and a representative input sample.
+Select hardware from measured cost and wall time rather than memory capacity or
+reputation.
+
+Large generation must create recoverable scientific assets while it runs. Use
+small deterministic output units, immutable checksums, durable manifests, and
+boundary resume. A progress count without persisted target bytes has no reuse
+value. Follow `paid-compute-launch` for the loss window and canary requirements. It
+also owns fleet-failure handling and approval.
+
+If one worker reveals a deterministic shared defect, pause every affected
+worker at its next safe boundary. Do not spend more compute producing outputs
+under a contract already known to be invalid.
+
 ## Use an alternatives table
 
 Before a consequential training decision, present a compact comparison such as:
@@ -219,6 +246,9 @@ Before approving the plan, verify:
 - no silent model substitution or data repair is possible.
 - compute, time, cost, and stopping conditions are stated.
 - recovery resumes useful state.
+- large generation publishes durable outputs throughout the run.
+- decoding quality is presented with measured speed and full-run cost.
+- shared worker defects pause the affected fleet.
 - report-only and sealed data cannot influence training choices.
 
 If any item fails, revise the plan before launching compute.

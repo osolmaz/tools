@@ -1,6 +1,6 @@
 ---
 name: hf-job-control
-description: Operate and integrate cooperative lifecycle control for detached Hugging Face Jobs with the hf-job-control Python package and CLI, including audits and incident recovery. Use when creating logical runs, registering immutable launch specifications, launching or monitoring physical Jobs, requesting pause/stop/abort, resuming from verified checkpoints, implementing CheckpointAdapter and Controller boundaries, running the remote canary, investigating control or checkpoint failures, or proving receipts and provenance for a completed run.
+description: Operate and integrate cooperative lifecycle control for detached Hugging Face Jobs with the hf-job-control Python package and CLI, including durable chunked outputs, audits, and incident recovery. Use when creating logical runs, registering immutable launch specifications, launching or monitoring physical Jobs, requesting pause/stop/abort, resuming from verified checkpoints, implementing CheckpointAdapter and Controller boundaries, making batch generation recoverable, running the remote canary, investigating control or checkpoint failures, or proving receipts and provenance for a completed run.
 license: MIT
 compatibility: Requires Python 3.11+, an authenticated Hugging Face account, and the hf-job-control CLI. Automatic run-ID generation also requires Node.js 22+ and npx.
 metadata:
@@ -110,6 +110,9 @@ Follow every invariant below for every controlled run.
     start receipt and adapter restore evidence before claiming resume success.
 15. Keep package, worker script, input revisions, launch specification, and
     checkpoint adapter identity immutable for a resumable attempt series.
+16. For output-producing workers, persist output bytes and their immutable
+    manifests before reporting the boundary as recoverable. A row counter or
+    status update without durable output is not a checkpoint.
 
 ## Required environment
 
@@ -291,6 +294,39 @@ semantics even though the control receipt exists.
 
 Read [Worker integration](references/worker-integration.md) before writing or
 reviewing an adapter.
+
+### Durable output boundaries
+
+For batch inference, dataset construction, media processing, and other
+output-producing Jobs, the checkpoint adapter must describe committed output
+units rather than merely recording a cursor. Upload each unit's bytes before
+publishing the boundary checkpoint.
+
+A committed unit records stable input IDs or an index range, record count,
+input digest, output key, byte count, output SHA-256, and the complete producer
+contract digest. The producer contract covers model and code revisions plus
+decoding, precision, batch size, normalization, and serialization. Store large
+output bytes in the artifact Bucket and bind them through immutable unit
+manifests.
+
+The checkpoint payload contains the ordered committed-unit manifests or a
+content-addressed manifest index. Restore verifies every referenced unit,
+rebuilds the completed input set, and processes only missing units. Merge
+rejects gaps, overlaps, mixed producer contracts, and checksum failures.
+
+Commit in this order:
+
+1. Generate and validate one complete unit.
+2. Upload its output bytes and verify the remote checksum.
+3. Publish its immutable unit manifest.
+4. Write the adapter checkpoint containing that manifest.
+5. Publish observed status, then poll control.
+
+A direct cancel may lose the current uncommitted unit, but it must not lose
+previous committed units. Choose the unit size under the loss window required by
+`paid-compute-launch`. Before a large fleet launch, prove boundary resume with a
+real pause after multiple units and verify that resumed output matches an
+uninterrupted reference.
 
 ## Resume modes
 

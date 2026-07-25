@@ -22,6 +22,15 @@
 - When running inside Herdr (`HERDR_ENV=1`), if the current Herdr workspace/window or current tab has no title/label, set one automatically once the conversation topic is clear. The title must be at most 25 characters and at most 5 words, and should be based on the topic of the conversation.
 - Do not create, install, start, or convert anything into a system or user service (including systemd units) unless the user explicitly asks for a service. A request to "serve" something means use a temporary process, not a persistent service.
 
+## Paid compute policy
+
+- Use the `paid-compute-launch` skill before launching, scaling, retrying, or automatically continuing paid accelerator work.
+- A substantial launch requires measured throughput, a low and high cost estimate, cheaper hardware or reuse alternatives, a cost ceiling, and explicit approval after those facts are presented.
+- A long output-producing Job must publish durable partial outputs and pass a real pause-resume canary. Logs and progress counters do not count as saved work.
+- When one Job reveals a deterministic defect in shared worker code or data assumptions, pause the affected fleet at safe boundaries before retrying. Do not leave sibling Jobs running known-vulnerable code.
+- Verify historical runtime claims from source Job records. State every mismatch in model, decoding, batch size, hardware, row count, or input distribution.
+- Stop automatic continuation whenever observed cost, method, hardware, failure state, or checkpoint-reuse assumptions differ from what the user approved.
+
 ## Cutover policy
 
 - Default to a hard cutover. Do not add or retain legacy shims, compatibility aliases, fallback readers, dual-read or dual-write paths, transitional adapters, or indefinite deprecation paths unless the repository is covered by an exception below or the user explicitly requests compatibility.

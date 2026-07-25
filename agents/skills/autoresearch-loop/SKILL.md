@@ -8,7 +8,9 @@ description: Run an iterative feature-search loop in the style of karpathy/autor
 This skill runs a disciplined search for a feature that separates two
 groups in a fixed dataset. For model training, refits, checkpoint selection,
 or accelerator experiments, also use `ml-experiment-design` before launching
-compute.
+compute. Use `paid-compute-launch` before any paid accelerator iteration. An
+autoresearch loop may choose the next hypothesis automatically, but it cannot
+cross an unapproved spending boundary automatically.
 
 The discipline comes from three artifacts
 kept in one directory: a harness that never changes during the search,
@@ -67,6 +69,24 @@ the numbers said, not from the original plan.
   variants)" is a finding that stops future re-litigation.
 - Never select on held-out or unlabeled items. Print their scores as
   context; the keep decision uses only the labeled groups.
+
+## Paid iterations
+
+Freeze and validate the cheapest local or CPU harness before remote scaling.
+When a candidate needs paid compute, estimate the entire proposed generation or
+sweep rather than only the next Job. Present measured throughput, hardware
+alternatives, total accelerator-hours, and the low and high cost before launch.
+
+Stop the loop for explicit approval whenever `paid-compute-launch` classifies
+the next stage as substantial. Approval covers only the stated method,
+hardware, concurrency, and cost ceiling. A slower winning method, failed retry,
+or larger follow-up returns to the approval gate.
+
+Long output-producing iterations must publish durable units and support tested
+boundary resume. If a shared implementation defect appears in one member of a
+fleet, pause the affected fleet before trying another candidate. Preserve
+negative results and partial valid outputs so the loop does not pay to recreate
+them.
 
 ## Stopping
 

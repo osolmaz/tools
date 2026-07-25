@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paid Compute Launch"
+  short_description: "Gate paid compute with cost and recovery evidence"
+  default_prompt: "Use $paid-compute-launch to prepare or review this accelerator launch, including measured cost, hardware alternatives, durable partial outputs, pause and resume evidence, and the explicit approval boundary."
