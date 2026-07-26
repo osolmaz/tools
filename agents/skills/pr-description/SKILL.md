@@ -11,7 +11,7 @@ When this skill is invoked, write a PR description that helps both reviewers and
 
 The top summary must answer this question:
 
-`bro, what the hell is this about?`
+`what the hell is this about?`
 
 That means the summary should:
 
@@ -25,7 +25,7 @@ That means the summary should:
 - stand on its own without the rest of the PR
 - state that context and those implementation steps plainly
 
-Write the top summary in the same style as the `plain-language` skill:
+Write the top summary in the same style as the `amk` skill:
 
 - short full sentences
 - main point first
