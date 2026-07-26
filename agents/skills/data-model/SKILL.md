@@ -30,7 +30,7 @@ schemas, simplifying fields, checking naming, and producing auditable reports.
 Install Schemator from npm:
 
 ```bash
-npm install -g @dutifuldev/schemator
+npm install -g @osolmaz/schemator
 ```
 
 Use the bundled Schemator skill as the detailed instruction source:
