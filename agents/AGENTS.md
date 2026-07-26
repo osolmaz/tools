@@ -28,6 +28,10 @@
 - Report the absolute effect and raw counts, then account for uncertainty and compare the result with a minimum worthwhile effect.
 - Treat uncertain or immaterial differences as ties. Prefer the cheaper, faster, simpler, safer option unless the user explicitly chooses another tradeoff.
 - Do not let an automatic metric winner or `argmax` cross a spending or shipping boundary.
+- Never promote a diagnostic, ablation, search, or report-only checkpoint to production from a metric lead alone. Check its registered role, practical significance, downstream dependencies, and selection authority first.
+- Keep observed, recommended, and explicitly approved model states separate. If a plan requires maintainer approval, only a direct selection of the named candidate marks it approved.
+- Before changing the production model, list the pilots, probes, generated data, exports, benchmarks, and cost estimates tied to the incumbent and state what must be repeated.
+- Describe a held-out regression as consistent with overfitting unless paired errors, learning curves, repeated runs, or another registered test establish the cause.
 
 ## Paid compute policy
 
@@ -62,6 +66,23 @@
 - If an installed skill came from this tools repo, edit the source under `agents/skills/` first. Do not hand-edit the copied installation under `$CODEX_HOME/skills`, `~/.codex/skills`, `~/.claude/skills`, `~/.cursor/skills`, `~/.pi/agent/skills`, or OpenClaw agent runtime mirrors except via the sync script.
 - Use the `manage-runtimes` skill before creating, updating, promoting, auditing, or deleting local inference runtimes.
 - Do not create ad hoc vLLM, SGLang, llama.cpp, TensorRT-LLM, or similar runtime environments under `~/scratch`, `~/services`, repos, or project-local `.venv` directories. Canonical runtimes belong under `~/runtimes/<engine>/`.
+
+## Credential handling policy
+
+- Never copy a credential from one store to another — local token files, agent
+  configs, Space or repo secrets, CI variables, `.env` files, other machines —
+  without the user's explicit approval for that specific copy, naming the
+  source and the destination.
+- Using a locally configured credential in place for its normal purpose
+  (`gh`/`hf` CLI calls, git pushes over existing auth) is fine; persisting it
+  anywhere new is not.
+- When a service needs a credential, ask which one to use. Prefer
+  purpose-scoped tokens over broad account tokens.
+- Never print secret values into logs, chat output, commits, or files. Use
+  masked previews (first/last characters) when identification is needed.
+- If a credential was persisted somewhere without approval, disclose it
+  immediately, overwrite or remove it, and recommend rotating the exposed
+  credential.
 
 ## Repo maintenance conventions
 
