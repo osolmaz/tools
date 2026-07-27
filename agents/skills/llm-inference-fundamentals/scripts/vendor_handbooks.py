@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vendor pinned BentoML and Modular handbook snapshots as plain Markdown."""
+"""Merge pinned BentoML and Modular revisions into one Markdown corpus."""
 
 from __future__ import annotations
 
@@ -27,6 +27,15 @@ class SourceSpec:
         return f"https://raw.githubusercontent.com/{repository_path}/{self.commit}"
 
 
+@dataclass(frozen=True)
+class MergePatch:
+    path: str
+    anchor: str
+    placement: str
+    retained_file: str
+    source_checks: tuple[str, ...]
+
+
 BENTOML = SourceSpec(
     key="bentoml",
     repository="https://github.com/bentoml/llm-inference-handbook",
@@ -38,6 +47,39 @@ MODULAR = SourceSpec(
     repository="https://github.com/modular/llm-inference-handbook",
     commit="317b9816ec3080031333ed9ee44dfce919763bf7",
     rendered_root="https://handbook.modular.com",
+)
+
+MERGE_PATCHES = (
+    MergePatch(
+        path="getting-started/on-prem-llms.md",
+        anchor=(
+            "The decision usually depends on compliance requirements, traffic "
+            "patterns, and\nhow much operational complexity your team is willing "
+            "to manage."
+        ),
+        placement="after",
+        retained_file="hybrid-overflow.md",
+        source_checks=(
+            "## Overflowing to the cloud: A hybrid approach",
+            "GPU procurement cycles are long",
+            "traffic can overflow to the cloud",
+            "Use cloud GPUs to handle spikes",
+            "only pay for overflowed cloud GPUs during peaks",
+        ),
+    ),
+    MergePatch(
+        path="inference-optimization/llm-performance-benchmarks.md",
+        anchor="### End-to-end benchmarking with MAX",
+        placement="before",
+        retained_file="llm-optimizer.md",
+        source_checks=(
+            "### End-to-end benchmarking with llm-optimizer",
+            "Run systematic benchmarks across inference frameworks",
+            "Apply SLO constraints",
+            "Estimate performance theoretically",
+            "LLM Performance Explorer",
+        ),
+    ),
 )
 
 WRAPPER_TAGS = {"Features", "LinkList"}
@@ -412,31 +454,73 @@ def replace_directories(replacements: list[tuple[Path, Path]]) -> None:
         shutil.rmtree(backup)
 
 
+def apply_merge_patches(
+    bentoml_snapshot: Path, merged_snapshot: Path, retained_root: Path
+) -> None:
+    for patch in MERGE_PATCHES:
+        source_text = (bentoml_snapshot / patch.path).read_text(encoding="utf-8")
+        missing_checks = [
+            check for check in patch.source_checks if check not in source_text
+        ]
+        if missing_checks:
+            missing = ", ".join(repr(check) for check in missing_checks)
+            raise ValueError(
+                f"BentoML source checks failed for {patch.path}: {missing}"
+            )
+
+        target = merged_snapshot / patch.path
+        target_text = target.read_text(encoding="utf-8")
+        if target_text.count(patch.anchor) != 1:
+            raise ValueError(
+                f"Expected one merge anchor in {patch.path}, found "
+                f"{target_text.count(patch.anchor)}"
+            )
+        retained = (retained_root / patch.retained_file).read_text(
+            encoding="utf-8"
+        ).strip()
+        if patch.placement == "before":
+            replacement = f"{retained}\n\n{patch.anchor}"
+        elif patch.placement == "after":
+            replacement = f"{patch.anchor}\n\n{retained}"
+        else:
+            raise ValueError(f"Unknown merge placement: {patch.placement}")
+        target.write_text(
+            target_text.replace(patch.anchor, replacement), encoding="utf-8"
+        )
+
+
 def vendor(
     bentoml_source: Path, modular_source: Path, destination_root: Path
 ) -> None:
-    destination_root.mkdir(parents=True, exist_ok=True)
-    sources = ((bentoml_source, BENTOML), (modular_source, MODULAR))
+    destination_root.parent.mkdir(parents=True, exist_ok=True)
+    script_root = Path(__file__).resolve().parent
 
     with tempfile.TemporaryDirectory(
-        prefix="llm-inference-handbooks-", dir=destination_root.parent
+        prefix="llm-inference-handbook-", dir=destination_root.parent
     ) as temporary:
         staging_root = Path(temporary)
-        replacements: list[tuple[Path, Path]] = []
-        for checkout, spec in sources:
-            staging = staging_root / spec.key
-            build_snapshot(checkout, spec, staging)
-            replacements.append((staging, destination_root / spec.key))
-        replace_directories(replacements)
+        bentoml_staging = staging_root / "bentoml"
+        modular_staging = staging_root / "modular"
+        merged_staging = staging_root / "references"
 
-    for _, spec in sources:
-        print(f"Vendored {spec.key} {spec.commit}")
+        build_snapshot(bentoml_source, BENTOML, bentoml_staging)
+        build_snapshot(modular_source, MODULAR, modular_staging)
+        shutil.copytree(modular_staging, merged_staging)
+        apply_merge_patches(
+            bentoml_staging, merged_staging, script_root / "retained"
+        )
+        validate_references(merged_staging)
+        shutil.copy2(script_root / "references-readme.md", merged_staging / "README.md")
+        replace_directories([(merged_staging, destination_root)])
+
+    print(f"Merged BentoML {BENTOML.commit}")
+    print(f"onto Modular {MODULAR.commit}")
     validate_references(destination_root, boundary=destination_root.parent)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Vendor pinned BentoML and Modular LLM inference handbooks."
+        description="Merge pinned BentoML and Modular handbook revisions."
     )
     parser.add_argument(
         "--bentoml-source",
@@ -453,7 +537,7 @@ def main() -> None:
     args = parser.parse_args()
     destination = Path(__file__).resolve().parents[1] / "references"
     vendor(args.bentoml_source, args.modular_source, destination)
-    print(f"Validated both snapshots under {destination}")
+    print(f"Validated merged corpus under {destination}")
 
 
 if __name__ == "__main__":

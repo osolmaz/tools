@@ -1,62 +1,71 @@
-# Upstream sources and licenses
+# Sources and license
 
-This skill preserves two attributed editions from the same handbook lineage.
 BentoML joined Modular through a strategic product acquisition announced on
 2026-02-10:
 
 - https://www.modular.com/blog/bentoml-joins-modular
 - https://www.bentoml.com/blog/bentoml-is-joining-modular
 
-The corporate relationship and shared Git history are explicit. The editions
-remain separate here because their snapshots use different branding and
-content.
+The handbook commits used here belong to the same Git lineage. The final skill
+contains one merged corpus.
 
-## BentoML edition
+## Source revisions
 
-The BentoML source is
-https://github.com/bentoml/llm-inference-handbook. This skill pins commit
-`ea07b2ccd9b35db810763fc76980b26be1d2b871` from 2026-07-01 under
-[references/bentoml](references/bentoml/introduction.md). Its documentation uses
-CC BY 4.0, reproduced in
-[references/bentoml/LICENSE](references/bentoml/LICENSE).
+The base is Modular's handbook revision
+`317b9816ec3080031333ed9ee44dfce919763bf7` from 2026-07-24:
 
-The pinned commit preserves the earlier BentoML edition. The BentoML and Modular
-repository URLs currently expose the same later `main` commit, but this older
-snapshot remains a distinct source state.
+https://github.com/modular/llm-inference-handbook
 
-## Modular edition
+The merge input is the earlier BentoML revision
+`ea07b2ccd9b35db810763fc76980b26be1d2b871` from 2026-07-01:
 
-The Modular source is
-https://github.com/modular/llm-inference-handbook, rendered at
-https://handbook.modular.com. This skill pins commit
-`317b9816ec3080031333ed9ee44dfce919763bf7` from 2026-07-24 under
-[references/modular](references/modular/index.md). Its documentation also uses
-CC BY 4.0, reproduced in
-[references/modular/LICENSE](references/modular/LICENSE).
+https://github.com/bentoml/llm-inference-handbook
 
-At both pinned commits, files under `docs/` use CC BY 4.0 while repository code
-outside `docs/` uses Apache-2.0. The previous skill snapshot mistakenly copied
-the root Apache license beside the vendored documentation. This import corrects
-that error by preserving each snapshot's `docs/LICENSE` file.
+Both repository URLs currently expose the same later `main` commit. The pinned
+revisions identify the exact states compared during the merge.
+
+## Knowledge merge
+
+A heading and paragraph-level semantic comparison identified older material
+that was genuinely absent from the Modular revision. Rewritten material was
+excluded. Two concepts were retained:
+
+- Hybrid overflow from an on-prem baseline to cloud GPUs.
+- BentoML's `llm-optimizer` configuration-exploration workflow.
+
+The retained text is maintained under `scripts/retained/` and inserted into the
+corresponding current pages during import. Each inserted section includes a
+source note. The importer verifies characteristic passages against the pinned
+BentoML checkout before applying either insertion, so a future source change
+cannot silently detach the merged text from its provenance.
+
+Other apparent deletions were newer rewrites, expanded explanations, product
+marketing, or superseded resource lists. The merge does not append those blocks
+or preserve a duplicate older handbook tree.
+
+## License
+
+At both commits, handbook files under `docs/` use Creative Commons Attribution
+4.0. The license is reproduced in [references/LICENSE](references/LICENSE).
+Repository code outside `docs/` uses Apache-2.0 and is not part of the reference
+corpus.
+
+The earlier version of this skill mistakenly copied the repository's root
+Apache license beside the handbook documentation. The importer now copies
+`docs/LICENSE`, which is the license that applies to the vendored prose.
 
 ## Import transformations
 
-The source prose is kept intact. The vendor script makes only the mechanical
-changes needed for local Markdown readers:
+The importer converts the Modular base to local Markdown, then applies the two
+reviewed knowledge patches. Its mechanical work also removes site imports,
+newsletter forms, card placeholders and marketing buttons. Layout wrappers are
+unwrapped, interactive widgets become links to their rendered pages, images are
+pinned to the source commit, and internal routes become local Markdown links.
 
-- Convert MDX section indexes to `.md`.
-- Remove imports, newsletter forms, card-list placeholders and marketing
-  buttons.
-- Unwrap layout-only components.
-- Replace interactive widgets with links to their rendered pages.
-- Pin images to the relevant source repository and commit.
-- Rewrite internal routes to local Markdown files.
+The reasoning rules in `SKILL.md` are original synthesis. Product-specific
+examples and quotations retain their source attribution.
 
-The merged reasoning in `SKILL.md` is original synthesis. It is not represented
-as verbatim text from either handbook. Product-specific examples and quotations
-must retain their source attribution.
-
-## Reproduce the import
+## Reproduce the merge
 
 Use clean checkouts at the pinned commits:
 
@@ -67,5 +76,6 @@ python3 scripts/vendor_handbooks.py \
 ```
 
 The script rejects a checkout at the wrong commit or with modified files under
-`docs/`. Update either source specification deliberately when importing a newer
-snapshot, then review that source's license and the synthesized guidance again.
+`docs/`. It builds both inputs in temporary directories, verifies the retained
+BentoML passages, creates one merged corpus and replaces `references/`
+transactionally.

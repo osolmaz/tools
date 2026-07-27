@@ -1,52 +1,41 @@
 ---
 name: llm-inference-fundamentals
-description: Unified domain knowledge and a reasoning workflow for LLM inference performance, benchmarking, capacity planning, and production serving. Use for TTFT, ITL, TPOT, throughput, goodput, prefill and decode, KV cache, batching, PagedAttention, prefix caching, speculative decoding, quantization, parallelism, GPU memory sizing, routing, autoscaling, observability, or inference infrastructure. Synthesizes separately pinned BentoML and Modular LLM inference handbooks without conflating their provenance.
+description: Unified domain knowledge and a reasoning workflow for LLM inference performance, benchmarking, capacity planning, and production serving. Use for TTFT, ITL, TPOT, throughput, goodput, prefill and decode, KV cache, batching, PagedAttention, prefix caching, speculative decoding, quantization, parallelism, GPU memory sizing, routing, autoscaling, observability, or inference infrastructure. Merges the current Modular handbook revision with useful guidance retained from its earlier BentoML edition.
 license: See UPSTREAM.md
 ---
 
 # LLM inference fundamentals
 
-This skill combines the BentoML and Modular LLM inference handbooks into one
-operating model. It does not overwrite one source with the other.
+This skill provides one operating model over a deduplicated reference corpus.
+The corpus uses Modular commit
+`317b9816ec3080031333ed9ee44dfce919763bf7` as its base and merges useful
+material absent from that revision but present in BentoML commit
+`ea07b2ccd9b35db810763fc76980b26be1d2b871`.
 
-## Source boundary
+## Merge policy
 
-The source text remains separated by publisher and snapshot:
+BentoML joined Modular through an acquisition announced on 2026-02-10. The two
+commits are revisions of the same handbook lineage. They are not treated as
+independent handbooks.
 
-- [BentoML edition](references/bentoml/introduction.md), pinned at
-  `ea07b2ccd9b35db810763fc76980b26be1d2b871`
-- [Modular edition](references/modular/index.md), pinned at
-  `317b9816ec3080031333ed9ee44dfce919763bf7`
+A paragraph-level semantic audit found two substantive concepts from the older
+revision that the newer text did not retain:
 
-BentoML joined Modular through an acquisition announced on 2026-02-10, and the
-snapshots share Git history. They still remain separately attributed editions
-because their branding and contents differ. Corporate ownership does not erase
-those source boundaries.
-[UPSTREAM.md](UPSTREAM.md) records the relationship, repositories, licenses,
-transformations and update commands.
+- Hybrid overflow from an on-prem baseline to cloud GPUs.
+- `llm-optimizer` as a separate configuration-exploration tool.
 
-Use this file for the merged reasoning workflow. Open the paired source pages
-when a question needs derivations, diagrams, implementation detail, historical
-context, or exact attribution.
+Those concepts are merged into their corresponding pages with source notes. The
+remaining apparent deletions were rewritten or expanded in the newer edition,
+marketing copy, or superseded resource lists. They are not duplicated.
 
-## Source reconciliation
+[UPSTREAM.md](UPSTREAM.md) records the acquisition, source commits, license,
+audit policy, transformations and update command. Treat product-specific tools
+and performance claims as examples from their named source. Do not turn them
+into engine-neutral facts.
 
-For a topic covered by both editions, start with the newer Modular treatment and
-check the BentoML treatment before making a broad claim. The older edition may
-retain useful material that was removed or reframed later. If the editions
-differ, state the difference and identify the snapshot. Do not silently choose
-one.
-
-Treat vendor-specific tools, products, performance claims, and deployment advice
-as examples from that publisher. Do not turn them into engine-neutral facts.
-When quoting text, attribute the individual edition. Do not attribute a quote
-to this skill.
-
-The Modular edition adds substantial treatment of attention, causal masking and
-KV-cache mechanics. It also expands prefix-caching examples and speculative
-methods such as Medusa, MTP, n-gram speculation, and EAGLE. The BentoML snapshot
-retains earlier material such as hybrid cloud overflow guidance and its original
-tool examples. Both remain available in the paired corpus.
+Use this file for the reasoning workflow. Open the merged references when a
+question needs derivations, diagrams, implementation details or exact source
+attribution.
 
 ## Working model
 
@@ -96,10 +85,9 @@ claims. Content-dependent methods need multiple distinct semantic prompts.
 
 ## Metric rules
 
-Use the paired metric references from
-[BentoML](references/bentoml/llm-inference-basics/llm-inference-metrics.md) and
-[Modular](references/modular/llm-inference-basics/llm-inference-metrics.md).
-Always name the observation point.
+Use the definitions in
+[LLM inference metrics](references/llm-inference-basics/llm-inference-metrics.md)
+and always name the observation point.
 
 - **TTFT** spans request arrival through delivery of the first output token.
   Client-observed TTFT can include queueing, tokenization, scheduling, prefill,
@@ -148,22 +136,21 @@ acceptance repays draft and verification work, and parallelism only after
 including communication cost. Scaling decisions should follow measured demand,
 queue behavior, cold-start time, placement constraints, and failure domains.
 
-## Paired topic routes
+## Topic routes
 
-| Question | BentoML source | Modular source |
-| --- | --- | --- |
-| How inference, attention and generation phases work | [Inference mechanics](references/bentoml/llm-inference-basics/how-does-llm-inference-work.md) | [Expanded inference mechanics](references/modular/llm-inference-basics/how-does-llm-inference-work.md) |
-| How to define latency/throughput/goodput | [Metrics](references/bentoml/llm-inference-basics/llm-inference-metrics.md) | [Metrics](references/modular/llm-inference-basics/llm-inference-metrics.md) |
-| How to design or interpret a benchmark | [Benchmarking](references/bentoml/inference-optimization/llm-performance-benchmarks.md) | [Benchmarking](references/modular/inference-optimization/llm-performance-benchmarks.md) |
-| How to size weights and KV memory | [Memory sizing](references/bentoml/getting-started/calculating-gpu-memory-for-llms.md) | [Memory sizing](references/modular/getting-started/calculating-gpu-memory-for-llms.md) |
-| How batching and chunked prefill behave | [Batching](references/bentoml/inference-optimization/static-dynamic-continuous-batching.md) | [Batching](references/modular/inference-optimization/static-dynamic-continuous-batching.md) |
-| When prefix caching helps | [Prefix caching](references/bentoml/inference-optimization/prefix-caching.md) | [Expanded prefix examples](references/modular/inference-optimization/prefix-caching.md) |
-| How to evaluate speculative decoding | [Speculative decoding](references/bentoml/inference-optimization/speculative-decoding.md) | [Expanded speculative methods](references/modular/inference-optimization/speculative-decoding.md) |
-| How to choose parallelism | [Parallelism](references/bentoml/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) | [Parallelism](references/modular/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) |
-| How GPU architecture and kernels affect speed | [GPU fundamentals](references/bentoml/kernel-optimization/gpu-architecture-fundamentals.md) | [GPU fundamentals](references/modular/kernel-optimization/gpu-architecture-fundamentals.md) |
-| How to plan routing, scaling and observability | [Infrastructure](references/bentoml/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) | [Infrastructure](references/modular/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) |
-| How hosted, BYOC, hybrid and on-prem options differ | [Deployment guidance](references/bentoml/getting-started/serverless-vs-self-hosted-llm-inference.md) | [Deployment guidance](references/modular/getting-started/serverless-vs-self-hosted-llm-inference.md) |
+| Question | Merged reference |
+| --- | --- |
+| How inference, attention and generation phases work | [Inference mechanics](references/llm-inference-basics/how-does-llm-inference-work.md) |
+| How to define latency/throughput/goodput | [Metrics](references/llm-inference-basics/llm-inference-metrics.md) |
+| How to design or interpret a benchmark | [Benchmarking](references/inference-optimization/llm-performance-benchmarks.md) |
+| How to size weights and KV memory | [Memory sizing](references/getting-started/calculating-gpu-memory-for-llms.md) |
+| How batching and chunked prefill behave | [Batching](references/inference-optimization/static-dynamic-continuous-batching.md) |
+| When prefix caching helps | [Prefix caching](references/inference-optimization/prefix-caching.md) |
+| How to evaluate speculative decoding | [Speculative decoding](references/inference-optimization/speculative-decoding.md) |
+| How to choose parallelism | [Parallelism](references/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) |
+| How GPU architecture and kernels affect speed | [GPU fundamentals](references/kernel-optimization/gpu-architecture-fundamentals.md) |
+| How to plan routing, scaling and observability | [Infrastructure](references/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) |
+| How hosted, BYOC, hybrid and on-prem options differ | [Deployment guidance](references/getting-started/serverless-vs-self-hosted-llm-inference.md) |
 
-The complete two-source map and license provenance are in
-[references/README.md](references/README.md). Each source directory preserves
-its own section indexes and internal links.
+The merge audit and source boundaries are documented in
+[references/README.md](references/README.md).
