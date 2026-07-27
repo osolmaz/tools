@@ -2,6 +2,7 @@
 
 - You MUST NOT insert coding agent specific branding, like `[codex]`, in code, PRs or issues created on GitHub.
 - For git commits and PR titles that act as the effective merge commit title, use Conventional Commits format: `<type>[optional scope]: <description>`.
+- When merging pull requests, prefer rebase merge for repositories under the `osolmaz` GitHub account and squash merge for all other repositories, unless repository guidance or an explicit user instruction requires another method.
 - If a GitHub connector is available, you MUST NOT use it. Use local CLI tools such as `git` and `gh` for GitHub work instead.
 - When asked for a GitHub link to a file, use the relevant branch name in the URL rather than a commit SHA.
 - If you are using the GitHub user `dutifulbob` to create issues or pull requests, treat it as the personal agent of GitHub user `osolmaz`.
