@@ -1,203 +1,169 @@
 ---
 name: llm-inference-fundamentals
-description: Domain knowledge and a reasoning workflow for LLM inference performance, benchmarking, capacity planning, and production serving. Use for TTFT, ITL, TPOT, throughput, goodput, prefill and decode, KV cache, batching, PagedAttention, prefix caching, speculative decoding, quantization, parallelism, GPU memory sizing, routing, autoscaling, observability, or inference infrastructure. Bundles a pinned plain-Markdown edition of Modular's LLM Inference Handbook.
+description: Unified domain knowledge and a reasoning workflow for LLM inference performance, benchmarking, capacity planning, and production serving. Use for TTFT, ITL, TPOT, throughput, goodput, prefill and decode, KV cache, batching, PagedAttention, prefix caching, speculative decoding, quantization, parallelism, GPU memory sizing, routing, autoscaling, observability, or inference infrastructure. Synthesizes separately pinned BentoML and Modular LLM inference handbooks without conflating their provenance.
 license: See UPSTREAM.md
 ---
 
 # LLM inference fundamentals
 
-This skill is a reasoning and navigation layer over Modular's
-*LLM Inference Handbook*. The handbook is vendored under
-[references/index.md](references/index.md) so the underlying explanations
-remain available without relying on a live website.
+This skill combines the BentoML and Modular LLM inference handbooks into one
+operating model. It does not overwrite one source with the other.
 
-The Modular repository continues the Git history of the earlier BentoML
-handbook that this skill bundled. The current snapshot replaces that older
-snapshot in place. [UPSTREAM.md](UPSTREAM.md) records the source revision,
-license, attribution, lineage, and mechanical Markdown changes.
+## Source boundary
 
-## Working method
+The source text remains separated by publisher and snapshot:
 
-Read only the references needed for the question. Most tasks need one overview
-and one detailed page.
+- [BentoML edition](references/bentoml/introduction.md), pinned at
+  `ea07b2ccd9b35db810763fc76980b26be1d2b871`
+- [Modular edition](references/modular/index.md), pinned at
+  `317b9816ec3080031333ed9ee44dfce919763bf7`
 
-Before reasoning from a benchmark or recommending a configuration, write down
-the workload and deployed stack. Capture the model and artifact, weight and KV
-precision, inference engine and revision, kernels, hardware, prompt and output
-lengths, concurrency, batching, cache state, and speculative-decoding settings.
-A comparison that changes several of these is a deployed-stack comparison.
+BentoML joined Modular through an acquisition announced on 2026-02-10, and the
+snapshots share Git history. They still remain separately attributed editions
+because their branding and contents differ. Corporate ownership does not erase
+those source boundaries.
+[UPSTREAM.md](UPSTREAM.md) records the relationship, repositories, licenses,
+transformations and update commands.
 
-Keep three kinds of statements separate:
+Use this file for the merged reasoning workflow. Open the paired source pages
+when a question needs derivations, diagrams, implementation detail, historical
+context, or exact attribution.
 
-- A **measurement** comes from a completed request or benchmark with a declared
-  workload.
+## Source reconciliation
+
+For a topic covered by both editions, start with the newer Modular treatment and
+check the BentoML treatment before making a broad claim. The older edition may
+retain useful material that was removed or reframed later. If the editions
+differ, state the difference and identify the snapshot. Do not silently choose
+one.
+
+Treat vendor-specific tools, products, performance claims, and deployment advice
+as examples from that publisher. Do not turn them into engine-neutral facts.
+When quoting text, attribute the individual edition. Do not attribute a quote
+to this skill.
+
+The Modular edition adds substantial treatment of attention, causal masking and
+KV-cache mechanics. It also expands prefix-caching examples and speculative
+methods such as Medusa, MTP, n-gram speculation, and EAGLE. The BentoML snapshot
+retains earlier material such as hybrid cloud overflow guidance and its original
+tool examples. Both remain available in the paired corpus.
+
+## Working model
+
+An inference request passes through admission and queueing, tokenization,
+prefill, autoregressive decode, serialization plus transport. Prefill processes
+the prompt in parallel and populates the KV cache. Ordinary decode generates one
+token at a time while reading the active sequence's KV state.
+
+Keep the deployed artifact separate from the abstract model. Weight format,
+weight quantization, KV precision, tokenizer, kernels, inference engine, and
+speculative draft are parts of the deployed stack. A comparison that changes
+several of these is a stack comparison. It does not isolate the engine or the
+quantization choice.
+
+A server's maximum context length is capacity. Decode work depends on the tokens
+actually resident in active sequences. Do not treat configured capacity as the
+active workload.
+
+Keep evidence classes explicit:
+
+- A **measurement** comes from completed requests under a declared workload.
 - An **estimate** applies a formula or extrapolation to stated inputs.
 - A **ceiling** is a physical or architectural upper bound. It does not predict
-  an end-to-end benchmark by itself.
-
-If the evidence does not identify a required field, say that it is unknown.
-Avoid filling missing benchmark details with engine defaults because defaults
-change across releases and hardware.
+  an end-to-end benchmark.
 
 ## Benchmark contract
 
-A useful inference benchmark records enough detail to reproduce both the work
-and the metric.
+Before interpreting a result, capture enough state to reproduce the work and the
+measurement boundary.
 
-1. Identify the exact model artifact, quantization, tokenizer, engine revision
-   and command. Record the hardware as part of the same configuration.
+1. Record the exact model artifact, tokenizer, weight and KV formats, engine
+   revision and launch command. Include the kernels and hardware.
 2. Declare prompt length, requested and completed output length, request count,
    concurrency, sampling parameters, and stopping behavior.
-3. State whether prefixes and kernels were cold, warm, reused, or explicitly
-   cleared. Fresh-prefill claims require distinct uncached prefixes.
-4. Report per-request latency distributions alongside aggregate throughput.
-   Aggregate tokens per second can rise while each request becomes slower.
-5. For speculative decoding, retain accepted and proposed draft-token counts,
-   acceptance length or rate, target verification work, and rejected work.
-6. Preserve every valid sample and declare the aggregation rule. Exclude a
-   sample only for a recorded correctness, safety, or instrumentation failure.
+3. State whether prefixes and kernels were cold, warm, reused, or cleared.
+   Record the graph-capture state too. Fresh-prefill tests require distinct
+   uncached prefixes.
+4. Preserve per-request latency distributions as well as aggregate throughput.
+   Aggregate tokens per second can rise while each session becomes slower.
+5. For speculative decoding, retain proposed and accepted draft tokens,
+   acceptance length or rate, target verification traffic, and rejected work.
+6. Keep every valid sample and declare the aggregation rule. Exclude a sample
+   only for a recorded safety, correctness, or instrumentation failure.
 
-Use enough generated tokens to reach steady decode when making sustained-speed
-claims. Short outputs overemphasize startup and scheduling costs as well as
-first-token work.
-Content-dependent methods such as speculative decoding need several distinct
-semantic prompts.
+Use outputs long enough to reach steady decode before making sustained-speed
+claims. Content-dependent methods need multiple distinct semantic prompts.
 
 ## Metric rules
 
-Use the definitions in
-[LLM inference metrics](references/llm-inference-basics/llm-inference-metrics.md)
-and keep the measurement boundary explicit.
+Use the paired metric references from
+[BentoML](references/bentoml/llm-inference-basics/llm-inference-metrics.md) and
+[Modular](references/modular/llm-inference-basics/llm-inference-metrics.md).
+Always name the observation point.
 
 - **TTFT** spans request arrival through delivery of the first output token.
-  Client-observed TTFT includes queueing, tokenization, scheduling and prefill.
-  It also includes first-token decode, serialization and transport unless
-  instrumentation removes some of them.
-- **TPOT** is commonly computed as
-  `(end-to-end latency - TTFT) / (completed output tokens - 1)`. State the exact
-  denominator and whether the first token is excluded.
-- **ITL** is the interval between streamed tokens. Its distribution exposes
+  Client-observed TTFT can include queueing, tokenization, scheduling, prefill,
+  first-token decode, serialization plus transport.
+- **TPOT** is often calculated as
+  `(end-to-end latency - TTFT) / (completed output tokens - 1)`. Report the
+  actual denominator and whether the first token is excluded.
+- **ITL** measures intervals between streamed tokens. Its distribution reveals
   stalls that a mean TPOT can hide.
-- **Throughput** is completed work per unit time. Report whether token
-  throughput counts input tokens, output tokens, or both, and whether it is an
-  aggregate or per-session value.
-- **Goodput** counts only requests that satisfy the declared latency SLOs. It is
-  the right capacity metric when slow requests do not count as useful service.
-- **Effective prefill throughput** derived from prompt tokens divided by TTFT is
-  an end-to-end ratio. Kernel prefill throughput and rolling server metrics use
-  different boundaries.
+- **Throughput** is completed work per unit time. State whether it counts input,
+  output, or all tokens and whether the number is aggregate or per session.
+- **Goodput** counts requests that meet declared latency SLOs. It is preferable
+  to raw throughput when late requests are not useful service.
+- **Effective prefill throughput** computed as prompt tokens divided by TTFT is
+  an end-to-end ratio. It is not interchangeable with a kernel or rolling-server
+  prefill metric.
 
-Prefix caching changes prefill work. A warmed-prefix result should be labeled as
-cache reuse. Speculative decoding starts after target prefill, so it does not
-explain a lower fresh-prefix TTFT.
+Prefix reuse changes prefill work, so label warmed-prefix results as cache hits.
+Speculative decode ordinarily begins after target prefill and does not explain a
+lower fresh-prefix TTFT.
 
-## Capacity and tuning sequence
+## Capacity and optimization sequence
 
-Tune in an order that keeps each result interpretable.
+Account for model weights, KV cache, runtime workspaces, graph captures,
+allocator headroom, and non-model host memory. KV demand scales with active
+sequence length and concurrency. Weight quantization and KV-cache quantization
+are independent choices.
 
-1. Prove that the model loads and returns correct output with memory and process
-   safeguards active.
-2. Account for weights, KV cache, runtime workspaces, graph captures, allocator
-   headroom, and non-model host memory.
-3. Freeze a representative workload and the metric aggregation rule.
-4. Measure a plain baseline before enabling caching, speculation,
+Tune in this order:
+
+1. Prove correct model loading and output while memory and process safeguards
+   remain active.
+2. Freeze a representative workload, measurement boundary, and aggregation
+   rule.
+3. Measure a plain baseline before adding cache reuse, speculative decoding,
    disaggregation, or offloading.
-5. Change one major dimension at a time. Recheck correctness, memory headroom,
-   TTFT, ITL, per-request throughput, aggregate throughput, and goodput.
-6. Increase concurrency or context capacity only while the chosen SLO and
-   memory floor still hold.
+4. Change one major dimension at a time and recheck correctness, memory
+   headroom, TTFT, ITL, per-session speed, aggregate throughput, and goodput.
+5. Raise concurrency or context capacity only while the selected SLO and memory
+   floor continue to hold.
 
-A server's maximum context length is capacity. Decode cost follows the tokens
-actually resident in each active sequence's KV cache. Weight quantization and
-KV-cache quantization are separate choices. Format names such as GGUF and GPTQ,
-along with AWQ, FP8 or NVFP4, identify different artifacts and kernel paths.
+Use batching and continuous scheduling to improve utilization before assuming
+that model compute is the only bottleneck. Use PagedAttention to manage KV
+fragmentation, prefix caching only where reuse exists, speculation only where
+acceptance repays draft and verification work, and parallelism only after
+including communication cost. Scaling decisions should follow measured demand,
+queue behavior, cold-start time, placement constraints, and failure domains.
 
-## Topic routes
+## Paired topic routes
 
-| Task | Start with | Then read |
+| Question | BentoML source | Modular source |
 | --- | --- | --- |
-| Define or interpret latency and throughput | [Metrics](references/llm-inference-basics/llm-inference-metrics.md) | [Benchmarking](references/inference-optimization/llm-performance-benchmarks.md) |
-| Diagnose prefill, decode, attention, or KV behavior | [Inference mechanics](references/llm-inference-basics/how-does-llm-inference-work.md) | [GPU fundamentals](references/kernel-optimization/gpu-architecture-fundamentals.md) |
-| Size a model and context window | [GPU memory calculation](references/getting-started/calculating-gpu-memory-for-llms.md) | [Quantization](references/model-preparation/llm-quantization.md) and [KV offloading](references/inference-optimization/kv-cache-offloading.md) |
-| Tune batching and scheduling | [Batching](references/inference-optimization/static-dynamic-continuous-batching.md) | [PagedAttention](references/inference-optimization/pagedattention.md) and [routing](references/inference-optimization/inference-routing.md) |
-| Evaluate prefix reuse | [Prefix caching](references/inference-optimization/prefix-caching.md) | [Routing](references/inference-optimization/inference-routing.md) |
-| Evaluate speculative decoding | [Speculative decoding](references/inference-optimization/speculative-decoding.md) | [Benchmarking](references/inference-optimization/llm-performance-benchmarks.md) |
-| Choose an engine or accelerator | [Framework selection](references/getting-started/choosing-the-right-inference-framework.md) | [GPU selection](references/getting-started/choosing-the-right-gpu.md) |
-| Plan multi-GPU or multi-node serving | [Parallelism](references/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) | [Distributed inference](references/infrastructure-and-operations/distributed-inference.md) |
-| Separate prefill and decode fleets | [Prefill-decode disaggregation](references/inference-optimization/prefill-decode-disaggregation.md) | [Routing](references/inference-optimization/inference-routing.md) and [observability](references/infrastructure-and-operations/comprehensive-observability.md) |
-| Plan production scaling and operations | [Infrastructure](references/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) | [Fast scaling](references/infrastructure-and-operations/fast-scaling.md), [observability](references/infrastructure-and-operations/comprehensive-observability.md), and [InferenceOps](references/infrastructure-and-operations/inferenceops-and-management.md) |
-| Compare hosted/BYOC/on-prem deployment | [Hosted versus self-hosted](references/getting-started/serverless-vs-self-hosted-llm-inference.md) | [BYOC](references/getting-started/bring-your-own-cloud.md), [on-prem](references/getting-started/on-prem-llms.md), and [cost](references/infrastructure-and-operations/build-and-maintenance-cost.md) |
+| How inference, attention and generation phases work | [Inference mechanics](references/bentoml/llm-inference-basics/how-does-llm-inference-work.md) | [Expanded inference mechanics](references/modular/llm-inference-basics/how-does-llm-inference-work.md) |
+| How to define latency/throughput/goodput | [Metrics](references/bentoml/llm-inference-basics/llm-inference-metrics.md) | [Metrics](references/modular/llm-inference-basics/llm-inference-metrics.md) |
+| How to design or interpret a benchmark | [Benchmarking](references/bentoml/inference-optimization/llm-performance-benchmarks.md) | [Benchmarking](references/modular/inference-optimization/llm-performance-benchmarks.md) |
+| How to size weights and KV memory | [Memory sizing](references/bentoml/getting-started/calculating-gpu-memory-for-llms.md) | [Memory sizing](references/modular/getting-started/calculating-gpu-memory-for-llms.md) |
+| How batching and chunked prefill behave | [Batching](references/bentoml/inference-optimization/static-dynamic-continuous-batching.md) | [Batching](references/modular/inference-optimization/static-dynamic-continuous-batching.md) |
+| When prefix caching helps | [Prefix caching](references/bentoml/inference-optimization/prefix-caching.md) | [Expanded prefix examples](references/modular/inference-optimization/prefix-caching.md) |
+| How to evaluate speculative decoding | [Speculative decoding](references/bentoml/inference-optimization/speculative-decoding.md) | [Expanded speculative methods](references/modular/inference-optimization/speculative-decoding.md) |
+| How to choose parallelism | [Parallelism](references/bentoml/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) | [Parallelism](references/modular/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md) |
+| How GPU architecture and kernels affect speed | [GPU fundamentals](references/bentoml/kernel-optimization/gpu-architecture-fundamentals.md) | [GPU fundamentals](references/modular/kernel-optimization/gpu-architecture-fundamentals.md) |
+| How to plan routing, scaling and observability | [Infrastructure](references/bentoml/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) | [Infrastructure](references/modular/infrastructure-and-operations/what-is-llm-inference-infrastructure.md) |
+| How hosted, BYOC, hybrid and on-prem options differ | [Deployment guidance](references/bentoml/getting-started/serverless-vs-self-hosted-llm-inference.md) | [Deployment guidance](references/modular/getting-started/serverless-vs-self-hosted-llm-inference.md) |
 
-For broad orientation, start with the
-[handbook introduction](references/index.md).
-
-## Reference catalog
-
-### Inference basics
-
-- [What LLM inference is](references/llm-inference-basics/what-is-llm-inference.md)
-- [Inference mechanics](references/llm-inference-basics/how-does-llm-inference-work.md)
-- [Metrics and SLOs](references/llm-inference-basics/llm-inference-metrics.md)
-- [Training and inference differences](references/llm-inference-basics/training-inference-differences.md)
-- [CPU/GPU/TPU comparison](references/llm-inference-basics/cpu-vs-gpu-vs-tpu.md)
-
-### Deployment planning
-
-- [Model selection](references/getting-started/choosing-the-right-model.md)
-- [Inference framework selection](references/getting-started/choosing-the-right-inference-framework.md)
-- [GPU selection](references/getting-started/choosing-the-right-gpu.md)
-- [GPU memory calculation](references/getting-started/calculating-gpu-memory-for-llms.md)
-- [Hosted and self-hosted inference](references/getting-started/serverless-vs-self-hosted-llm-inference.md)
-- [On-prem inference](references/getting-started/on-prem-llms.md)
-- [Bring your own cloud](references/getting-started/bring-your-own-cloud.md)
-
-### Model preparation
-
-- [Quantization](references/model-preparation/llm-quantization.md)
-- [Fine-tuning](references/model-preparation/llm-fine-tuning.md)
-- [Distillation](references/model-preparation/llm-distillation.md)
-
-### Request and API behavior
-
-- [OpenAI-compatible APIs](references/model-interaction/openai-compatible-api.md)
-- [Anthropic-compatible APIs](references/model-interaction/anthropic-compatible-api.md)
-- [Inference parameters](references/model-interaction/inference-parameters.md)
-- [Prompt engineering](references/model-interaction/prompt-engineering.md)
-- [Function calling](references/model-interaction/function-calling.md)
-- [Structured outputs](references/model-interaction/structured-outputs.md)
-- [Model Context Protocol](references/model-interaction/model-context-protocol.md)
-
-### Inference optimization
-
-- [Benchmarking](references/inference-optimization/llm-performance-benchmarks.md)
-- [Batching and chunked prefill](references/inference-optimization/static-dynamic-continuous-batching.md)
-- [PagedAttention](references/inference-optimization/pagedattention.md)
-- [Prefix caching](references/inference-optimization/prefix-caching.md)
-- [KV-cache offloading](references/inference-optimization/kv-cache-offloading.md)
-- [Speculative decoding](references/inference-optimization/speculative-decoding.md)
-- [Prefill-decode disaggregation](references/inference-optimization/prefill-decode-disaggregation.md)
-- [Parallelism](references/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism.md)
-- [Inference routing](references/inference-optimization/inference-routing.md)
-- [Offline batch inference](references/inference-optimization/offline-batch-inference.md)
-
-### Kernels and GPU execution
-
-- [GPU architecture fundamentals](references/kernel-optimization/gpu-architecture-fundamentals.md)
-- [Kernel optimization](references/kernel-optimization/kernel-optimization-for-llm-inference.md)
-- [Kernel tools](references/kernel-optimization/kernel-optimization-tools.md)
-- [FlashAttention](references/kernel-optimization/flashattention.md)
-
-### Infrastructure and operations
-
-- [Inference infrastructure](references/infrastructure-and-operations/what-is-llm-inference-infrastructure.md)
-- [Distributed inference](references/infrastructure-and-operations/distributed-inference.md)
-- [Fast scaling](references/infrastructure-and-operations/fast-scaling.md)
-- [Observability](references/infrastructure-and-operations/comprehensive-observability.md)
-- [Multi-model pipelines](references/infrastructure-and-operations/multi-model-inference-pipelines.md)
-- [Multi-cloud and cross-region inference](references/infrastructure-and-operations/multi-cloud-and-cross-region-inference.md)
-- [InferenceOps](references/infrastructure-and-operations/inferenceops-and-management.md)
-- [Build and maintenance cost](references/infrastructure-and-operations/build-and-maintenance-cost.md)
-
-Each topic directory also contains an `index.md` with its upstream section
-summary. Interactive calculators and visualizers remain on the rendered
-handbook and are linked from the corresponding vendored pages.
+The complete two-source map and license provenance are in
+[references/README.md](references/README.md). Each source directory preserves
+its own section indexes and internal links.

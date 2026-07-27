@@ -1,9 +1,0 @@
----
-sidebar_position: 3
-sidebar_custom_props: 
-    icon: /img/wand.svg
----
-
-# Model preparation
-
-Model preparation is the process of preparing the model for inference.
