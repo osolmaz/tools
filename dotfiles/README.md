@@ -1,9 +1,25 @@
-### dotfiles @hos
+# Dotfiles
 
-##### Installing to a new system
+## Installing on a new system
 
-     make install
+```sh
+make install
+```
 
-##### Getting changes done to system files
+## Backing up local settings
 
-     make copy
+```sh
+make copy
+```
+
+Claude Code settings can also be synchronized on their own:
+
+```sh
+make backup-claude
+make install-claude
+```
+
+The Claude backup stores `~/.claude/settings.json` at
+`claude/settings.json`. It replaces the home directory with a portable token
+and refuses to copy likely credentials. Credentials and session data are never
+included.

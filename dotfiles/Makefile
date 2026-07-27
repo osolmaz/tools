@@ -1,7 +1,9 @@
+.PHONY: backup-claude install-claude
+
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux install-claude
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -22,6 +24,9 @@ install-bashrc:
 
 install-zshrc:
 	cp -f .zshrc ~/.zshrc
+
+install-conkyrc:
+	cp -f .conkyrc ~/.conkyrc
 
 install-Xresources:
 	cp -f .Xresources ~/.Xresources
@@ -60,7 +65,13 @@ install-zed:
 install-tmux:
 	cp -f .tmux.conf ~/.tmux.conf
 
-copy:
+install-claude:
+	./scripts/claude-settings install
+
+backup-claude:
+	./scripts/claude-settings backup
+
+copy: backup-claude
 	cp -f ~/.vimrc .vimrc
 	mkdir -p .i3
 	mkdir -p .config

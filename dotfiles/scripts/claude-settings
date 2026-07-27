@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""Back up and install portable Claude Code user settings."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import tempfile
+from pathlib import Path
+from typing import Any
+
+DOTFILES_DIR = Path(__file__).resolve().parents[1]
+REPO_SETTINGS = DOTFILES_DIR / "claude" / "settings.json"
+HOME_TOKEN = "__HOME__"
+SECRET_ENV_NAME = re.compile(
+    r"(?:^|_)(?:API_?KEY|TOKEN|SECRET|PASSWORD|CREDENTIALS?|PRIVATE_?KEY)(?:$|_)",
+    re.IGNORECASE,
+)
+SECRET_VALUE = re.compile(
+    r"(?:-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-ant-[A-Za-z0-9_-]{20,}|"
+    r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
+    r"hf_[A-Za-z0-9]{20,})",
+    re.IGNORECASE,
+)
+
+
+def load_settings(path: Path) -> dict[str, Any]:
+    with path.open(encoding="utf-8") as settings_file:
+        data = json.load(settings_file)
+    if not isinstance(data, dict):
+        raise TypeError(f"{path} must contain a JSON object")
+    return data
+
+
+def transform_strings(value: Any, old: str, new: str) -> Any:
+    if isinstance(value, str):
+        return value.replace(old, new)
+    if isinstance(value, list):
+        return [transform_strings(item, old, new) for item in value]
+    if isinstance(value, dict):
+        return {
+            transform_strings(key, old, new): transform_strings(item, old, new)
+            for key, item in value.items()
+        }
+    return value
+
+
+def sensitive_paths(value: Any, path: tuple[str, ...] = ()) -> list[str]:
+    findings: list[str] = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            item_path = (*path, str(key))
+            if (
+                path
+                and path[-1] == "env"
+                and SECRET_ENV_NAME.search(str(key))
+                and item not in (None, "")
+            ):
+                findings.append(".".join(item_path))
+            findings.extend(sensitive_paths(item, item_path))
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            findings.extend(sensitive_paths(item, (*path, str(index))))
+    elif isinstance(value, str) and SECRET_VALUE.search(value):
+        findings.append(".".join(path))
+    return findings
+
+
+def serialized(settings: dict[str, Any]) -> str:
+    return json.dumps(settings, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+def atomic_write(path: Path, content: str, mode: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=path.parent,
+        prefix=f".{path.name}.",
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            output.write(content)
+        temporary.chmod(mode)
+        temporary.replace(path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def backup(home: Path) -> None:
+    system_settings = home / ".claude" / "settings.json"
+    if not system_settings.exists():
+        raise FileNotFoundError(f"Claude settings not found: {system_settings}")
+    settings = load_settings(system_settings)
+    findings = sensitive_paths(settings)
+    if findings:
+        paths = ", ".join(sorted(set(findings)))
+        raise ValueError(f"refusing to back up possible secrets at: {paths}")
+    portable = transform_strings(settings, str(home), HOME_TOKEN)
+    atomic_write(REPO_SETTINGS, serialized(portable), 0o644)
+    print(f"wrote {REPO_SETTINGS}")
+
+
+def install(home: Path) -> None:
+    if not REPO_SETTINGS.exists():
+        raise FileNotFoundError(f"repo Claude settings not found: {REPO_SETTINGS}")
+    settings = load_settings(REPO_SETTINGS)
+    findings = sensitive_paths(settings)
+    if findings:
+        paths = ", ".join(sorted(set(findings)))
+        raise ValueError(f"refusing to install possible secrets at: {paths}")
+    expanded = transform_strings(settings, HOME_TOKEN, str(home))
+    system_settings = home / ".claude" / "settings.json"
+    atomic_write(system_settings, serialized(expanded), 0o600)
+    print(f"wrote {system_settings}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=["backup", "install"])
+    parser.add_argument(
+        "--home",
+        type=Path,
+        default=Path.home(),
+        help="home directory to read from or install into",
+    )
+    args = parser.parse_args()
+
+    if args.command == "backup":
+        backup(args.home.expanduser().resolve())
+    else:
+        install(args.home.expanduser().resolve())
+
+
+if __name__ == "__main__":
+    main()
