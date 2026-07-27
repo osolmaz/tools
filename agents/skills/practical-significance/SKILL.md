@@ -87,6 +87,12 @@ A statistically significant difference can still be too small to matter. A
 non-significant result also does not prove equality. It means the evidence did
 not resolve the difference at the tested scale.
 
+Do not diagnose overfitting from one lower held-out score. A training-loss
+improvement paired with a validation decline is consistent with overfitting,
+but run variation, data order, and evaluation noise can produce the same
+pattern. Require paired case analysis, a learning curve, repeated runs, or
+another registered test before calling the cause overfitting.
+
 ### Practical significance
 
 Does the estimated effect exceed the minimum worthwhile effect? Compare the
@@ -126,6 +132,36 @@ number of workers removed. State the assumptions behind projected values.
 A quality improvement can be real but economically irrational. A faster system
 can be a bad choice if it creates unacceptable errors. Keep the decision tied to
 the stated objective and gates.
+
+## Preserve candidate roles and decision authority
+
+Metrics compare candidates within a decision contract. They do not silently
+change what each candidate was built to do. Before a consequential comparison,
+record each candidate's role and eligibility plus its current decision state.
+
+Useful roles include diagnostic, ablation, search checkpoint, refit, production
+candidate, and release model. Keep three decision states separate. **Observed**
+means that metrics are available with no selection implied. **Recommended**
+means that the evidence and tradeoffs support a choice. **Approved** means that
+the person or process with decision authority selected it.
+
+A metric lead can support a recommendation. It cannot promote a diagnostic or
+report-only checkpoint to production when the registered plan requires a
+separate choice. If explicit approval is required, only a direct selection of
+the named candidate marks it approved. An ambiguous acknowledgment leaves it
+recommended.
+
+When candidates are practically tied, retain the registered incumbent or
+production candidate unless the user chooses another tradeoff. Apply the
+cheaper-option tie rule to the whole switch. Include repeated experiments,
+invalidated artifacts, operator work, and provenance changes rather than
+looking only at the candidate's original training cost.
+
+Before recommending a switch, list the downstream work tied to the incumbent.
+Include pilots, probes, generated data, exports, benchmarks, release evidence,
+and cost estimates that would need verification or repetition. State whether
+the comparison surface was authorized to change production authority. If that
+contract is unclear, present a recommendation and ask for the value judgment.
 
 ## Handle multiple metrics without shopping
 
@@ -226,12 +262,20 @@ threshold.
   approving it.
 - Do not spend substantially more to resolve an effect too small to matter.
 - Do not let an automatic `argmax` cross a spending or shipping boundary.
+- Do not promote a diagnostic, ablation, or report-only checkpoint beyond its
+  registered role from a metric lead alone.
+- Do not label a candidate approved when the evidence only supports a
+  recommendation.
+- Do not call a held-out regression overfitting without evidence that separates
+  it from run variation.
 
 ## Final check
 
 Before acting on a measured winner, verify:
 
 - The real decision and primary metric were stated.
+- Candidate roles, production eligibility, and decision authority were recorded.
+- The three decision states were kept separate.
 - The absolute effect and raw counts are visible.
 - Statistical uncertainty matches the experimental design.
 - A minimum worthwhile effect is stated and justified.
@@ -239,7 +283,7 @@ Before acting on a measured winner, verify:
 - Conflicting metrics and regressions are visible.
 - Near-ties favor the cheaper and simpler option.
 - More experimentation can still change a real decision.
-- Substantial spending or irreversible action has explicit approval.
+- Spending outside the `paid-compute-launch` autonomous allowance and every irreversible action has explicit approval.
 
 If any item fails, report the comparison as unresolved or practically tied
 instead of declaring a winner.

@@ -31,16 +31,18 @@ Official training skills explain how to run Jobs. They do not replace the
 compute and experiment-design review required before launching them.
 
 Before launching, scaling, retrying, or automatically continuing any paid
-accelerator Job, use `paid-compute-launch`. Use `hf-job-control` for every
-substantial Job as defined there. A plain `hf jobs run` launch is acceptable
-only when the work remains below every substantial-launch threshold and its
-results are cheap to reproduce.
+accelerator Job, use `paid-compute-launch`. A bounded experiment with a hard
+cumulative ceiling below $5 may proceed without asking. Count every related
+attempt and recovery Job toward the same ceiling. Use `hf-job-control`
+for every substantial Job as defined there. A plain `hf jobs run` launch is
+acceptable only when the work remains below every substantial-launch threshold
+and its results are cheap to reproduce.
 
 Long batch inference and dataset generation must publish durable output chunks
 while they run. Hugging Face Job logs, Trackio metrics, and row counters are
 monitoring evidence, not recoverable output. Before a multi-Job launch, pass the
-real worker's pause-resume canary and present measured hardware cost for
-approval.
+real worker's pause-resume canary and present measured hardware cost. Obtain
+approval unless the complete bounded experiment stays below $5.
 
 If a matching official skill is unavailable locally, install or update the
 published copy through `hf skills`; do not duplicate its contents here:

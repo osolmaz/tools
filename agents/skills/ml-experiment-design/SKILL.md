@@ -22,6 +22,19 @@ checkpoint, testing whether more data helps, selecting a decoding method, or
 producing a release model. Do not turn a production task into a clean-room
 research exercise unless the user wants that.
 
+## Run bounded low-cost experiments autonomously
+
+Experiments with a hard cumulative paid-compute ceiling below $5 may proceed
+without asking for approval. Count setup, failed attempts, retries, and recovery
+Jobs together. Confirm before each launch that actual spending plus its
+worst-case cost remains below $5. Follow `paid-compute-launch` for the full rule
+and stop before reaching the threshold.
+
+Low cost does not relax scientific validity or artifact preservation. It does
+not authorize deleting a checkpoint, changing production authority, opening
+sealed data, or making an irreversible release. Do not split related work into
+separate experiment names to stay below the threshold.
+
 Before launching accelerator work, record:
 
 - the decision to be made.
@@ -42,6 +55,19 @@ methodological preferences.
 A checkpoint contains expensive learned state. Do not discard it merely because
 a fresh refit is conventional, aesthetically cleaner, or easier to describe.
 The burden of proof belongs to the restart.
+
+A valid completed model is not superseded by a benchmark loss below the minimum
+worthwhile effect. When the difference is uncertain or practically tied, keep
+the registered production candidate as the incumbent and preserve its exact
+state. A challenger must clear a threshold large enough to justify repeating or
+revalidating the downstream work tied to that incumbent.
+
+Already-spent compute does not prove model quality. It establishes that the
+checkpoint is a reusable asset with a real replacement cost. Report the
+accelerator time already invested, the cost to retrain it, and the completed
+pilots, generated data, exports, or benchmarks that a switch would invalidate.
+Keep model selection separate from artifact disposal. A model can remain
+preserved even when another candidate is approved for production.
 
 Consider these options in order:
 
@@ -66,7 +92,8 @@ Training all rows from scratch is one option, not an automatic requirement.
 ## Require approval for expensive restarts
 
 Stop and ask for explicit approval before launching a fresh restart when any of
-these conditions holds:
+these conditions holds, unless it is a bounded experiment below $5 and all
+useful existing weights remain preserved:
 
 - a valid trained checkpoint already exists.
 - the restart discards most or all prior training.
@@ -109,6 +136,38 @@ Using a development split to choose a duration does not force a fresh all-data
 refit. Compare the value of incorporating those rows with the cost of rerunning
 the rest. If a final refit is chosen, keep an independent report-only surface so
 selection does not consume the final evaluation.
+
+## Register candidate roles and authority
+
+Keep a candidate registry whenever more than one checkpoint could be mistaken
+for the production model. For each candidate, record:
+
+- Exact repository revision and subfolder or artifact path.
+- Registered role, such as diagnostic, search checkpoint, refit, production
+  candidate, or release model.
+- Training data and duration plus the decision that created it.
+- Evaluation surfaces and whether they may select production use.
+- Existing pilots and generated data plus exports and benchmarks tied to it.
+- Accelerator time already invested, checkpoint size, retraining cost, and
+  preservation status.
+- Decision state as observed, recommended, or explicitly approved.
+
+Do not promote a diagnostic, ablation, or report-only checkpoint because it has
+the largest reported number. First check whether its role permits production
+selection, whether the difference is practically meaningful, and who has
+selection authority. Report-only metrics can support a recommendation when the
+plan allows it. They cannot supply missing approval.
+
+When a plan requires a maintainer choice, keep `recommended` and `approved`
+separate in status files and prose. Only a direct selection of the named
+candidate changes the state to approved. Record the decision and its evidence
+before downstream generation, export, or release work begins.
+
+Before switching away from the registered production candidate, inventory the
+work that depends on it. State which decoding studies, target sets, probes,
+cost projections, and release evidence remain valid. Include the cost and delay
+of repeating invalidated work in the comparison. A practically tied challenger
+does not displace the incumbent merely because it wins an `argmax`.
 
 ## Separate research fairness from production efficiency
 
@@ -158,6 +217,8 @@ failure.
 
 Do not silently:
 
+- change a candidate's registered role or approval state.
+- promote a diagnostic or report-only checkpoint to production.
 - drop, truncate, replace, repair, or refill rows.
 - change a nominal corpus to hit a round count.
 - alter decoding, precision, or initialization between comparison arms.
@@ -246,9 +307,14 @@ Before approving the plan, verify:
 
 - the experiment can change a real decision.
 - split roles and selection surfaces are unambiguous.
+- candidate roles, production eligibility, and exact artifact paths are recorded.
+- the three decision states remain distinct.
+- a proposed model switch includes its downstream invalidation and repetition cost.
+- a sub-threshold challenger does not displace the incumbent production candidate.
+- production selection and checkpoint preservation remain separate decisions.
 - row deltas and percentages are visible.
 - checkpoint reuse was considered first.
-- expensive restarts have explicit approval.
+- expensive restarts have explicit approval or a verified cumulative ceiling below $5.
 - comparison arms differ only where intended.
 - no silent model substitution or data repair is possible.
 - compute, time, cost, and stopping conditions are stated.

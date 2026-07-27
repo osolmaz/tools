@@ -1,6 +1,6 @@
 ---
 name: paid-compute-launch
-description: Use before paid accelerator work that launches, scales, retries, or automatically continues. This includes training and batch inference plus synthetic-data generation, evaluations and sweeps, or multi-Job fleets. Requires measured cost and hardware evidence, durable partial outputs, tested pause and resume, and explicit approval at substantial spending boundaries. Also requires fleet-wide containment after shared failures.
+description: Use before paid accelerator work that launches, scales, retries, or automatically continues. This includes training and batch inference plus synthetic-data generation, evaluations and sweeps, or multi-Job fleets. Allows bounded experiments below $5 without asking. Requires measured cost and hardware evidence, durable partial outputs, tested pause and resume, explicit approval at larger spending boundaries, and fleet-wide containment after shared failures.
 ---
 
 # Paid Compute Launch
@@ -15,6 +15,24 @@ are involved. For Hugging Face Jobs, also use the official `hf-cli` skill, the p
 `huggingface` skill, and `hf-job-control`. For local inference launches, also use
 `safe-inference-launch`.
 
+## Allow experiments below $5 without asking
+
+An experiment may proceed without asking for approval when its hard total cost
+ceiling is less than $5. This permission applies even when another substantial
+launch condition, such as multiple accelerator Jobs, is present. It removes the
+approval pause only. Keep the price check, timeout, durable outputs, recovery,
+containment, and evidence requirements that apply to the work.
+
+Count all related attempts, retries, setup, and recovery Jobs against one
+cumulative ceiling. Include money already spent. Before every new Job, confirm
+that actual cost so far plus the Job's worst-case cost remains below $5. Stop
+and ask before a launch that could bring the total to $5 or more. Do not split
+one experiment into smaller labels or logical runs to evade the threshold.
+
+This permission does not authorize irreversible actions, opening sealed data,
+deleting useful checkpoints, changing an approved production model, or
+publishing a release. A stricter project or user limit still wins.
+
 ## Decide whether the launch is substantial
 
 A launch is substantial when any condition below applies:
@@ -26,14 +44,13 @@ A launch is substantial when any condition below applies:
 - It produces more than 100,000 outputs.
 - Losing one attempt would materially delay the work.
 
-Before a substantial launch, stop and present a launch review. Obtain explicit
-approval after the user has seen it. Approval for an earlier plan does not cover
-a later hardware choice, larger fleet, slower decoding method, higher price, or
-new cost estimate.
+Unless the bounded experiment rule above applies, stop before a substantial
+launch and present a launch review. Obtain explicit approval after the user has
+seen it. Approval for an earlier plan does not cover a later hardware choice,
+larger fleet, slower decoding method, higher price, or new cost estimate.
 
-A cheap probe below these thresholds does not require a formal approval round,
-but it still needs a price check, an operational timeout, and a clear output
-location.
+A bounded experiment below $5 does not require a formal approval round. It
+still needs a price check, an operational timeout, and a clear output location.
 
 ## Write the launch review
 
@@ -183,8 +200,9 @@ physical Job, attempt, control generation, and terminal state.
 ## Stop automatic continuation
 
 An agent may prepare code and probes plus estimates and launch specifications
-without further permission. It must stop before substantial paid compute until approval
-is explicit.
+without further permission. It may also run a bounded experiment whose hard
+cumulative ceiling stays below $5. It must stop before other substantial paid
+compute until approval is explicit.
 
 Stop again when:
 
@@ -192,7 +210,7 @@ Stop again when:
 - The selected method changes.
 - A cheaper credible option appears.
 - A shared failure invalidates the worker contract.
-- A retry would exceed the approved cost ceiling.
+- A retry would reach $5 in an autonomous experiment or exceed an approved cost ceiling.
 - Useful checkpoints or partial outputs would be discarded.
 
 A frozen plan does not override new cost evidence or a mistaken premise. Report
@@ -219,7 +237,7 @@ Do not launch until every applicable statement is true:
 
 - The launch review uses measured evidence and exact row counts.
 - Any comparison-selected method passed the `practical-significance` gate.
-- The user approved the current hardware and method plus concurrency and cost ceiling.
+- The user approved the current hardware, method, concurrency, and cost ceiling, or the bounded experiment has a verified cumulative ceiling below $5.
 - Cheaper credible alternatives were measured or explicitly ruled out.
 - Existing checkpoints and partial outputs are preserved or their removal is
   separately approved.
