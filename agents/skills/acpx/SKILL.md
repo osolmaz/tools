@@ -1,6 +1,6 @@
 ---
 name: acpx
-description: Use when calling, reviewing with, or delegating work to another coding agent through the ACPX CLI, including explicitly human-requested Claude Fable through the local Claude adapter, one-shot and persistent sessions, model selection, permissions, timeouts, output collection, and recovery after interrupted calls.
+description: Use when calling, reviewing with, or delegating work to another coding agent through the ACPX CLI, including explicitly human-requested Claude Fable through the default local Claude adapter or an explicitly requested Cursor adapter, one-shot and persistent sessions, model selection, permissions, timeouts, output collection, and recovery after interrupted calls.
 ---
 
 # ACPX
@@ -48,15 +48,15 @@ acpx --cwd "$REPO" claude sessions show fable-review
 acpx --cwd "$REPO" claude sessions history fable-review --limit 20
 ```
 
-## Claude Fable through local Claude
+## Claude Fable
 
 Call Fable only when the human explicitly asks to use or call Fable. Fable is
 very expensive, so use it sparingly even when authorized. Never infer permission
 from task difficulty or failed attempts, and never launch parallel Fable calls
 unless the human explicitly requests them.
 
-Use ACPX's `claude` adapter, which invokes the locally installed Claude Code CLI,
-and request Fable explicitly. Never use Cursor for Fable:
+Default to ACPX's `claude` adapter, which invokes the locally installed Claude
+Code CLI, and request Fable explicitly:
 
 ```bash
 acpx --cwd "$REPO" --timeout 1800 \
@@ -65,10 +65,23 @@ acpx --cwd "$REPO" --timeout 1800 \
   claude exec "$PROMPT"
 ```
 
-Model identifiers are adapter-defined. Read the model advertised by the local
-Claude adapter. If it reports a more exact identifier, use that exact identifier
-when the bare name is ambiguous. Do not silently substitute a different model
-or adapter.
+Use ACPX's `cursor` adapter only when the human explicitly asks to run Fable
+through Cursor in the current request:
+
+```bash
+acpx --cwd "$REPO" --timeout 1800 \
+  --model claude-fable-5 \
+  --approve-reads --non-interactive-permissions deny \
+  cursor exec "$PROMPT"
+```
+
+Do not infer a Cursor preference from quota errors, adapter availability, task
+difficulty, or an earlier request. Never silently switch adapters.
+
+Model identifiers are adapter-defined. Read the model advertised by the selected
+adapter. If it reports a more exact identifier, use that exact identifier when
+the bare name is ambiguous. Do not silently substitute a different model or
+adapter.
 
 ## Permissions
 

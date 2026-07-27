@@ -1,6 +1,6 @@
 ---
 name: use-fable
-description: Use only when the human explicitly asks to call or use Claude Fable for review, research, planning, or implementation. Fable is very expensive to run, so use it sparingly even when authorized. Invoke it through the local Claude Code CLI via ACPX's Claude adapter, never through Cursor, with explicit model selection, long timeouts, suitable permissions, persistent sessions for substantial work, and local verification.
+description: Use only when the human explicitly asks to call or use Claude Fable for review, research, planning, or implementation. Fable is very expensive to run, so use it sparingly even when authorized. Default to ACPX's local Claude adapter, but use ACPX's Cursor adapter when the human explicitly requests Cursor. Always select Fable explicitly, use long timeouts and suitable permissions, preserve substantial work in persistent sessions, and verify results locally.
 ---
 
 # Use Fable
@@ -16,19 +16,17 @@ human has authorized it. Keep the scope and number of calls no larger than the
 request requires. Never launch parallel Fable calls unless the human explicitly
 asks for parallel calls.
 
-Run Fable through the locally installed Claude Code CLI using ACPX's `claude`
-adapter. Never use the Cursor adapter for Fable and never substitute another
-adapter or model.
+Use ACPX's `claude` adapter by default. Use ACPX's `cursor` adapter only when
+the human explicitly asks to run Fable through Cursor in the current request.
+Do not infer a Cursor preference from task difficulty, quota errors, adapter
+availability, or an earlier request. Never silently switch adapters.
 
 ## Required Invocation
 
-Always pass all three of these explicitly:
+Always pass `acpx` and `--model claude-fable-5` explicitly. Run from the target
+repository or pass `--cwd <repo>`.
 
-- `acpx`
-- `--model claude-fable-5`
-- `claude`
-
-Run from the target repository or pass `--cwd <repo>`.
+### Default: local Claude Code
 
 For a short or ordinary task, use a 30-minute timeout:
 
@@ -47,6 +45,28 @@ acpx --cwd "$REPO" --timeout 43200 \
   --model claude-fable-5 \
   --approve-reads --non-interactive-permissions deny \
   claude -s fable-work "$PROMPT"
+```
+
+### Explicit Cursor override
+
+When the human explicitly requests Cursor, replace the adapter consistently in
+both session setup and invocation:
+
+```bash
+acpx --cwd "$REPO" --timeout 1800 \
+  --model claude-fable-5 \
+  --approve-reads --non-interactive-permissions deny \
+  cursor exec "$PROMPT"
+```
+
+For substantial Cursor work, use a named Cursor session:
+
+```bash
+acpx --cwd "$REPO" --timeout 43200 cursor sessions ensure --name fable-work
+acpx --cwd "$REPO" --timeout 43200 \
+  --model claude-fable-5 \
+  --approve-reads --non-interactive-permissions deny \
+  cursor -s fable-work "$PROMPT"
 ```
 
 Use 12 hours for deep repository audits, large implementations, long test loops,
@@ -69,9 +89,10 @@ the running process until ACPX exits.
 - State the task, scope, constraints, expected evidence, and output format.
 - Omit low `--max-turns` limits unless the human explicitly requests one.
 - For substantial work, prefer a named session so interrupted output can be
-  recovered with `acpx claude sessions history <name>`.
+  recovered with `acpx claude sessions history <name>` by default or
+  `acpx cursor sessions history <name>` when Cursor was explicitly requested.
 - Treat Fable's answer as advisory. Verify findings, edits, and tests locally
   before acting on or reporting them.
-- If ACPX rejects the model identifier, inspect the model advertised by the
-  local Claude adapter and select the exact Claude Fable identifier. Do not
-  silently fall back to another model or to Cursor.
+- If ACPX rejects the model identifier, inspect the models advertised by the
+  selected adapter and use its exact Claude Fable identifier. Do not silently
+  fall back to another model or adapter.
