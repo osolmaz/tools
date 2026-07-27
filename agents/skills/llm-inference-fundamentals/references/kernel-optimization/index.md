@@ -6,4 +6,7 @@ sidebar_custom_props:
 
 # Kernel optimization
 
-Kernel optimization is about making GPU kernels run faster and more efficiently by improving how they use compute, memory bandwidth, and on-chip resources. For LLM inference, this often means reducing memory movement, increasing hardware utilization, and mapping workloads more carefully to the GPU.
+Kernel optimization is about making GPU kernels run faster and more efficiently
+by improving how they use compute, memory bandwidth, and on-chip resources. For
+LLM inference, this often means reducing memory movement, increasing hardware
+utilization, and mapping workloads more carefully to the GPU.
