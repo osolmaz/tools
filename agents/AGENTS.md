@@ -71,6 +71,135 @@
 - Use the `manage-runtimes` skill before creating, updating, promoting, auditing, or deleting local inference runtimes.
 - Do not create ad hoc vLLM, SGLang, llama.cpp, TensorRT-LLM, or similar runtime environments under `~/scratch`, `~/services`, repos, or project-local `.venv` directories. Canonical runtimes belong under `~/runtimes/<engine>/`.
 
+## unYOLO and BrokerKit
+
+unYOLO is the current name of BrokerKit. The source repository remains
+`https://github.com/osolmaz/brokerkit`. Older releases and deployments may
+still use BrokerKit names in environment variables or plugins, and older notes
+may do the same. Treat both names as the same access-control system while
+following the names advertised by the installed runtime.
+
+### Architecture and safety
+
+- unYOLO keeps credentials for GitHub and Hugging Face in separate broker
+  processes. Privileged Unix commands go through another process.
+  `gh-broker` and `hf-broker` each have an independent listener plus separate
+  client and operator credentials. `sudo-broker` has the same isolation, and
+  every broker keeps separate state with its own audit trail.
+- Use the broker whenever it is enrolled. Never request an upstream provider
+  token, run an interactive provider login, copy a broker credential into the
+  environment, or bypass a denied broker operation with a raw API call.
+- Agent Operations V1 is the durable execution path. Operator V1 carries
+  approvals. Before policy evaluation, a request receives a client identity
+  plus a typed operation, target and attribute set. The decision order is deny,
+  active grant, static allow, request, then deny by default.
+- A deny rule still wins over an approved grant. Approval cannot widen the
+  operation, client, target, or attrs recorded in the grant.
+- Prefer the advertised MCP operation tools. Use the typed broker CLI when MCP
+  transport is unavailable or a local file must enter or leave a bounded stream.
+  A CLI fallback still uses the broker and cannot bypass its policy.
+- Mutations need a stable request ID. Reuse that ID only for an exact retry. If
+  a response is lost, recover the existing operation or grant instead of
+  submitting another mutation.
+- Approval-gated commands must keep waiting in the same agent turn. A bounded
+  wait returning `pending` is an internal retry boundary. Continue with the
+  same operation or grant ID until it succeeds, fails, is denied, is cancelled,
+  or the user explicitly stops it.
+- Diagnose one failed request before sending another. Repeated create or grant
+  calls can produce duplicate durable operations and duplicate notifications.
+  A policy denial, unsupported capability, stale broker version, malformed
+  target, and transport failure require different fixes.
+
+### Reusable grants
+
+- `hf-broker` v0.7.0 and later supports high-volume reusable window grants.
+  The shared finite ceiling is 1,000,000 uses. An explicit `unlimited` use
+  budget lasts only until the required expiry and works only when policy and
+  the operation ceiling allow it.
+- The default Hugging Face preset gives routine repository and bucket window
+  operations a seven-day, 1,000,000-use ceiling. Check `hf-broker version`
+  before requesting that budget. An older runtime may cap grants at 25 uses.
+  Stop and update it before requesting a larger budget.
+- Request the whole named resource by omitting optional `--key`, `--path`, and
+  `--ref` selectors only when the user explicitly asked for whole-resource
+  access. Include those selectors for narrower access.
+- `window` operations can reuse an active grant. `execution` operations such as
+  `job.run`, `job.cancel`, `sandbox.create`, deletes, and other one-shot admin
+  actions remain single-use or carry a lower provider ceiling. Do not promise a
+  long-term grant for an execution-scoped operation. Report the missing
+  capability when the user needs reusable authority that the catalog does not
+  expose.
+- Creating a bucket or repository is a separate single-use operation. After it
+  exists, request reusable access for `bucket.object.write`,
+  `repo.commit.create`, or `git.push.append` as appropriate.
+- A repository or bucket grant authorizes broker calls to that exact resource.
+  It does not mint a Hugging Face token or implicitly authorize an HF Job mount.
+  The `job.run` plan must declare its resources and receive its own approval.
+  Prefer one durable worker Job with a bucket-backed queue over many Job
+  launches when the workload supports it.
+
+For a 24-hour grant over an entire bucket, omit `--key`:
+
+```sh
+hf-broker client grant request bucket.object.write OWNER/BUCKET \
+  --minutes 1440 \
+  --max-uses 1000000 \
+  --reason "Write campaign artifacts to this bucket for 24 hours" \
+  --request-id STABLE-BUCKET-GRANT-ID
+```
+
+For 24-hour write access across an entire dataset repository, omit `--path`
+and `--ref`:
+
+```sh
+hf-broker client grant request repo.commit.create OWNER/DATASET \
+  --type dataset \
+  --minutes 1440 \
+  --max-uses 1000000 \
+  --reason "Update this campaign dataset for 24 hours" \
+  --request-id STABLE-DATASET-GRANT-ID
+```
+
+Use `hf-broker client grant wait|get|cancel|revoke` for lifecycle management.
+An operation that policy already allows does not need a grant. Revoke broad
+campaign access when the campaign ends instead of leaving it active until
+expiry.
+
+### ML Claw Hugging Face bridge
+
+ML Claw exposes the agent listener at `tcp://127.0.0.1:7863` and provides the
+client credential as a protected file. MCP receives the bridge automatically.
+For CLI fallback, pass the file path under the supported variable name:
+
+```sh
+env \
+  HF_BROKER_AGENT_ENDPOINT="${HF_BROKER_AGENT_ENDPOINT:-tcp://127.0.0.1:7863}" \
+  HF_BROKER_SHARED_SECRET_FILE="$MLCLAW_HF_BROKER_AGENT_SECRET_FILE" \
+  hf-broker client grant get GRANT-ID
+```
+
+`HF_BROKER_AGENT_SECRET_FILE` is not a supported client variable. Use
+`HF_BROKER_SHARED_SECRET_FILE`. Test that
+`$MLCLAW_HF_BROKER_AGENT_SECRET_FILE` is readable without printing or copying
+its contents. Avoid nested `bash -lc` quoting when a direct `env ... hf-broker`
+command works.
+
+### Other brokers and host runtime
+
+- Keep ordinary GitHub and Hugging Face remote URLs. Installed credential
+  helpers route supported Git and LFS traffic through the brokers.
+- `sudo-broker` can run only a root-owned catalog entry with its fixed
+  executable and arguments for an approved target user. The catalog also sets
+  bounded timeout and output limits. It does not provide arbitrary shell, TTY,
+  stdin, or caller-controlled environment access.
+- Production host components activate as one signed immutable bundle under
+  `/opt/unyolo/current`. Use `unyolo system status` and `unyolo system doctor`
+  before and after lifecycle work. Do not edit the current symlink, activation
+  record, broker state, or protected credential files by hand.
+- The source checkout convention is `~/repos/brokerkit`. Current deployments
+  use unYOLO paths; historical BrokerKit deployments may still use
+  `/opt/brokerkit` until deliberately replaced.
+
 ## Credential handling policy
 
 - Never copy a credential from one store to another — local token files, agent
