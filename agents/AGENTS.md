@@ -95,6 +95,7 @@
 - Clone repositories from the `openclaw` GitHub organization into `~/oc` instead, for example `~/oc/openclaw` for `openclaw/openclaw` and `~/oc/clawhub` for `openclaw/clawhub`.
 - Clone repositories from the Hugging Face GitHub organization into `~/hf` instead, for example `~/hf/transformers` for `huggingface/transformers`.
 - Create Git worktrees in a `<repo_name>-worktrees` directory next to the main checkout, for example `~/oc/openclaw-worktrees/86504` for `~/oc/openclaw`. Do not create worktrees inside the main checkout or as scattered sibling directories unless the user asks for a different layout.
+- After a pull request is merged, or when work associated with a local Git worktree is otherwise complete, remove that worktree, prune stale worktree metadata, and delete its local branch when it is no longer needed.
 - Before cloning, check whether the target directory already exists. If it is already the requested repository, update it with `git pull --ff-only` instead of recloning.
 - Whenever creating a new repository, after initializing it, run `npx github-sane-defaults@latest apply` in the repository to apply the standard GitHub defaults.
 - When creating or managing a project in a language supported by Slophammer, apply Slophammer standards and add the relevant checker/config/CI so the quality gate is enforceable locally and in CI.
