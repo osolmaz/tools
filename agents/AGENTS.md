@@ -46,6 +46,18 @@
 - Verify historical runtime claims from source Job records. State every mismatch in model, decoding, batch size, hardware, row count, or input distribution.
 - Stop automatic continuation whenever observed cost, method, hardware, failure state, or checkpoint-reuse assumptions differ from what the user approved.
 
+## Inference runtime provenance policy
+
+- A request to benchmark, serve, or test a model authorizes the named model and workload. It does not authorize downloading, installing, patching, or running third-party executable code.
+- Without further approval, use only an existing canonical runtime or an official release from the inference engine or model publisher. Pin the exact version, commit, or image digest.
+- Treat community images, forks, custom builds, benchmark-author images, and third-party patch sets as untrusted runtime changes. Before downloading or running one, obtain explicit approval after naming the owner, repository, immutable commit or digest, expected disk cost, reason it is needed, official alternatives, and requested privileges, mounts, network access, and credentials.
+- If the official or canonical path fails, stop and report the failure. Do not silently substitute a community runtime or a claimant's reproduction environment.
+- A performance claimant's image may be used only for a separately labeled reproduction after explicit approval. Do not use it as the neutral or authoritative implementation in a comparison.
+- Do not delete or replace an incumbent runtime, container image, model cache, or benchmark artifact to make room without explicit approval. Report the exact cleanup candidate, reclaimed space, replacement cost, and restore plan first.
+- Backend availability probes, imports, and successful startup are not backend attestation. Run the intended model through a real request and verify from runtime evidence that the requested kernels executed.
+- If logs show an unsupported backend, fallback, emulation, version mismatch, or a different kernel than requested, stop the benchmark and mark the run invalid. Do not continue gathering scores under the requested backend's name.
+- Every benchmark report must separate the full model ID and revision, runtime owner and source, runtime version or image digest, requested backend, observed backend, and speculative-decoding settings. Never label a result with a backend that was not observed executing.
+
 ## Cutover policy
 
 - Default to a hard cutover. Do not add or retain legacy shims, compatibility aliases, fallback readers, dual-read or dual-write paths, transitional adapters, or indefinite deprecation paths unless the repository is covered by an exception below or the user explicitly requests compatibility.

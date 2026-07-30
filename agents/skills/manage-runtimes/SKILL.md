@@ -32,6 +32,36 @@ For vLLM, use:
 
 Do not create new inference runtime environments under `~/scratch`, `~/services`, `~/repos`, or project-local `.venv` directories unless the user explicitly approves a one-off exception.
 
+## Runtime provenance
+
+A request to benchmark, serve, or test a model does not authorize a new runtime source.
+
+Without further approval, use only:
+
+- an existing canonical runtime under `~/runtimes/<engine>/`, or
+- an official pinned release from the inference engine or model publisher.
+
+Community images, forks, custom builds, benchmark-author images, and third-party
+patch sets require explicit approval before download, installation, patching, or
+execution. Before asking, report:
+
+- owner and source repository;
+- immutable commit, release, or image digest;
+- expected download and installed disk cost;
+- why the canonical or official runtime cannot be used;
+- official alternatives;
+- requested privileges, mounts, network access, and credentials.
+
+If the canonical or official path fails, stop and report the failure. Do not
+silently substitute another source. A claimant-provided runtime may be used only
+for a separately labeled reproduction after approval, not as the neutral or
+authoritative runtime in a comparison.
+
+Treat every container image and prebuilt binary as executable code, not as model
+data. Inspect available build provenance before requesting approval. Approval to
+download model weights does not approve a runtime from the same author or from a
+post discussing those weights.
+
 ## Runtime Names
 
 Name runtime versions by engine, version, purpose, and important hardware/backend traits:
@@ -71,8 +101,13 @@ Minimum fields:
     "flashinfer_cubins": ["sm121"]
   },
   "source": {
+    "trust": "official",
+    "owner": "vllm-project",
     "repo": "https://github.com/vllm-project/vllm",
-    "commit": ""
+    "commit": "",
+    "image": null,
+    "digest": null,
+    "approval": null
   },
   "smoke_tests": [],
   "notes": ""
@@ -119,13 +154,20 @@ Benchmark specs should describe workload shape: prompt length, output length, re
 ## Workflow
 
 1. Audit existing runtimes before creating anything new.
-2. Report expected disk impact before creating, replacing, or deleting a runtime.
-3. Create new runtimes only under `~/runtimes/<engine>/versions/<runtime-name>/`.
-4. Write or update `manifest.json` during setup, not after the fact.
-5. Run a smoke test before promoting a runtime.
-6. Promote by updating `current` only after the smoke test passes.
-7. Mark superseded runtimes as `archived` or `broken` in their manifest.
-8. Delete old runtimes only when the user explicitly asks or confirms cleanup.
+2. Classify the source as `official`, `community`, or `local`. Record its owner, immutable provenance, and approval evidence in the manifest.
+3. Stop for explicit approval before downloading or running any `community` source.
+4. Report expected disk impact before creating, replacing, or deleting a runtime.
+5. Create new runtimes only under `~/runtimes/<engine>/versions/<runtime-name>/`.
+6. Write or update `manifest.json` during setup, not after the fact.
+7. Run a smoke test before promoting a runtime.
+8. Promote by updating `current` only after the smoke test passes.
+9. Mark superseded runtimes as `archived` or `broken` in their manifest.
+10. Delete old runtimes, images, caches, or benchmark artifacts only when the user explicitly approves the named cleanup candidates.
+
+Never patch or upgrade a working runtime in place to make a benchmark pass.
+Create a versioned candidate, preserve the incumbent, and compare them. If disk
+is insufficient, stop and request approval for a specific cleanup plan instead
+of deleting the incumbent or another restorable dependency.
 
 Before starting any local inference server, compiler-heavy model load, or
 benchmark traffic, also use `$safe-inference-launch`. Do not launch vLLM,
@@ -148,13 +190,17 @@ Use the smallest test that proves the runtime can start, serve, and return outpu
 
 For vLLM benchmark runtimes:
 
-- verify the executable version,
-- verify import paths for key packages,
-- verify hardware-specific packages such as FlashInfer cubins,
-- run one low-risk request,
-- save the exact command and result in `smoke.json`.
+- verify the executable version;
+- verify import paths for key packages;
+- verify hardware-specific packages such as FlashInfer cubins;
+- run one low-risk request through the intended model;
+- record the configured backend and the backend observed in runtime logs;
+- fail the smoke test on fallback, emulation, version mismatch, or an unexpected kernel;
+- save the exact command, logs, and result in `smoke.json`.
 
-Do not promote a runtime based only on successful package installation.
+An import, capability probe, available symbol, or successful server startup does
+not prove that the requested backend executed. Do not promote a runtime based
+only on successful package installation or backend availability checks.
 
 ## Safety
 

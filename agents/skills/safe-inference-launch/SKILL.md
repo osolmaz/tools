@@ -37,6 +37,21 @@ curl -sS -i "$OPENAI_BASE_URL/models" \
 If auth or endpoint access fails, report that. Do not compensate by launching a
 local runtime.
 
+## Runtime provenance gate
+
+Before downloading, installing, patching, or launching a runtime, apply the
+provenance rules in `$manage-runtimes`.
+
+A model-serving or benchmark request does not authorize a community image,
+fork, custom build, benchmark-author image, or third-party patch set. These
+require explicit approval before download or execution. If the canonical or
+official runtime fails, stop and report the failure instead of substituting a
+new runtime source.
+
+Do not delete an incumbent runtime, container image, model cache, or benchmark
+artifact to satisfy a disk preflight without explicit approval for the named
+cleanup candidate.
+
 ## Required local guard workflow
 
 Never start local inference with a raw command. Use the bundled watchdog:
@@ -172,9 +187,19 @@ Use stages. Do not jump straight to a full benchmark.
 
 1. Start the server with the guard.
 2. Wait for readiness with a small `/v1/models` or health check.
-3. Run one tiny completion.
-4. Run one representative long-context smoke if the benchmark needs it.
-5. Only then start Harbor, localperf, or other benchmark traffic.
+3. Run one tiny completion through the intended model.
+4. Inspect runtime evidence for the actual attention, linear, MoE, quantization, and speculative-decoding backends that matter to the claim.
+5. Stop if the observed backend differs from the requested backend.
+6. Run one representative long-context smoke if the benchmark needs it.
+7. Only then start Harbor, LocalPerf, or other benchmark traffic.
+
+Backend imports, capability probes, available symbols, and server readiness are
+not execution evidence. Require a real model request plus runtime logs or an
+equivalent engine trace showing that the requested kernel executed. Treat any
+unsupported-backend warning, fallback, emulation path, package mismatch, or
+unexpected kernel as a failed smoke test. Stop the server, preserve the logs,
+and label the run invalid rather than continuing under the requested backend's
+name.
 
 During benchmark traffic, monitor:
 
@@ -191,12 +216,16 @@ not a model score.
 
 Stop or refuse the run when:
 
-- `earlyoom` is absent or inactive for a large local inference launch
-- `MemAvailable` is already below the chosen floor
-- swap is nearly full before launch
-- disk has too little space for model/cache growth
-- stale local inference processes are already consuming memory
-- the user asked for a remote endpoint and local launch would be a fallback
+- the runtime source is third-party and has not received explicit approval;
+- the canonical or official runtime failed and continuing would substitute an unapproved source;
+- the requested backend is not observed executing the intended model;
+- logs show fallback, emulation, an unexpected kernel, or a package mismatch;
+- `earlyoom` is absent or inactive for a large local inference launch;
+- `MemAvailable` is already below the chosen floor;
+- swap is nearly full before launch;
+- disk has too little space for model/cache growth and cleanup is not explicitly approved;
+- stale local inference processes are already consuming memory;
+- the user asked for a remote endpoint and local launch would be a fallback.
 
 Do not keep retrying after a memory-pressure kill without reducing local load
 or moving back to the intended remote target.

@@ -16,6 +16,9 @@ context, concurrency, or server capacity, also use
 
 ## Hard Rules
 
+- A request to benchmark a model does not authorize a community runtime, custom image, fork, or patch set. Use `$manage-runtimes` and obtain explicit approval before downloading or executing one.
+- If the canonical or official runtime fails, stop and report it. Do not substitute a claimant's image or another community build.
+- A claimant-provided runtime may be measured only as a separately labeled reproduction after explicit approval. Do not use it as the neutral implementation in a comparison.
 - Never submit a warmed-prefix result as fresh prefill.
 - Never hide slow samples, failures, safety events, or material configuration
   changes.
@@ -39,8 +42,9 @@ context, concurrency, or server capacity, also use
 Record these fields for every run:
 
 - exact model and draft model IDs and revisions;
-- quantization, engine version, kernel or attention backend, KV-cache dtype,
-  tensor parallelism, and speculative-decoding settings;
+- runtime owner, source repository, version, commit, and image digest when applicable;
+- requested and observed quantization, linear, MoE, attention, and speculative-decoding backends;
+- KV-cache dtype and tensor parallelism;
 - hardware identity and count;
 - configured server context limit and measured prompt/output tokens;
 - client concurrency and server sequence capacity;
@@ -166,10 +170,11 @@ HOME="$NOAUTH_HOME" XDG_CONFIG_HOME="$NOAUTH_HOME/.config" LMX_API_KEY= \
    high.
 7. Verify each request completed with the claimed output length and without a
    guard or server error.
-8. Aggregate the fresh samples without dropping outliers. Use the median for
-   the headline and include the mean and all sample values in notes.
-9. Validate the final payload locally, then use the authenticated API dry-run.
-10. Review the rendered numbers and notes before public submission.
+8. Verify from server logs or an equivalent engine trace that the requested kernels executed. Configuration flags and availability probes are not enough.
+9. Stop and invalidate the run if any relevant layer used fallback, emulation, an unexpected kernel, or a mismatched package.
+10. Aggregate the fresh samples without dropping outliers. Use the median for the headline and include the mean and all sample values in notes.
+11. Validate the final payload locally, then use the authenticated API dry-run.
+12. Review the rendered numbers and notes before public submission.
 
 ## Submission Notes
 
@@ -180,6 +185,8 @@ State plainly:
 - per-sample decode values, median, and mean;
 - whether TTFT and prefill are fresh or cached;
 - any separate cached-prefix result;
+- runtime provenance, including owner, repository, version or commit, and image digest;
+- requested backends and the backends observed executing;
 - material deviations from the upstream serving recipe;
 - safety floor and any guard event;
 - where the raw evidence is stored.
@@ -207,6 +214,9 @@ new values.
 
 Do not submit when:
 
+- the runtime source required approval and approval was not obtained before download or execution;
+- the reported backend was configured but not observed executing;
+- logs contain a relevant fallback, emulation path, unexpected kernel, or package mismatch;
 - timed prefill reused the warmup prefix but is labeled fresh;
 - output is too short to support the stated decode claim;
 - fewer than three samples are available without a clear one-shot label;
