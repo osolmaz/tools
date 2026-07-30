@@ -61,6 +61,8 @@
 ## Tools repo agent context
 
 - Repository: https://github.com/osolmaz/tools.
+- The private xTap store is the Hugging Face dataset `osolmaz/xtap-pool-data`. It contains the X/Twitter posts Onur sees while browsing when xTap capture and sync are active. Use it as a source for recent posts and latest information, while treating it as a personal observed feed rather than an exhaustive index of X.
+- Use the `browse-x-posts` skill when asked to browse, search, identify, summarize, or verify remembered X/Twitter posts or tweets, or when recent social posts could inform a latest-information request.
 - Repo-local agent skills live in `agents/skills/<skill-name>/SKILL.md`.
 - `agents/sync-skills.py` mirrors repo-local skills into Codex, Claude Code, Cursor, and Pi skills directories as copied files.
 - To update local agent instructions or repo-local skills, pull the latest version of this repo, then run `agents/sync-skills.py`.
