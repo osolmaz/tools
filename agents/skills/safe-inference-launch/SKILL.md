@@ -1,6 +1,6 @@
 ---
 name: safe-inference-launch
-description: Use before starting, smoke-testing, benchmarking, or compiling local LLM inference runtimes such as vLLM, SGLang, llama.cpp, TensorRT-LLM, Ollama, LM Studio CLI, FlashInfer, or modelopt-backed servers. Prevents local OOM incidents by requiring target verification, earlyoom/process watchdogs, memory preflight, staged smoke tests, and monitored launches instead of direct server commands.
+description: Use before starting, smoke-testing, benchmarking, compiling, or recovering local LLM inference runtimes such as vLLM, SGLang, llama.cpp, TensorRT-LLM, Ollama, LM Studio CLI, FlashInfer, or modelopt-backed servers. Prevents local OOM incidents through target verification, earlyoom/process watchdogs, memory preflight, staged launches, unified-memory diagnostics, and explicitly authorized GPU reset recovery.
 ---
 
 # Safe inference launch
@@ -127,6 +127,20 @@ Then state the launch budget:
 
 If disk is tight, do not clear caches or delete Docker state unless the user
 explicitly approves or already asked for cleanup. Report what would be removed.
+
+## Unified-memory recovery
+
+On shared CPU/GPU memory systems such as NVIDIA GB10, inspect the server,
+kernel, and `earlyoom` logs before retrying a failed load. A driver allocation
+warning can be recoverable, while a later watchdog signal may be the event that
+actually stopped the process.
+
+Read [the unified-memory recovery runbook](references/unified-memory-recovery.md)
+before changing watchdog thresholds, stopping a display manager, resetting a
+GPU, or requesting a reboot. Keep both `earlyoom` and `guarded-launch.sh`
+protection active during temporary model-loading peaks. Require explicit user
+approval before any action that interrupts the graphical session or resets GPU
+state.
 
 ## Safe defaults
 
