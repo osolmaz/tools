@@ -57,6 +57,32 @@ a locally modified skill with `--force`.
 
 ## Personal tips and tricks
 
+### Use the official Git credential integration
+
+For HTTPS Git operations against `huggingface.co`, prefer Hugging Face's
+supported credential workflow:
+
+```sh
+hf auth login --add-to-git-credential
+```
+
+When the intended token is already stored by the Hugging Face CLI, select it
+explicitly instead of logging in again:
+
+```sh
+hf auth switch --token-name TOKEN_NAME --add-to-git-credential
+```
+
+Before either command persists a token, identify the credential source and the
+configured Git credential helper that will receive it, then obtain the explicit
+approval required by the credential handling policy. If Git has no suitable
+credential helper, explain the supported choices rather than silently selecting
+one.
+
+Do not create a repository-local inline credential helper, temporary askpass
+script, or authentication wrapper when the supported workflow is available,
+unless Onur explicitly requests that alternative.
+
 ### Prefer greedy decoding for T5 generation
 
 Use greedy decoding as the default for T5-family translation, distillation, and
