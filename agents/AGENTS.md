@@ -50,6 +50,9 @@
 
 - A request to benchmark, serve, or test a model authorizes the named model and workload. It does not authorize downloading, installing, patching, or running third-party executable code.
 - Without further approval, use only an existing canonical runtime or an official release from the inference engine or model publisher. Pin the exact version, commit, or image digest.
+- Building an inference runtime from source always requires explicit user approval. A request to benchmark, serve, or test a model does not authorize a source build, including a build from official upstream source.
+- Before proposing a source build, check existing canonical runtimes, official release binaries for the target OS and architecture, official container images and their remote multi-platform manifests, and official packages or wheels. Not installed locally does not mean unavailable. If a compatible official prebuilt exists, use it unless the user explicitly requests a source build.
+- Before requesting source-build approval, report the exact source and revision, why every relevant canonical or official prebuilt is incompatible, expected build time and disk use, intended canonical runtime path, and exact build command.
 - Treat community images, forks, custom builds, benchmark-author images, and third-party patch sets as untrusted runtime changes. Before downloading or running one, obtain explicit approval after naming the owner, repository, immutable commit or digest, expected disk cost, reason it is needed, official alternatives, and requested privileges, mounts, network access, and credentials.
 - If the official or canonical path fails, stop and report the failure. Do not silently substitute a community runtime or a claimant's reproduction environment.
 - A performance claimant's image may be used only for a separately labeled reproduction after explicit approval. Do not use it as the neutral or authoritative implementation in a comparison.
@@ -101,6 +104,14 @@
 - If a credential was persisted somewhere without approval, disclose it
   immediately, overwrite or remove it, and recommend rotating the exposed
   credential.
+
+## Runtime repository
+
+- `~/runtimes` is the working tree for the private repository `https://github.com/osolmaz/runtimes`.
+- Track lightweight runtime manifests, serving profiles, setup recipes, benchmark protocols/specs, and concise failure summaries there. Installed environments, binaries, source checkouts, model files, caches, logs, telemetry, raw benchmark data, databases, and reports must remain ignored.
+- Before changing tracked runtime control files, update `~/runtimes` with `git pull --ff-only`. After an intentional change, run `scripts/check-repo.sh`, commit only the intended files with a Conventional Commit message, and push `origin/main` in the same task unless the user explicitly requests local-only work.
+- Never use `git add -f` in `~/runtimes`. If a new lightweight control-file type should be tracked, extend the narrow `.gitignore` allowlist and repository checks first.
+- Never run or resume a benchmark recipe from a directory containing `INVALID.json`.
 
 ## Repo maintenance conventions
 

@@ -32,6 +32,36 @@ For vLLM, use:
 
 Do not create new inference runtime environments under `~/scratch`, `~/services`, `~/repos`, or project-local `.venv` directories unless the user explicitly approves a one-off exception.
 
+## Version control
+
+`~/runtimes` is the working tree for the private repository
+`https://github.com/osolmaz/runtimes`. Its default-deny `.gitignore` tracks only
+lightweight control and provenance files:
+
+- runtime manifests and notes;
+- serving profiles;
+- setup and patch recipes;
+- benchmark protocols and specs;
+- concise failure or invalidation summaries.
+
+Installed environments, binaries, compiled objects, source checkouts, model
+files, caches, logs, telemetry, raw requests, benchmark results, databases, and
+reports must remain ignored.
+
+Before changing tracked runtime files, run `git pull --ff-only` in
+`~/runtimes`. After every intentional tracked change:
+
+1. Run `scripts/check-repo.sh`.
+2. Inspect `git status --short` and stage only the intended files.
+3. Never use `git add -f` to bypass the allowlist.
+4. Commit with a Conventional Commit message.
+5. Push `origin/main` in the same task unless the user explicitly requests
+   local-only work.
+
+If a new lightweight file type belongs in the repository, update the narrow
+`.gitignore` allowlist and repository checks before adding it. Never run or
+resume a benchmark recipe from a directory containing `INVALID.json`.
+
 ## Runtime provenance
 
 A request to benchmark, serve, or test a model does not authorize a new runtime source.
@@ -61,6 +91,38 @@ Treat every container image and prebuilt binary as executable code, not as model
 data. Inspect available build provenance before requesting approval. Approval to
 download model weights does not approve a runtime from the same author or from a
 post discussing those weights.
+
+## Prebuilt-first gate
+
+Building an inference runtime from source always requires explicit user
+approval, including a build from official upstream source. A request to
+benchmark, serve, or test a model does not authorize a source build.
+
+Before proposing or starting a build, check these options in order:
+
+1. Existing canonical runtimes under `~/runtimes/<engine>/`.
+2. Official release binaries for the target operating system and architecture.
+3. Official container images, including remote multi-platform manifests rather
+   than only images already present locally.
+4. Official packages or wheels for the target platform.
+
+`Not installed locally` does not mean `not available`. For containers, inspect
+the registry manifest for the target architecture before deciding that no
+prebuilt image exists. If a compatible official prebuilt exists, use and pin it
+unless the user explicitly requests a source build.
+
+Before requesting source-build approval, report:
+
+- the exact source repository and immutable revision;
+- the evidence that each relevant canonical or official prebuilt is
+  incompatible;
+- expected build time and disk use;
+- the intended canonical runtime path;
+- the exact build command.
+
+Do not configure or compile a runtime in `~/repos`, `~/scratch`, or another ad
+hoc location. An approved source build belongs in a versioned directory under
+`~/runtimes/<engine>/versions/`.
 
 ## Runtime Names
 
@@ -153,16 +215,17 @@ Benchmark specs should describe workload shape: prompt length, output length, re
 
 ## Workflow
 
-1. Audit existing runtimes before creating anything new.
-2. Classify the source as `official`, `community`, or `local`. Record its owner, immutable provenance, and approval evidence in the manifest.
-3. Stop for explicit approval before downloading or running any `community` source.
-4. Report expected disk impact before creating, replacing, or deleting a runtime.
-5. Create new runtimes only under `~/runtimes/<engine>/versions/<runtime-name>/`.
-6. Write or update `manifest.json` during setup, not after the fact.
-7. Run a smoke test before promoting a runtime.
-8. Promote by updating `current` only after the smoke test passes.
-9. Mark superseded runtimes as `archived` or `broken` in their manifest.
-10. Delete old runtimes, images, caches, or benchmark artifacts only when the user explicitly approves the named cleanup candidates.
+1. Audit existing canonical runtimes before creating anything new.
+2. Audit official release binaries, remote multi-platform container manifests, and official packages for the target platform.
+3. Stop for explicit approval before any source build or before downloading or running any `community` source.
+4. Classify the source as `official`, `community`, or `local`. Record its owner, immutable provenance, and approval evidence in the manifest.
+5. Report expected disk impact before creating, replacing, or deleting a runtime.
+6. Create new runtimes only under `~/runtimes/<engine>/versions/<runtime-name>/`.
+7. Write or update `manifest.json` during setup, not after the fact.
+8. Run a smoke test before promoting a runtime.
+9. Promote by updating `current` only after the smoke test passes.
+10. Mark superseded runtimes as `archived` or `broken` in their manifest.
+11. Delete old runtimes, images, caches, or benchmark artifacts only when the user explicitly approves the named cleanup candidates.
 
 Never patch or upgrade a working runtime in place to make a benchmark pass.
 Create a versioned candidate, preserve the incumbent, and compare them. If disk
