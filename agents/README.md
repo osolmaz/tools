@@ -8,6 +8,8 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
   Repo-local skills that package the prompts and workflow docs into reusable execution guides.
 - `AGENTS.md`
   Repo-local agent instructions that should also be mirrored into Codex, Claude Code, and Pi homes, and into a Cursor workspace root.
+- `sync-simpledoc-skill.py`
+  Refreshes the checked-in SimpleDoc skill from a local SimpleDoc checkout.
 - `sync-skills.py`
   Synchronizes repo-local skills into the Codex, Claude Code, Cursor, and Pi skills directories as real copied files, with no symlinks, and mirrors `agents/AGENTS.md` into Codex home (as `AGENTS.md`), Claude Code home (as `CLAUDE.md`), a Cursor workspace root (as `AGENTS.md`), and Pi home (as `AGENTS.md`).
 - `prompts/`
@@ -17,7 +19,15 @@ This directory holds the prompt and workflow docs used for agent-driven PR autom
 
 ## Syncing
 
-Run `python3 agents/sync-skills.py` to mirror all repo-local skills into supported agent homes:
+Refresh the checked-in SimpleDoc skill from `~/repos/SimpleDoc` first:
+
+```bash
+python3 agents/sync-simpledoc-skill.py
+```
+
+Set `SIMPLEDOC_REPO` or pass `--source` when the checkout lives elsewhere. Use `--check` to detect drift without changing the checked-in copy.
+
+Then run `python3 agents/sync-skills.py` to mirror all repo-local skills into supported agent homes:
 
 - Codex: skills go to `$CODEX_HOME/skills` or `~/.codex/skills`, and `agents/AGENTS.md` is mirrored to `$CODEX_HOME/AGENTS.md` or `~/.codex/AGENTS.md`.
 - Claude Code: skills go to `$CLAUDE_CONFIG_DIR/skills` or `~/.claude/skills`, where they load as personal skills, and `agents/AGENTS.md` is mirrored to `~/.claude/CLAUDE.md` (global user instructions).
@@ -89,8 +99,14 @@ Options:
   Use this when GPT-5 should write or rewrite text in a more normal, natural,
   direct voice.
 
+- `skills/autodoc/`
+  Use this to prepare implementation plans and documentation before implementation.
+
 - `skills/autoimplement/`
   Use this when you already have an approved implementation plan and want one agent to finish the work, test it, run the review loop, clear valid PR feedback, and verify CI/CD before handing back a ready-to-land PR.
+
+- `skills/simpledoc/`
+  Use this when creating or updating documentation under the SimpleDoc convention. Refresh this checked-in copy with `sync-simpledoc-skill.py`.
 
 - `skills/parallel-agent-kickoff/`
   Use this when clustering related issues or PRs and starting decision-focused
