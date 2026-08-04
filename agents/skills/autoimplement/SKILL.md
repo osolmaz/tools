@@ -12,10 +12,10 @@ Do the following in the order that makes sense. Choose the most efficient order 
    - Follow the SimpleDoc convention when creating or updating documentation:
      - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
      - Run `npx -y @simpledoc/simpledoc check` (or `simpledoc check`) locally in each repo where documentation changed.
-   - If context compaction happens, make sure to re-read the plan to stay on track.
 
 1. Implement the given plan end-to-end.
    - Implement the most elegant and long-term production-ready solution, but do not take longer than necessary.
+   - Context compaction might happen during implementation or review. If not enough of the plan was preserved after compaction, re-read the written plan to stay on track with the plan.
    - Finish to completion. If there is a PR open for the implementation plan, do it in the same PR. If there is no PR already, open PR.
    - Before finishing, commit and push any new or changed documentation, specification, or plan file in the relevant repo or repos, including the `~/scratch` repo when used, unless the user asked not to.
 
