@@ -5,7 +5,7 @@ description: Use when the user asks to implement a plan end-to-end, test it, run
 
 Do the following in the order that makes sense. Choose the most efficient order for dependencies, and parallelize independent work.
 
-0. Use the `autodoc` skill to prepare the plan and documentation.
+0. If the plan does not already exist, use the `autodoc` skill to prepare the plan and documentation.
 
 1. Implement the given plan end-to-end.
    - Implement the most elegant and long-term production-ready solution, but do not take longer than necessary.
