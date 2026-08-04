@@ -14,6 +14,8 @@ description: Use when preparing or updating an implementation plan, documentatio
 - Use the `simpledoc` skill and follow the SimpleDoc convention when creating or updating documentation.
 - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
 - Name specification files after the feature itself without `spec` or `specification` in the filename. The document title may include `Spec` or `Specification`.
-- Use `cutover` only to describe replacement behavior in prose. Do not use `cutover` or `cutover plan` in filenames, document titles, headings, plan names, issue titles, pull request titles, commit subjects, test names, or other identifiers. Name the target capability directly, adding `implementation plan` only when a plan suffix is useful.
+- End filenames for non-evergreen implementation plans with `-plan.md`, not `-implementation-plan.md`.
+- Use `cutover` only to describe replacement behavior in prose. Do not use `cutover` or `cutover plan` in filenames, document titles, headings, plan names, issue titles, pull request titles, commit subjects, test names, or other identifiers. Name the target capability directly, adding `plan` only when a plan suffix is useful.
 - Use the `kill-ai-smell` skill for capitalized evergreen documents. AI smell may remain in one-off implementation plans.
+- Use `[skip ci]` in the commit message for documentation-only changes.
 - Run `npx -y @simpledoc/simpledoc check` (or `simpledoc check`) locally in each repo where documentation changed.
