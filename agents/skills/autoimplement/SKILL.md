@@ -15,8 +15,8 @@ Do the following in the order that makes sense. Choose the most efficient order 
 
 5. In the final step, make sure that CI/CD is green. Ignore the fails unrelated to your changes, others break stuff sometimes and don't fix it. Make sure whatever changes you did don't break anything. If CI/CD is not fully green, state explicitly which failures are unrelated and why.
 
-6. Once CI/CD is green and you think that the PR is ready to merge, merge opportunistically if the user explicitly asked for autonomous merging. Then finish and give a summary with the PR link. Include the exact validation commands you ran and their outcomes. Also comment a final report on the PR.
+6. Once CI/CD is green and you think that the PR is ready to merge, merge opportunistically unless the user explicitly asked you not to merge. Then finish and give a summary with the PR link. Include the exact validation commands you ran and their outcomes. Also comment a final report on the PR.
 
-7. Do not merge automatically unless the user explicitly asks.
+7. Merge automatically unless the user explicitly asks you not to.
 
 If this skill is queued many times, treat that as a reminder to make sure the work is fully finished. Once the work is fully finished, you can ignore the repeated instructions. If the work is not finished, continue working.
