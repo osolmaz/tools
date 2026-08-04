@@ -12,6 +12,7 @@ Do the following in the order that makes sense. Choose the most efficient order 
    - If it is someone else's project, create them in the scratch repo at `~/scratch`. Keep the plan outside someone else's implementation repo unless the user explicitly asks to track it there.
    - Follow the SimpleDoc convention when creating or updating documentation:
      - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
+     - Use the `kill-ai-smell` skill for capitalized evergreen documents. AI smell may remain in one-off implementation plans.
      - Run `npx -y @simpledoc/simpledoc check` (or `simpledoc check`) locally in each repo where documentation changed.
 
 1. Implement the given plan end-to-end.
