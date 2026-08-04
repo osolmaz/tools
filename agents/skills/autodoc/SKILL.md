@@ -13,6 +13,7 @@ description: Use when preparing or updating an implementation plan, documentatio
 - If it is someone else's project, create them in the scratch repo at `~/scratch`. Keep the plan outside someone else's implementation repo unless the user explicitly asks to track it there.
 - Use the `simpledoc` skill and follow the SimpleDoc convention when creating or updating documentation.
 - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
+- Name specification files after the feature itself without `spec` or `specification` in the filename. The document title may include `Spec` or `Specification`.
 - Use `cutover` only to describe replacement behavior in prose. Do not use `cutover` or `cutover plan` in filenames, document titles, headings, plan names, issue titles, pull request titles, commit subjects, test names, or other identifiers. Name the target capability directly, adding `implementation plan` only when a plan suffix is useful.
 - Use the `kill-ai-smell` skill for capitalized evergreen documents. AI smell may remain in one-off implementation plans.
 - Run `npx -y @simpledoc/simpledoc check` (or `simpledoc check`) locally in each repo where documentation changed.
