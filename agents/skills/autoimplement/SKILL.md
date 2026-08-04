@@ -6,6 +6,7 @@ description: Use when the user asks to implement a plan end-to-end, test it, run
 Do the following in the order that makes sense. Choose the most efficient order for dependencies, and parallelize independent work.
 
 0. Prepare the plan and documentation.
+   - Create or update the plan for the most elegant and long-term production-ready solution, but do not take longer than necessary.
    - If there is no plan markdown document for the task which the skill is triggered for, create a `.md` file for that plan and then proceed with implementation.
    - If the repo is owned by `osolmaz`, create or update the documentation, specification, and implementation plan in the relevant repo or repos, depending on the context.
    - If it is someone else's project, create them in the scratch repo at `~/scratch`. Keep the plan outside someone else's implementation repo unless the user explicitly asks to track it there.
