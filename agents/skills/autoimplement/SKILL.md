@@ -5,8 +5,7 @@ description: Use when the user asks to implement a plan end-to-end, test it, run
 
 Do the following in the order that makes sense. Choose the most efficient order for dependencies, and parallelize independent work.
 
-1. Implement the given plan end-to-end.
-   - Implement the most elegant and long-term production-ready solution, but do not take longer than necessary.
+0. Prepare the plan and documentation.
    - If there is no plan markdown document for the task which the skill is triggered for, create a `.md` file for that plan and then proceed with implementation.
    - If the repo is owned by `osolmaz`, create or update the documentation, specification, and implementation plan in the relevant repo or repos, depending on the context.
    - If it is someone else's project, create them in the scratch repo at `~/scratch`. Keep the plan outside someone else's implementation repo unless the user explicitly asks to track it there.
@@ -14,6 +13,9 @@ Do the following in the order that makes sense. Choose the most efficient order 
      - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
      - Run `npx -y @simpledoc/simpledoc check` (or `simpledoc check`) locally in each repo where documentation changed.
    - If context compaction happens, make sure to re-read the plan to stay on track.
+
+1. Implement the given plan end-to-end.
+   - Implement the most elegant and long-term production-ready solution, but do not take longer than necessary.
    - Finish to completion. If there is a PR open for the implementation plan, do it in the same PR. If there is no PR already, open PR.
    - Before finishing, commit and push any new or changed documentation, specification, or plan file in the relevant repo or repos, including the `~/scratch` repo when used, unless the user asked not to.
 
