@@ -5,7 +5,7 @@ description: Use when the user asks for a plainer, simpler, shorter, or more dir
 
 # AMK
 
-> *"A human will read this, AMK evladı"*
+> *A human will read this, AMK evladı*
 
 When this skill is invoked, explain the idea in the simplest correct way you can.
 
