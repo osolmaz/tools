@@ -20,7 +20,7 @@ Do the following in the order that makes sense. Choose the most efficient order 
    - Do not put mutation testing on the critical path unless repository policy explicitly requires it; keep the mutation test scripts available.
 
 3. Push your latest commits before running review so the review is always against the current PR head.
-   - Run Pi Reviewer with GPT-5.6 Terra at high thinking against the base branch: `pi-reviewer --model openai-codex/gpt-5.6-terra --thinking high --base <branch_name>`.
+   - Run Pi Reviewer with its configured default model at high thinking against the base branch: `pi-reviewer --thinking high --base <branch_name>`. The model comes from the reviewer's own config, not from this skill.
    - Use a 10 minute timeout on the tool call available to the model, not the shell `timeout` program. If Pi Reviewer takes more than 10 minutes, kill it.
    - Do not silently fall back to `codex review` when Pi Reviewer is unavailable; stop and report the missing command or configuration.
    - Run Pi Reviewer in a loop and address any P0 or P1 issues until there are none left. If a run reports only P2 or lower issues, move to the next stage.
