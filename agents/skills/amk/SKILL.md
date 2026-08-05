@@ -3,7 +3,9 @@ name: amk
 description: Use when the user asks for a plainer, simpler, shorter, or more direct explanation. Produces concrete, full-sentence explanations that lead with the main point, avoid jargon, and use exact numbers when they matter.
 ---
 
-# Plain language
+# AMK
+
+> *"A human will read this, AMK evladı"*
 
 When this skill is invoked, explain the idea in the simplest correct way you can.
 
