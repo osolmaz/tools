@@ -91,12 +91,10 @@
 
 ## xTap ecosystem
 
-- `xtap-pool` (`~/repos/xtap-pool`, public: https://github.com/osolmaz/xtap-pool) pools xTap captures with friends. It has three parts: `extension/` (vendored xTap fork that keeps saving tweets locally and syncs them out), `space/` (the Hugging Face Docker Space that ingests with attribution), and `explorer/` (the pooled-tweet web UI).
-- Data flows from the extension to the Space as batched JSON `POST`s to `https://osolmaz-xtap-pool.hf.space/api/ingest` with `Authorization: Bearer <poolToken>`. The pool token is a per-user secret the Space renders on its `/connect` page and the extension stores in `chrome.storage.local`; delivery is at-least-once and the Space deduplicates.
-- The private pooled store is the Hugging Face dataset `osolmaz/xtap-pool-data`; the Space commits deduplicated, attributed captures there and it is the durable system of record for the pool.
-- The private archive store is the git repository `dutifuldev/xtap-store` (`~/repos/xtap-store`): normalized tweet archives under `data/tweets/YYYY/MM/tweets-YYYY-MM-DD.jsonl`, data and lightweight validation only.
-- `xtap-sync` (`~/repos/xtap-sync`, https://github.com/dutifuldev/xtap-sync) is the Go utility that syncs local xTap JSONL exports into a store repository, deduplicating by tweet `id` and normalizing under `data/tweets/YYYY/MM/`. Its local daemon config lives at `~/.config/xtap-sync/config.json` (source dir, target repo, hourly interval) and it pushes over the existing local git/GitHub auth.
-- Treat the pool token, Space variables, dataset tokens, and xtap-sync's auth as credentials: never print them, never copy them into new locations, and use them only in place for their normal purpose.
+- `xtap-pool` (`~/repos/xtap-pool`, public: `osolmaz/xtap-pool`): vendored xTap extension + ingest Space + tweet explorer. Captured tweets are batched to `https://osolmaz-xtap-pool.hf.space/api/ingest` with a per-user bearer token from the Space's `/connect` page; the Space dedups, attributes, and commits to the private HF dataset `osolmaz/xtap-pool-data` (durable record).
+- `xtap-sync` (`~/repos/xtap-sync`, public: `osolmaz/xtap-sync`): Go utility that dedups and normalizes local xTap JSONL exports into the private archive repo `osolmaz/xtap-store` (`~/repos/xtap-store`, `data/tweets/YYYY/MM/`). Daemon config: `~/.config/xtap-sync/config.json`; pushes over existing local git auth.
+- The `dutifuldev` org is gone; these repos now live under `osolmaz`.
+- Pool token, Space variables, dataset tokens, and xtap-sync auth are credentials: never print or copy them; use only in place.
 
 ## Credential handling policy
 
