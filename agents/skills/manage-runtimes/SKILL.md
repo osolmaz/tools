@@ -92,6 +92,20 @@ data. Inspect available build provenance before requesting approval. Approval to
 download model weights does not approve a runtime from the same author or from a
 post discussing those weights.
 
+## Default runtime policy
+
+The promoted `current` runtime must be an official build from the engine
+publisher (for example ggml-org, vllm-project, sgl-project) for the target
+platform and accelerator. It must not be a community fork, a custom patch set,
+or a model-specific build.
+
+Fork, vendor, or model-flavored builds (for example `*-qwen36-*`, `laguna`,
+`prism`) may exist under `versions/` only as archived candidates tied to a
+named experiment or benchmark. They must never be promoted to the default
+`current`. If an official build cannot serve the target model, keep the
+special build as a candidate, record why the official build fails in its
+manifest, and ask before promoting anything model-specific.
+
 ## Prebuilt-first gate
 
 Building an inference runtime from source always requires explicit user
