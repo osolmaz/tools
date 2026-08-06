@@ -50,10 +50,16 @@ section that indexes docs in the repository unless the user explicitly asks for
 that section. Link to a specific doc only when it directly helps the user
 complete an install or usage task from the README.
 
-## Version References
+## Frequently-Changing Information
+
+Keep facts that change often out of the README. They rot silently and nobody
+remembers to update them. This covers version numbers, release tags, dates,
+"latest" or "new" claims, counts (tests, contributors, downloads), and status
+that belongs in a changelog. Point at the releases page, changelog, or the
+live source instead of copying values into the README.
 
 Do not anchor the README to a specific released version. Hard-coded current
-versions go stale on the next release and nobody remembers to update them.
+versions go stale on the next release.
 
 - In install or pin examples, use a placeholder such as `<tag>` or `<version>`
   and link to the project's releases page, instead of hard-coding the latest
