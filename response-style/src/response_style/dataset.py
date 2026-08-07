@@ -325,7 +325,7 @@ def _verify_revision(record: dict[str, object]) -> None:
     if record.get("query_message_id") is None or record.get("final_message_id") is None:
         raise ValueError("revision example source identity is incomplete")
     terms = _string_list(record.get("matched_terms"))
-    if terms != list(trigger_terms(query)) or word_count(final) != final_words:
+    if not terms or terms != list(trigger_terms(query)) or word_count(final) != final_words:
         raise ValueError("revision example metrics are invalid")
 
 
