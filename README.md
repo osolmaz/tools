@@ -18,7 +18,6 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [`padify/`](padify/) adds padding to images, which is handy for terminal screenshots.
 - [`pngscrub/`](pngscrub/) inspects and removes private PNG metadata without changing image data.
 - [`prooompter/`](prooompter/) constructs prompts from files that fit the context window.
-- [`response-style/`](response-style/) mines private response-style examples from local coding-agent conversations.
 - [`agents/skills/`](agents/skills/) contains repo-local skills for autonomous implementation and PR follow-through.
 - [`agents/prompts/`](agents/prompts/) contains reusable prompts for plan-driven implementation, PR triage, and autonomous landing.
 - [`rmdbg/`](rmdbg/) removes debugger statements from Python source code.
