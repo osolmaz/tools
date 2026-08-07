@@ -54,11 +54,12 @@ def write_dataset(
     issues: tuple[Issue, ...],
     settings: DatasetSettings,
 ) -> DatasetSummary:
-    destination = output.expanduser().absolute()
+    requested = output.expanduser()
+    if requested.is_symlink():
+        raise ValueError("dataset path cannot be a symlink")
+    destination = requested.resolve(strict=False)
     parent = destination.parent
     parent.mkdir(parents=True, exist_ok=True)
-    if destination.is_symlink():
-        raise ValueError("dataset path cannot be a symlink")
     staging = Path(tempfile.mkdtemp(prefix=f".{destination.name}.staging-", dir=parent))
     os.chmod(staging, 0o700)
     try:
@@ -79,7 +80,10 @@ def write_dataset(
 
 
 def verify_dataset(dataset: Path) -> DatasetSummary:
-    root = dataset.expanduser().absolute()
+    requested = dataset.expanduser()
+    if requested.is_symlink():
+        raise ValueError("dataset is not a private directory")
+    root = requested.resolve(strict=False)
     _verify_layout(root)
     manifest = _read_object(root / "manifest.json")
     if _integer(manifest.get("schema_version")) != _SCHEMA_VERSION:
@@ -214,6 +218,7 @@ def _replace_directory(staging: Path, destination: Path) -> None:
     if destination.exists() and not destination.is_dir():
         raise ValueError("dataset path exists and is not a directory")
     if destination.exists():
+        verify_dataset(destination)
         os.replace(destination, backup)
         try:
             os.replace(staging, destination)
