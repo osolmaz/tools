@@ -98,7 +98,7 @@ def _source_roots(arguments: argparse.Namespace) -> tuple[Path, ...]:
 
 
 def _reject_output_in_sources(output: Path, roots: tuple[Path, ...]) -> None:
-    output_path = output.expanduser().absolute()
+    output_path = output.expanduser().resolve(strict=False)
     for root in roots:
         source = root.expanduser().resolve(strict=True)
         if output_path == source or output_path.is_relative_to(source):
@@ -106,7 +106,7 @@ def _reject_output_in_sources(output: Path, roots: tuple[Path, ...]) -> None:
 
 
 def _reject_git_worktree_output(output: Path) -> None:
-    destination = output.expanduser().absolute()
+    destination = output.expanduser().resolve(strict=False)
     for parent in (destination, *destination.parents):
         if (parent / ".git").exists():
             raise ValueError("dataset output cannot be inside a Git worktree")

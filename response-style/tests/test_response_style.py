@@ -453,6 +453,14 @@ def test_dataset_rejects_symlink_and_stale_backup(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="backup"):
         write_dataset(output, (), (), DatasetSettings("onur", 5, ()))
 
+    unrelated = tmp_path / "unrelated"
+    unrelated.mkdir()
+    marker = unrelated / "keep.txt"
+    marker.write_text("keep", encoding="utf-8")
+    with pytest.raises(ValueError, match="unexpected"):
+        write_dataset(unrelated, (), (), DatasetSettings("onur", 5, ()))
+    assert marker.read_text(encoding="utf-8") == "keep"
+
 
 def test_cli_mines_and_reports_counts_without_text(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
@@ -544,6 +552,8 @@ def test_output_cannot_be_inside_source_or_git_worktree(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="inside"):
         _reject_output_in_sources(source / "dataset", (source,))
+    with pytest.raises(ValueError, match="inside"):
+        _reject_output_in_sources(tmp_path / "missing" / ".." / "source" / "dataset", (source,))
     repository = tmp_path / "repo"
     (repository / ".git").mkdir(parents=True)
     with pytest.raises(ValueError, match="Git worktree"):

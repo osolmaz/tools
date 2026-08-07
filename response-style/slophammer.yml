@@ -29,6 +29,7 @@ python:
     - from: src/response_style/dataset
       allow:
         - src/response_style/model
+        - src/response_style/text
     - from: src/response_style/miner
       allow:
         - src/response_style/model

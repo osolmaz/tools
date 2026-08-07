@@ -108,7 +108,7 @@ Open each `store.db` with SQLite read-only and query-only settings. Decode the l
 3. For every response at or above the long-response threshold, emit `no_revision_requested` when the next query contains neither the trigger words nor a conservative style-revision phrase. A terminal response uses `conversation_ended`.
 4. Derive IDs from the schema version, source agent, session, branch, and source message IDs.
 5. Use the last source message represented by an example as its branch boundary, so later appends to the same conversation do not change existing rows. Sort rows by agent and relative source path, then by session and message IDs within each branch boundary.
-6. Write all files to a private temporary directory, verify them, then replace the previous dataset atomically.
+6. Write all files to a private temporary directory and verify them. Replace an existing output directory only after it verifies as an earlier response-style dataset; refuse unrelated directories.
 
 The extractor will preserve matched content even when it contains secrets. The output directory is private because redaction would change the examples.
 
