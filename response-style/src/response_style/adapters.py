@@ -220,7 +220,18 @@ def _parse_pi(path: Path, relative: str) -> tuple[Conversation | None, list[Issu
 def _parse_claude(path: Path, relative: str) -> tuple[Conversation | None, list[Issue]]:
     state = _ClaudeState()
     stable, issues = _process_jsonl("claude", path, relative, state.handle)
-    if not stable or state.session_id is None:
+    if not stable:
+        return None, issues
+    if state.session_id is None:
+        if state.records_seen:
+            issues.append(
+                Issue(
+                    "claude",
+                    relative,
+                    "unsupported_claude_source",
+                    "Claude source contains no supported session records",
+                )
+            )
         return None, issues
     return Conversation("claude", state.session_id, relative, tuple(state.nodes)), issues
 
@@ -229,8 +240,10 @@ def _parse_claude(path: Path, relative: str) -> tuple[Conversation | None, list[
 class _ClaudeState:
     nodes: list[MessageNode] = field(default_factory=list)
     session_id: str | None = None
+    records_seen: int = 0
 
     def handle(self, record: Record, line_number: int, _byte_offset: int) -> None:
+        self.records_seen += 1
         native_session = _string(record.get("sessionId"))
         if self.session_id is None and native_session is not None:
             self.session_id = native_session

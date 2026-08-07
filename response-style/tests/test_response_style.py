@@ -246,6 +246,14 @@ def test_claude_adapter_keeps_human_text_and_excludes_injected_text(tmp_path: Pa
     ]
 
 
+def test_claude_adapter_reports_unsupported_nonempty_source(tmp_path: Path) -> None:
+    root = tmp_path / "claude"
+    _write_jsonl(root / "unknown.jsonl", [{"type": "new-record"}])
+    batch = adapters.extract_claude(root)
+    assert not batch.conversations
+    assert [issue.code for issue in batch.issues] == ["unsupported_claude_source"]
+
+
 def test_codex_adapter_uses_user_events_and_final_answers(tmp_path: Path) -> None:
     root = tmp_path / "codex"
     _write_jsonl(
