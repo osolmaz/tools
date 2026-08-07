@@ -9,7 +9,7 @@ from typing import cast
 
 import pytest
 
-from response_style import adapters
+from response_style import adapters, dataset
 from response_style.cli import main
 from response_style.dataset import DatasetSettings, verify_dataset, write_dataset
 from response_style.model import Issue
@@ -91,6 +91,20 @@ def test_cursor_reports_missing_message_and_ignores_non_messages(tmp_path: Path)
     assert [issue.code for issue in batch.issues] == ["missing_cursor_message"]
     assert len(batch.conversations) == 1
     assert [node.role for node in batch.conversations[0].nodes] == ["assistant"]
+
+
+def test_revision_verifier_requires_a_trigger() -> None:
+    with pytest.raises(ValueError, match="metrics"):
+        dataset._verify_revision(
+            {
+                "user_query": "Rewrite this",
+                "final_assistant_response": "Short",
+                "final_word_count": 1,
+                "matched_terms": [],
+                "query_message_id": "u",
+                "final_message_id": "a",
+            }
+        )
 
 
 def test_dataset_rejects_unexpected_files_and_invalid_manifest_counts(tmp_path: Path) -> None:

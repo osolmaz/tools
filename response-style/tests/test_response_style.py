@@ -97,6 +97,25 @@ def test_existing_revision_row_is_stable_when_branch_grows() -> None:
     assert revision.source_branch_id == revision.final_message_id
 
 
+def test_consecutive_user_messages_keep_revision_trigger() -> None:
+    conversation = Conversation(
+        "pi",
+        "s",
+        "s.jsonl",
+        (
+            _message("u0", None, 1, "user", "Question"),
+            _message("a0", "u0", 2, "assistant", "one two three four"),
+            _message("u1", "a0", 3, "user", "amk"),
+            _message("u2", "u1", 4, "user", "Keep the example"),
+            _message("a1", "u2", 5, "assistant", "one"),
+        ),
+    )
+    examples, _ = mine_examples((conversation,), 4)
+    assert [example.kind for example in examples] == ["revision_requested"]
+    assert examples[0].user_query == "amk\n\nKeep the example"
+    assert examples[0].query_message_id == "u2"
+
+
 def test_revision_signal_excludes_no_revision_proxy() -> None:
     conversation = Conversation(
         "pi",

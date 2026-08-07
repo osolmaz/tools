@@ -103,7 +103,7 @@ Open each `store.db` with SQLite read-only and query-only settings. Decode the l
 
 ## Deterministic mining
 
-1. Normalize each source path into ordered conversation turns.
+1. Normalize each source path into ordered conversation turns. Join consecutive user-authored messages before the next assistant response, preserving their order and using the last message as the query boundary.
 2. For adjacent turns, emit `revision_requested` when the later query contains `amk` or `plain` as a complete word and both responses exist.
 3. For every response at or above the long-response threshold, emit `no_revision_requested` when the next query contains neither the trigger words nor a conservative style-revision phrase. A terminal response uses `conversation_ended`.
 4. Derive IDs from the schema version, source agent, session, branch, and source message IDs.

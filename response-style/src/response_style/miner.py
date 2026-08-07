@@ -107,13 +107,28 @@ def _turns(nodes: tuple[MessageNode, ...]) -> tuple[Turn, ...]:
     assistant: MessageNode | None = None
     for node in nodes:
         if node.role == "user" and node.text is not None:
-            _append_turn(turns, user, assistant)
-            user = node
-            assistant = None
+            if user is not None and assistant is None:
+                user = _merge_user_messages(user, node)
+            else:
+                _append_turn(turns, user, assistant)
+                user = node
+                assistant = None
         elif node.role == "assistant" and node.text is not None and user is not None:
             assistant = node
     _append_turn(turns, user, assistant)
     return tuple(turns)
+
+
+def _merge_user_messages(first: MessageNode, second: MessageNode) -> MessageNode:
+    assert first.text is not None
+    assert second.text is not None
+    return MessageNode(
+        message_id=second.message_id,
+        parent_id=first.parent_id,
+        sequence=second.sequence,
+        role="user",
+        text=f"{first.text}\n\n{second.text}",
+    )
 
 
 def _append_turn(
