@@ -196,6 +196,26 @@ principle, the closing slogan adds nothing; delete it.
 - Bad: "That is the argument for keeping the baselines adversarial."
 - Good: (nothing; the previous sentence already made the point)
 
+**Disconnected sentence parades.** A paragraph shaped "X does Y. Z does
+W. A does B.", where every sentence introduces a new subject doing a new
+thing and nothing carries over, reads as a fact list wearing sentence
+syntax. This failure often appears after following the splitting rules
+above: breaking a long sentence or a semicolon chain is only half the
+fix, because the resulting sentences still have to hang together. Each
+sentence should pick up something from the one before, its subject, its
+consequence, or its contrast, and every sentence kept in a paragraph
+should be there for a reason the paragraph could state. If the sentences
+can be reordered without the reader noticing, the paragraph has no
+argument, and the fix is to find the through-line and subordinate the
+facts to it.
+
+- Bad: "The run reaches 30% of the ceiling. Decode reached 77% to 86% of
+  its bound. The gap says software is the limit. Sustained FLOP/s sits
+  below the bracket."
+- Good: "The run reaches about 30% of its ceiling, while decode on the
+  same stack reached 77% to 86% of its bound, so prefill leaves far more
+  of the machine idle. Headroom of that size points at the software."
+
 **Keep the subject next to its verb.** Do not stuff a list or a chain of
 qualifications between a subject and its verb. Split the sentence.
 
@@ -381,6 +401,7 @@ Before finishing any writing task, check the draft against this list:
 - No run of exactly-three lists; no anaphora chains.
 - No verbless fragments doing a sentence's job.
 - No paragraph that fills every argumentative slot; something was cut.
+- Sentences in each paragraph connect; no parade of unrelated subjects.
 - Every paragraph contains at least one named thing (a file, a person,
   a number), and no drama verbs narrate the methodology.
 - No aphorism closing a paragraph; no list wedged between a subject and
