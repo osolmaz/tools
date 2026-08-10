@@ -20,7 +20,9 @@ description: Use when preparing or updating an implementation plan, documentatio
 - After implementation, update the docs to match what actually shipped and record meaningful departures from the plan.
 - Do not spend a long time updating a large set of docs only for this purpose.
 - Use the `plain-writing` skill for all documentation.
-- Use the `simpledoc` skill and follow the SimpleDoc convention when creating or updating documentation.
+- Read the SimpleDoc specification from the local checkout at `~/repos/SimpleDoc/docs/SIMPLEDOC_SPEC.md`. Do not fetch the specification or related SimpleDoc documentation from online sources.
+- If `~/repos/SimpleDoc` is missing, clone `https://github.com/osolmaz/SimpleDoc.git` there, then read the specification from the local checkout. If the checkout exists, do not switch its branch or modify it only to read the specification.
+- Use the `simpledoc` skill and follow the locally read SimpleDoc convention when creating or updating documentation.
 - Use capitalized filenames for evergreen, long-term documentation and specifications, and dated SimpleDoc filenames for time-bound documents tied to a certain time.
 - Name specification files after the feature itself without `spec` or `specification` in the filename. The document title may include `Spec` or `Specification`.
 - End filenames for non-evergreen implementation plans with `-plan.md`, not `-implementation-plan.md`.
