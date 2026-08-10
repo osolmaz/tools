@@ -97,7 +97,7 @@ Options:
 
 - `skills/monitor/`
   Use this when periodically tracking a long-running command, remote Job, CI
-  run, deployment, or publication with one-shot Unified Exec wake timers.
+  run, deployment, or publication with the built-in Pi monitor workflow.
 
 - `skills/normalize-gpt5-writing/`
   Use this when GPT-5 should write or rewrite text in a more normal, natural,

@@ -1,84 +1,93 @@
 ---
 name: monitor
-description: Use when the user asks to monitor, watch, track, or periodically check a running command, remote Job, CI run, deployment, publication, or other long-running task. Uses Unified Exec one-shot wake timers, checks immediately and every 30 minutes by default, reports meaningful deltas, and rearms until the target reaches a terminal state.
-compatibility: Requires Unified Exec tools that support on_exit wake notifications. Monitoring lasts only while the current agent session can receive those notifications.
+description: Use when the user asks to monitor, watch, track, or periodically check a running command, remote Job, CI run, deployment, publication, or other long-running task. Uses the built-in Pi monitor workflow, checks immediately and every 30 minutes by default, infers the finish criterion from the conversation, and continues without an agent-invented check limit when no finish criterion is clear.
+compatibility: Requires Pi Workflows and the built-in monitor workflow.
 ---
 
 # Monitor
 
-Monitor long-running work with one-shot Unified Exec wake timers. A request to monitor something authorizes periodic read-only checks and wake rearming. It does not authorize canceling, restarting, scaling, deploying, publishing, or changing the target unless the user says so explicitly.
+Use the built-in Pi `monitor` workflow for periodic observation. A request to monitor something authorizes read-only checks. It does not authorize canceling, restarting, scaling, deploying, publishing, or changing the target unless the user explicitly says so.
 
-## Establish the monitor contract
+## Build the monitor contract
 
-Before arming the timer, identify:
+Derive the workflow input from the conversation:
 
-- The exact target and its stable identifier.
-- The source of truth for status.
-- Durable progress records such as receipts, checkpoints, manifests, or output files.
-- The terminal success and failure states.
-- Any follow-up actions the user has explicitly authorized.
-- The check interval. Use 30 minutes when the user gives no interval.
+- `task`: Identify the exact target, its stable identifier, the authoritative status source, and the durable progress or final-output surfaces to inspect.
+- `everyMinutes`: Use the user's interval. Use `30` when the user gives no interval.
+- `reportWhen`: Follow the user's reporting request. Otherwise, report meaningful progress, state changes, failures, blocked states, completion, and important approval boundaries. Do not report repetitive unchanged checks unless the user asks for every check.
+- `stopWhen`: Infer the finish criterion from the full conversation. Use the target's verified terminal success or failure state when that is the clear endpoint. Include required final artifacts, receipts, publication state, or downstream health when the request makes them part of completion.
 
-Run the first check immediately. Do not wait 30 minutes before collecting the baseline.
+Do not ask only because the finish criterion is unclear. When the conversation gives no clear finish criterion, set `stopWhen` to `Stop only when the user explicitly asks to stop.`
 
-For paid compute, load the applicable paid-compute and runtime skills before starting or continuing work. Monitoring does not expand a cost, time, hardware, retry, or method approval.
+Do not invent a finite check count. Omit `maxChecks` unless the user explicitly requests a bounded number of checks. In particular, never add a small test limit such as two checks without the user's instruction. When `maxChecks` is omitted, do not claim that the run is mathematically infinite: the workflow host can apply its own safety upper bound. Disclose that bound if it appears.
 
-## Arm one one-shot wake
+Run the first check immediately through the workflow. The workflow then applies the requested interval.
 
-Use Unified Exec to start a sleep that exits once:
+For paid compute, load the applicable paid-compute and runtime skills before monitoring. Monitoring does not expand a cost, time, hardware, retry, or method approval.
+
+## Start the workflow
+
+Start the built-in workflow with this shape:
 
 ```text
-exec_command({
-  cmd: "sleep 1800",
-  workdir: "<relevant working directory>",
-  yield_time_ms: 1000,
-  on_exit: "wake"
+workflow({
+  action: "start",
+  workflow: "monitor",
+  input: {
+    task: "<concrete observation task>",
+    everyMinutes: 30,
+    reportWhen: "<derived reporting condition>",
+    stopWhen: "<derived finish criterion or explicit-user-stop fallback>"
+  }
 })
 ```
 
-Convert a user-supplied interval to seconds. Record the returned session ID.
+Use the user-supplied interval instead of `30` when present. Add `maxChecks` only when the user explicitly supplies that limit.
 
-Use one-shot sleeps because `on_exit: "wake"` wakes the agent when the process exits. A perpetual shell loop wakes the agent only when the loop itself exits, so it cannot drive periodic checks.
+Do not start a second monitor for the same target while one is active. If the target or contract changes, cancel the old run before starting the replacement.
 
-Keep exactly one wake timer armed for a monitor. Do not create a system service, cron entry, scheduler installation, or always-on loop. Do not use `yield_until` for this pattern.
+## Complete workflow checks
 
-## Handle a wake notification
+Each workflow check arrives with an exact step contract. Observe only unless the monitoring task explicitly authorizes a mutation.
 
-A Unified Exec completion notification is execution metadata. It does not replace the user's monitoring instruction. Continue the monitoring task instead of merely acknowledging the notification.
+For each check:
 
-On every wake:
+1. Query the target's authoritative status.
+2. Query durable progress and final-output surfaces. Run independent reads in parallel when useful.
+3. Compare the current values with the previous accepted observation.
+4. Report absolute totals and meaningful deltas when counters matter.
+5. Select the route that matches the contract:
+   - `continue_quiet`: keep monitoring without a user report.
+   - `continue_report`: report and keep monitoring.
+   - `stop_quiet`: stop without a user report.
+   - `stop_report`: report the final state and stop.
+6. Call `workflow` with `action: "submit"` exactly once, using the supplied step and attempt IDs and the required output shape.
 
-1. Drain the exited session with an empty `write_stdin` call when the session is still known. If it is no longer available, read its reported log path when output matters.
-2. Query the target's authoritative status.
-3. Query durable progress and final-output surfaces. Run independent checks in parallel.
-4. Compare the new values with the prior check. Report absolute totals and meaningful deltas.
-5. Apply the terminal-state rules below.
+When the workflow requests a report acknowledgement, write only the requested concise user update, then submit the acknowledgement exactly as specified.
 
-A sleep normally has no useful output, but the target checks still need to run after every wake.
-
-## Terminal-state rules
+## Apply finish rules
 
 ### Still active
 
-Rearm the next one-shot wake before sending the status update. Keep the update short unless something changed materially.
+Continue. Keep reports short unless the state changed materially.
 
 ### Completed
 
-Do not rearm. Verify the expected final artifacts, checksums, receipts, publication state, or downstream health before reporting completion. Continue any finalization steps only when they were part of the user's request or explicitly authorized.
+Stop only after the inferred finish criterion is true. Verify required final artifacts, checksums, receipts, publication state, or downstream health before using `stop_report`.
 
 ### Failed, stopped, or blocked
 
-Do not rearm automatic recovery unless the user already authorized that exact action under the current facts. Preserve durable work, inspect the failure evidence, and report the next safe action.
+Stop and report unless the conversation clearly defines that state as recoverable and continued observation is still useful. Do not restart or recover automatically unless the user already authorized that exact action under the current facts.
 
-If a new defect, changed method, changed cost estimate, invalid backend, or other broken assumption appears, suspend any standing restart instruction and ask again. Never keep paid workers retrying a deterministic shared failure.
+If a new defect, changed method, changed cost estimate, invalid backend, or other broken assumption appears, stop any automatic continuation that depended on the old assumption and ask again. Never keep paid workers retrying a deterministic shared failure.
 
 ### Status unavailable
 
-Retry only a cheap, bounded status read. If the source of truth remains unavailable, report the gap and rearm only when continued observation is still safe.
+Retry only a cheap, bounded status read. If the source remains unavailable, report the gap. Continue only when observation remains safe and the finish criterion is not met.
 
 ## Check the right surfaces
 
-A useful monitor usually checks more than process state. Depending on the target, inspect:
+Depending on the target, inspect:
 
 - Process, Job, workflow, CI, or deployment status.
 - Durable receipts and counters.
@@ -88,19 +97,9 @@ A useful monitor usually checks more than process state. Depending on the target
 
 Logs and progress counters alone do not prove saved work or completion. Prefer durable artifacts and authoritative remote state.
 
-When counters matter, report the raw totals first. Examples include completed calls, reserved calls, rows, cost, tokens, units, artifacts, and remaining approved headroom. Do not infer that a metric is healthy merely because it is increasing.
+## Stop on user request
 
-## Handle conversation interruptions
-
-The user may ask unrelated questions while a timer remains armed. Answer them without creating a second timer. The existing wake still owns the next check.
-
-If a timer becomes stale because monitoring ended or the target changed, disarm it with `set_on_exit({ session_id, on_exit: "none" })` when the process should continue silently, or terminate it with `kill_session` when the sleep is no longer needed.
-
-## Session boundary
-
-This pattern is supervised monitoring tied to the current agent session. It does not guarantee checks while Pi or the host session is closed.
-
-Unattended scheduling needs a durable controller host such as Pi Workflows. Installing or running that host persistently is a separate decision and requires explicit authorization.
+When the user asks to stop, cancel the active monitor workflow with `workflow({ action: "cancel" })` and confirm that monitoring stopped. Do not wait for the next scheduled check.
 
 ## Status format
 
@@ -108,7 +107,7 @@ For an unchanged active target, prefer a compact report:
 
 ```text
 Target remains running:
-- Progress: <absolute total> (<delta since last check>)
+- Progress: <absolute total> (<delta since last report>)
 - Cost or resource use: <total>
 - Durable output: <state>
 - Next check: <interval>
