@@ -96,8 +96,8 @@ Options:
   are free, taken, reserved, or still need manual verification.
 
 - `skills/monitor/`
-  Use this when periodically tracking a long-running command, remote Job, CI
-  run, deployment, or publication with the built-in Pi monitor workflow.
+  Use this to start a same-session Pi monitor autopilot that tracks, repairs,
+  resumes, and drives a long-running objective to verified completion.
 
 - `skills/normalize-gpt5-writing/`
   Use this when GPT-5 should write or rewrite text in a more normal, natural,
