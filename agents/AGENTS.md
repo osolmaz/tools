@@ -75,6 +75,15 @@
 - A repository owned by `osolmaz` is not exempt merely because it is important. Add an owned repository to the exception list only when the user explicitly says so.
 - Explicit user instructions for a task override this default.
 
+## Remote store reuse policy
+
+- Before creating any GitHub repository, Hugging Face repository or Dataset, Bucket, index, artifact store, or coordination store, inventory existing stores that can serve the same purpose.
+- Reuse the canonical existing store. Do not create a project-specific duplicate to solve an access, privacy, naming, or migration problem.
+- An access failure does not authorize a replacement store or a visibility change.
+- If no suitable store exists, report the proposed name, purpose, owner, visibility, retention policy, and rejected alternatives. Get explicit user approval before creation.
+- Default an approved new benchmark store to private and verify its privacy immediately after creation.
+- `osolmaz/benchmark-run-index` is the canonical Hugging Face Dataset for benchmark publication indexes. Do not create another benchmark index Dataset unless the user explicitly approves it.
+
 ## Tools repo agent context
 
 - Repository: https://github.com/osolmaz/tools.
