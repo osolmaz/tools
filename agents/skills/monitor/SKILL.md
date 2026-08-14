@@ -27,7 +27,7 @@ Do not finish the initiating turn before the workflow start call. If a safe cont
 Derive the workflow input from the full conversation:
 
 - `task`: State the complete objective, the exact current target and stable identifiers, authoritative status sources, durable progress and final-output surfaces, approved recovery actions, immutable boundaries, cost and credential rules, and required validation or downstream operations.
-- `everyMinutes`: Use the user's interval. Use `30` when the user gives no interval.
+- `everyMinutes`: Use the user's interval, but never use an interval shorter than `10`. If the user requests a shorter interval, use `10` and disclose the adjustment. Use `30` when the user gives no interval.
 - `reportWhen`: Follow the user's request. Otherwise, report meaningful durable progress, recovery actions, state changes, failures, blocked states, cost risk, completion, and material ETA changes. Do not report repetitive unchanged checks unless the user asks for every check.
 - `stopWhen`: Describe verified completion of the full objective, not the end of one physical process. Also name the material blockers that require human intervention.
 
@@ -60,7 +60,7 @@ workflow({
 })
 ```
 
-Use the user-supplied interval instead of `30` when present. Add `maxChecks` only when the user explicitly supplies that limit.
+Use the user-supplied interval instead of `30` when present, clamped to a minimum of `10`. Disclose the adjustment when the requested interval is shorter than `10`. Add `maxChecks` only when the user explicitly supplies that limit.
 
 Do not start a second monitor for the same objective while one is active. Update or replace the run only when the objective or contract changes. A replacement must preserve the previous accepted observation and durable recovery state.
 
