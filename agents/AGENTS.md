@@ -46,6 +46,7 @@
 - A substantial launch requires measured throughput, a low and high cost estimate, cheaper hardware or reuse alternatives, a cost ceiling, and explicit approval after those facts are presented.
 - A long output-producing Job must publish durable partial outputs and pass a real pause-resume canary. Logs and progress counters do not count as saved work.
 - When one Job reveals a deterministic defect in shared worker code or data assumptions, pause the affected fleet at safe boundaries before retrying. Do not leave sibling Jobs running known-vulnerable code.
+- Treat a valid empty-input outcome, such as audio with no detected speech, as a normal data state rather than a shared defect when the output contract can represent it without fabrication. Save an explicit empty or no-content result with its receipt and continue unaffected work. Stop only when the contract has no unambiguous empty representation or the evidence suggests a broader defect.
 - Verify historical runtime claims from source Job records. State every mismatch in model, decoding, batch size, hardware, row count, or input distribution.
 - Stop automatic continuation whenever observed cost, method, hardware, failure state, or checkpoint-reuse assumptions differ from what the user approved.
 
