@@ -226,6 +226,24 @@ Before considering work complete:
    modes where relevant.
 5. Run `/reload` or restart Pi and verify discovery from the intended scope.
 
+## Check Provider Usage
+
+When the user asks for current Codex or provider usage, first check whether the
+configured Pi packages include `@onurpi/pi-usage`. If it is available, use its
+interactive `/usage` command instead of estimating usage or calling an
+undocumented provider endpoint:
+
+1. Start a temporary `pi --no-session` process with a TTY.
+2. Enter `/usage` and wait for the current-provider report.
+3. Read the primary and model-specific limits, reset times, credits, and plan.
+4. Close the menu with Escape, then exit the temporary Pi process.
+
+Report remaining percentages exactly as displayed. Do not convert a percentage
+to token counts because subscription limits are not token quotas. Do not expose
+credentials, raw provider payloads, or unrelated session state. If the package
+is unavailable or the query fails, state that current account usage is not
+visible instead of guessing.
+
 ## Local Pi State
 
 Treat `~/.pi/agent/` as live user state. Inspect before changing it, back up
