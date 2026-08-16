@@ -27,9 +27,8 @@ Do not finish the initiating turn before the workflow start call. If a safe cont
 Derive the workflow input from the full conversation:
 
 - `task`: State the complete objective, the exact current target and stable identifiers, authoritative status sources, durable progress and final-output surfaces, approved recovery actions, immutable boundaries, cost and credential rules, and required validation or downstream operations.
-- `everyMinutes`: Use the user's interval, but never use an interval shorter than `10`. If the user requests a shorter interval, use `10` and disclose the adjustment. Use `30` when the user gives no interval.
-- `reportWhen`: Follow the user's request. Otherwise, report meaningful durable progress, recovery actions, state changes, failures, blocked states, cost risk, completion, and material ETA changes. Do not report repetitive unchanged checks unless the user asks for every check.
-- `stopWhen`: Describe verified completion of the full objective, not the end of one physical process. Also name the material blockers that require human intervention.
+- `everyMinutes`: Use the user's interval when present. Use `30` when the user gives no interval. The built-in workflow accepts intervals from 1 minute through 24 hours.
+- `stopWhen`: Infer verified completion from the full conversation. Describe completion of the complete objective, not only the end of one physical process. Also name material blockers that require human intervention.
 
 When the conversation gives no clear finish criterion, set `stopWhen` to `Stop only when the user explicitly asks to stop.` Do not use that fallback when a broader implementation, repair, publication, or deployment objective is clear from context.
 
@@ -54,13 +53,12 @@ workflow({
   input: {
     task: "<complete objective, contract, recovery authority, and verification task>",
     everyMinutes: 30,
-    reportWhen: "<derived reporting condition>",
     stopWhen: "<derived finish criterion or explicit-user-stop fallback>"
   }
 })
 ```
 
-Use the user-supplied interval instead of `30` when present, clamped to a minimum of `10`. Disclose the adjustment when the requested interval is shorter than `10`. Add `maxChecks` only when the user explicitly supplies that limit.
+Use the user-supplied interval instead of `30` when present. Add `maxChecks` only when the user explicitly supplies that limit. Do not send `reportWhen`; the current monitor reports every accepted check.
 
 Do not start a second monitor for the same objective while one is active. Update or replace the run only when the objective or contract changes. A replacement must preserve the previous accepted observation and durable recovery state.
 
@@ -74,15 +72,28 @@ For each check:
 2. Query durable progress and final-output surfaces. Run independent reads in parallel when useful.
 3. Compare the current values with the previous accepted observation.
 4. If operation is not nominal, preserve evidence, diagnose the issue, apply the smallest authorized repair, and verify that durable progress resumes. Fix issues and restart Jobs or processes when that is necessary to keep the same objective moving.
-5. Report absolute totals and meaningful deltas when counters matter.
-6. Select the route that matches the contract:
-   - `continue_quiet`: keep monitoring without a user report.
-   - `continue_report`: report and keep monitoring.
-   - `stop_quiet`: stop without a user report.
-   - `stop_report`: report the final state and stop.
+5. Include a concise report for every accepted check. Report absolute totals and meaningful deltas when counters matter.
+6. Select `continue` or `stop` as required by the step contract.
 7. Call `workflow` with `action: "submit"` exactly once, using the supplied step and attempt IDs and the required output shape.
 
-When the workflow requests a report acknowledgement, write only the requested concise user update, then submit the acknowledgement exactly as specified.
+The workflow sends each report as a Pi notification. Notifications do not start a new assistant turn. Do not add a separate assistant reply to a workflow notification.
+
+## Publish progress when measurable
+
+Progress is optional. Do not invent it for work that has no factual count, total, rate, or source estimate.
+
+When the target exposes measurable progress, include one or more tracks in the check output. Use a stable key for each independent process or workstream. Use `overall` for a real aggregate only; do not add unrelated tracks together.
+
+Each track uses `pi-workflows.progress.v1` and can include:
+
+- `status`: `pending`, `running`, `waiting`, `blocked`, `completed`, `failed`, `cancelled`, or `unknown`;
+- `label` and `phase` for short display text and estimation epochs;
+- `completed`, `total`, and `unit` for factual counts;
+- `sourceUpdatedAt` and `sourceEstimatedFinishAt` when the target provides its own fresh estimate.
+
+Submit observed facts. The workflow computes rates, confidence, remaining work, and measured ETA from durable samples. Do not guess a count, rate, or ETA. A changed phase, total, unit, or lower completed count starts a new estimation epoch.
+
+For several concurrent processes, publish one stable track per process. The Pi widget and viewers show them separately and keep each ETA independent.
 
 ## Apply finish rules
 
@@ -92,7 +103,7 @@ Continue. Keep reports short unless the state changed materially.
 
 ### Completed
 
-Stop only after the inferred finish criterion is true. Verify required final artifacts, checksums, receipts, publication state, or downstream health before using `stop_report`.
+Stop only after the inferred finish criterion is true. Verify required final artifacts, checksums, receipts, publication state, or downstream health before selecting `stop`.
 
 ### Failed, stopped, or blocked
 
