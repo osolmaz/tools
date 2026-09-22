@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# record-mode — one-command video recording environment.
+#
+# Usage:
+#   record-mode start     Hide Dock + desktop icons, launch themed Ghostty
+#                         (Herdr "recording" session) and the clean Chrome profile.
+#   record-mode terminal  Launch only the themed Ghostty window with the Herdr
+#                         "recording" session.
+#   record-mode restore   Bring back Dock + desktop icons.
+#   record-mode chrome    Launch only the clean Chrome recording profile.
+#   record-mode hide      Hide Dock + desktop icons only.
+#   record-mode show      Show Dock + desktop icons only.
+
+set -euo pipefail
+
+GHOSTTY_APP="Ghostty"
+HERDR_RECORDING="$HOME/.local/bin/herdr-recording"
+CHROME_PROFILE="$HOME/.chrome-record"
+CHROME_APP="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+HERDR_SESSION="recording"
+# Separate client state for the recording window. Herdr reads its saved SSH
+# machines from $XDG_STATE_HOME/herdr/client, so an isolated state dir keeps
+# the recording window from connecting to Onur's saved machines.
+HERDR_STATE_DIR="$HOME/.local/state/herdr-recording"
+
+hide_recording_chrome() {
+    defaults write com.apple.dock autohide -bool true
+    defaults write com.apple.finder CreateDesktop -bool false
+    killall Dock Finder 2>/dev/null || true
+}
+
+show_recording_chrome() {
+    defaults write com.apple.dock autohide -bool false
+    defaults write com.apple.finder CreateDesktop -bool true
+    killall Dock Finder 2>/dev/null || true
+}
+
+launch_chrome() {
+    mkdir -p "$CHROME_PROFILE"
+    "$CHROME_APP" \
+        --user-data-dir="$CHROME_PROFILE" \
+        --no-first-run \
+        --no-default-browser-check \
+        --start-maximized \
+        "about:blank" >/dev/null 2>&1 &
+}
+
+launch_terminal() {
+    [ -x "$HERDR_RECORDING" ] || { echo "missing $HERDR_RECORDING" >&2; exit 1; }
+    # Ghostty has no --config-file flag for launching; config keys go as
+    # --key=value args, and they override the user's normal config.
+    #
+    # `open` hands the caller's environment to the new instance, so strip the
+    # inherited HERDR_* variables. Without this, Herdr refuses to start with
+    # "nested herdr is disabled by default", and the window would otherwise
+    # claim to be inside the pane that launched it. The recording window must
+    # be a separate top-level Herdr. No Herdr update runs here.
+    env -u HERDR_ENV -u HERDR_SOCKET_PATH -u HERDR_BIN_PATH \
+        -u HERDR_WORKSPACE_ID -u HERDR_TAB_ID -u HERDR_PANE_ID \
+        -u HERDR_STARTUP_CWD \
+        XDG_STATE_HOME="$HERDR_STATE_DIR" \
+        open -na "$GHOSTTY_APP" --args \
+        --theme="Catppuccin Mocha" \
+        --window-padding-x=24 \
+        --window-padding-y=24 \
+        --window-padding-balance=true \
+        --background-opacity=1 \
+        --background-blur=0 \
+        --command="$HERDR_RECORDING"
+}
+
+case "${1:-}" in
+    start)
+        hide_recording_chrome
+        launch_terminal
+        launch_chrome
+        echo "Recording mode on. Screen Studio: record a custom area that excludes the menu bar."
+        ;;
+    restore)
+        show_recording_chrome
+        echo "Dock and desktop icons restored."
+        ;;
+    chrome)
+        launch_chrome
+        ;;
+    terminal)
+        launch_terminal
+        ;;
+    hide)
+        hide_recording_chrome
+        ;;
+    show)
+        show_recording_chrome
+        ;;
+    *)
+        grep '^#   record-mode' "$0"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Start the isolated Herdr session used for video recording.
+# GUI apps do not inherit the login shell PATH, so use the absolute path.
+exec /Users/onur/.local/bin/herdr --session recording

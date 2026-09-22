@@ -1,0 +1,9 @@
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+[ui]
+show_agent_labels_on_pane_borders = false
+[ui.toast]
+delivery = "system"

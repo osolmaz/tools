@@ -3,7 +3,17 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux install-claude
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux install-claude install-recording-mode install-herdr
+
+install-recording-mode:
+	mkdir -p ~/.local/bin
+	cp -f scripts/record-mode ~/.local/bin/record-mode
+	cp -f scripts/herdr-recording ~/.local/bin/herdr-recording
+	chmod +x ~/.local/bin/record-mode ~/.local/bin/herdr-recording
+
+install-herdr:
+	mkdir -p ~/.config/herdr
+	cp -f .config/herdr/config.toml ~/.config/herdr/config.toml
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -72,6 +82,10 @@ backup-claude:
 	./scripts/claude-settings backup
 
 copy: backup-claude
+	cp -f ~/.local/bin/record-mode scripts/record-mode
+	cp -f ~/.local/bin/herdr-recording scripts/herdr-recording
+	mkdir -p .config/herdr
+	cp -f ~/.config/herdr/config.toml .config/herdr/config.toml
 	cp -f ~/.vimrc .vimrc
 	mkdir -p .i3
 	mkdir -p .config
