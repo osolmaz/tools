@@ -1,0 +1,101 @@
+#!/bin/bash
+# Switch the Ghostty theme live by rewriting the `theme` line in the config.
+# Ghostty re-applies config when a window regains focus (or cmd+shift+,).
+#
+# Usage:
+#   ghostty-theme              browse all themes with live preview
+#   ghostty-theme <name>       switch to a named theme
+#   ghostty-theme --cycle      next theme in the cycle list below
+set -euo pipefail
+
+GHOSTTY=/Applications/Ghostty.app/Contents/MacOS/ghostty
+GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+CONFIG="$GHOSTTY_DIR/config.ghostty"
+COMMON="$GHOSTTY_DIR/common.ghostty"
+
+# Themes the --cycle shortcut rotates through, in order.
+CYCLE=(
+    "iTerm2 Solarized Dark"
+    "Catppuccin Mocha"
+    "Catppuccin Macchiato"
+    "Catppuccin Frappe"
+    "Catppuccin Latte"
+    "iTerm2 Solarized Light"
+)
+
+# The theme line may live in config.ghostty (flattened setups) or
+# common.ghostty (structured setups). Print the first file that has it.
+theme_file() {
+    local f
+    for f in "$CONFIG" "$COMMON"; do
+        if [[ -f "$f" ]] && grep -q '^theme = ' "$f"; then
+            printf '%s\n' "$f"
+            return 0
+        fi
+    done
+    return 1
+}
+
+set_theme() {
+    local name="$1" file
+    file=$(theme_file) || {
+        echo "No 'theme =' line found in $CONFIG or $COMMON" >&2
+        exit 1
+    }
+    sed -i '' -E "s|^theme = .*|theme = \"$name\"|" "$file"
+    # Ask running Ghostty instances to reload. SIGUSR2 is Ghostty's documented
+    # config-reload signal, not a termination. Upstream quirk: it is skipped
+    # while Ghostty is focused, so from inside Ghostty press cmd+shift+,
+    pkill -USR2 -x ghostty 2>/dev/null || true
+    echo "Switched to '$name'. If it didn't apply, press cmd+shift+, in Ghostty."
+}
+
+resolve_name() {
+    # Accept any case; require an unambiguous match against the built-in list.
+    local name="$1" candidates match
+    match=$("$GHOSTTY" +list-themes 2>/dev/null | sed -E 's/ \([^)]*\)$//' | grep -iFx "$name" || true)
+    if [[ -n "$match" ]]; then
+        printf '%s' "$match"
+        return
+    fi
+    candidates=$("$GHOSTTY" +list-themes 2>/dev/null | sed -E 's/ \([^)]*\)$//' | grep -i "$name" || true)
+    if [[ -z "$candidates" ]]; then
+        echo "No theme matching '$name'. Run 'ghostty-theme' with no args to browse." >&2
+        exit 1
+    fi
+    if [[ $(printf '%s\n' "$candidates" | wc -l) -gt 1 ]]; then
+        echo "'$name' is ambiguous:" >&2
+        printf '%s\n' "$candidates" >&2
+        exit 1
+    fi
+    printf '%s' "$candidates"
+}
+
+if [[ $# -eq 0 ]]; then
+    exec "$GHOSTTY" +list-themes
+fi
+
+if [[ "$1" == "--cycle" ]]; then
+    file=$(theme_file) || {
+        echo "No 'theme =' line found in $CONFIG or $COMMON" >&2
+        exit 1
+    }
+    raw=$(grep -m1 '^theme = ' "$file")
+    current=${raw#*theme = }
+    current=${current%\"}
+    current=${current#\"}
+    next=""
+    for i in "${!CYCLE[@]}"; do
+        if [[ "${CYCLE[$i]}" == "$current" ]]; then
+            next=${CYCLE[$(((i + 1) % ${#CYCLE[@]}))]}
+            break
+        fi
+    done
+    if [[ -z "$next" ]]; then
+        next=${CYCLE[0]}
+    fi
+    set_theme "$next"
+    exit 0
+fi
+
+set_theme "$(resolve_name "$*")"

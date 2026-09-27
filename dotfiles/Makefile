@@ -57,6 +57,9 @@ install-ghostty:
 	mkdir -p "$$HOME/Library/Application Support/com.mitchellh.ghostty"
 	cp -f ghostty/common.ghostty "$$HOME/Library/Application Support/com.mitchellh.ghostty/common.ghostty"
 	cp -f ghostty/macos.ghostty "$$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+	mkdir -p ~/.local/bin
+	cp -f scripts/ghostty-theme ~/.local/bin/ghostty-theme
+	chmod +x ~/.local/bin/ghostty-theme
 
 install-ghostty-linux:
 	mkdir -p "$$HOME/.config/ghostty"
@@ -84,6 +87,7 @@ backup-claude:
 copy: backup-claude
 	cp -f ~/.local/bin/record-mode scripts/record-mode
 	cp -f ~/.local/bin/herdr-recording scripts/herdr-recording
+	cp -f ~/.local/bin/ghostty-theme scripts/ghostty-theme
 	mkdir -p .config/herdr
 	cp -f ~/.config/herdr/config.toml .config/herdr/config.toml
 	cp -f ~/.vimrc .vimrc
