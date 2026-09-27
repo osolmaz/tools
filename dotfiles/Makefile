@@ -3,7 +3,7 @@
 all:
 	@echo Run \'make install\' to install the config files to your system.
 
-install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux install-claude install-recording-mode install-herdr
+install: install-vimrc install-emacsd install-i3 install-bashrc install-zshrc install-conkyrc install-Xresources install-urxvt-perls install-terminator install-aerospace install-iterm2 install-ghostty install-cmux install-zed install-tmux install-claude install-recording-mode install-herdr install-hammerspoon
 
 install-recording-mode:
 	mkdir -p ~/.local/bin
@@ -14,6 +14,10 @@ install-recording-mode:
 install-herdr:
 	mkdir -p ~/.config/herdr
 	cp -f .config/herdr/config.toml ~/.config/herdr/config.toml
+
+install-hammerspoon:
+	mkdir -p ~/.hammerspoon
+	cp -f .hammerspoon/init.lua ~/.hammerspoon/init.lua
 
 install-emacsd:
 	git submodule update --init --recursive
@@ -88,6 +92,8 @@ copy: backup-claude
 	cp -f ~/.local/bin/record-mode scripts/record-mode
 	cp -f ~/.local/bin/herdr-recording scripts/herdr-recording
 	cp -f ~/.local/bin/ghostty-theme scripts/ghostty-theme
+	mkdir -p .hammerspoon
+	cp -f ~/.hammerspoon/init.lua .hammerspoon/init.lua
 	mkdir -p .config/herdr
 	cp -f ~/.config/herdr/config.toml .config/herdr/config.toml
 	cp -f ~/.vimrc .vimrc
