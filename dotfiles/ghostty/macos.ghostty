@@ -10,5 +10,5 @@ window-padding-y = 0
 
 macos-option-as-alt = false
 
-auto-update = check
+auto-update = download
 auto-update-channel = tip
