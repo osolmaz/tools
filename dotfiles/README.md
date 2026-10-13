@@ -36,6 +36,15 @@ The `theme` line in `ghostty/common.ghostty` records the last selected theme,
 so it changes whenever the hotkey cycles. `make copy` refreshes it from the
 live config.
 
+The hotkey needs the Hammerspoon app, which `make install` does not provide:
+install it (`brew install --cask hammerspoon`), launch it once, allow it
+Accessibility access in System Settings, and enable launch at login. The
+alert "Hammerspoon: theme hotkey active" confirms the config loaded.
+
+Ghostty skips the config reload signal while it is the focused app, so a
+cycle pressed from inside Ghostty applies on the next refocus, or press
+cmd+shift+, to reload at once.
+
 ## Recording mode
 
 `scripts/record-mode` starts the video recording environment: a separate
