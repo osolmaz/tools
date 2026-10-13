@@ -19,6 +19,23 @@ make backup-claude
 make install-claude
 ```
 
+## Ghostty theme switching
+
+`scripts/ghostty-theme` switches the Ghostty theme live: run it with no
+arguments to browse themes, with a theme name to switch, or `--cycle` to
+rotate through a fixed list. A Hammerspoon hotkey, ctrl+opt+cmd+T, runs
+`ghostty-theme --cycle` from any app.
+
+```sh
+make install-ghostty install-hammerspoon
+```
+
+This installs the Ghostty config from `ghostty/`, the switcher script to
+`~/.local/bin/ghostty-theme`, and the hotkey from `.hammerspoon/init.lua`.
+The `theme` line in `ghostty/common.ghostty` records the last selected theme,
+so it changes whenever the hotkey cycles. `make copy` refreshes it from the
+live config.
+
 ## Recording mode
 
 `scripts/record-mode` starts the video recording environment: a separate

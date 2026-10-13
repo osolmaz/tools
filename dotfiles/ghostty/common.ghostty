@@ -4,7 +4,7 @@
 
 font-synthetic-style = bold,italic,bold-italic
 
-theme = "iTerm2 Solarized Dark"
+theme = "Catppuccin Mocha"
 
 cursor-style = block
 cursor-style-blink = false

@@ -5,5 +5,6 @@ name = "terminal"
 
 [ui]
 show_agent_labels_on_pane_borders = false
+status_indicators = "dots"
 [ui.toast]
 delivery = "system"
