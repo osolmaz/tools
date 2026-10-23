@@ -13,7 +13,6 @@ See [Having a "tools" repo as a developer](https://solmaz.io/tools-repo).
 - [`chardiff/`](chardiff/) is a character-level diff tool in a single HTML page.
 - [`claude-code-data/`](claude-code-data/) is a library for parsing and analyzing Claude Code conversation files.
 - [`codex-tools/`](codex-tools/) inspects and repairs local Codex session metadata.
-- [`dotfiles/`](dotfiles/) syncs personal configs, including Ghostty settings with a theme switcher and a Hammerspoon hotkey.
 - [`padify/`](padify/) adds padding to images, which is handy for terminal screenshots.
 - [`pngscrub/`](pngscrub/) inspects and removes private PNG metadata without changing image data.
 - [`prooompter/`](prooompter/) constructs prompts from files that fit the context window.
